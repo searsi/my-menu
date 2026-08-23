@@ -3,152 +3,355 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Karak Cafe - Live Menu</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <title>Iraqi Food & Cafe Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #121212;
-      --card-bg: #1e1e1e;
-      --accent: #d4af37;
+      --bg: #0f0f12;
+      --header-bg: #18181c;
+      --card-bg: #1c1c21;
+      --accent: #e5b849;
+      --accent-gradient: linear-gradient(135deg, #f39c12, #d4af37);
       --text: #ffffff;
-      --text-muted: #a0a0a0;
+      --text-muted: #a5a5ab;
+      --border: rgba(255, 255, 255, 0.08);
+      --nav-btn-bg: #23232a;
+      --search-bg: #23232a;
+      --danger: #ff4757;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding-bottom: 40px; }
+    [data-theme="light"] {
+      --bg: #f4f5f8;
+      --header-bg: #ffffff;
+      --card-bg: #ffffff;
+      --accent: #d4a017;
+      --accent-gradient: linear-gradient(135deg, #e67e22, #d4af37);
+      --text: #1a1a1e;
+      --text-muted: #6c757d;
+      --border: rgba(0, 0, 0, 0.08);
+      --nav-btn-bg: #f0f1f5;
+      --search-bg: #f0f1f5;
+      --shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+    body { background-color: var(--bg); color: var(--text); padding-bottom: 80px; }
 
     header {
-      background: #1a1a1a; padding: 20px 15px 10px; text-align: center;
-      border-bottom: 1px solid #2d2d2d; sticky: top;
+      background: var(--header-bg); padding: 20px 15px 15px; text-align: center;
+      border-bottom: 1px solid var(--border); box-shadow: var(--shadow); position: relative;
     }
-    .brand { font-size: 1.8rem; color: var(--accent); font-weight: 700; margin-bottom: 10px; }
+    .brand {
+      font-size: 1.8rem; font-weight: 800;
+      background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 10px; letter-spacing: -0.5px;
+    }
 
-    /* أزرار اللغات */
-    .langs { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
+    .header-top { display: flex; justify-content: center; align-items: center; gap: 12px; margin-bottom: 12px; }
+    
+    .langs { display: flex; gap: 6px; }
     .lang-btn {
-      background: #2a2a2a; color: #fff; border: 1px solid #444;
-      padding: 5px 14px; border-radius: 20px; font-size: 0.8rem; cursor: pointer;
+      background: var(--search-bg); color: var(--text); border: 1px solid var(--border);
+      padding: 5px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer;
     }
-    .lang-btn.active { background: var(--accent); color: #000; font-weight: bold; border-color: var(--accent); }
+    .lang-btn.active { background: var(--accent-gradient); color: #fff; border-color: transparent; box-shadow: 0 2px 8px rgba(212,175,55,0.4); }
 
-    /* حقل البحث */
+    .theme-toggle {
+      background: var(--search-bg); border: 1px solid var(--border); color: var(--text);
+      width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    }
+
     .search-box {
-      width: 100%; max-width: 500px; margin: 10px auto 0; padding: 10px 15px;
-      border-radius: 25px; border: 1px solid #333; background: #252525; color: #fff; outline: none;
+      width: 100%; max-width: 500px; padding: 10px 18px;
+      border-radius: 25px; border: 1px solid var(--border); background: var(--search-bg); color: var(--text); outline: none;
+      font-size: 0.9rem;
     }
+    .search-box:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2); }
 
-    /* شريط التناقل */
     .nav-bar {
-      display: flex; gap: 8px; overflow-x: auto; padding: 12px 15px;
-      position: sticky; top: 0; background: var(--bg); z-index: 90; border-bottom: 1px solid #222;
-      scrollbar-width: none;
+      display: flex; gap: 10px; overflow-x: auto; padding: 12px 15px;
+      position: sticky; top: 0; background: var(--bg); z-index: 90; border-bottom: 1px solid var(--border);
+      scrollbar-width: none; backdrop-filter: blur(10px);
     }
     .nav-bar::-webkit-scrollbar { display: none; }
-    .nav-link {
-      white-space: nowrap; background: #1f1f1f; color: var(--text-muted);
-      padding: 6px 14px; border-radius: 12px; text-decoration: none; font-size: 0.85rem; border: 1px solid #2e2e2e;
+    .nav-btn {
+      white-space: nowrap; background: var(--nav-btn-bg); color: var(--text-muted);
+      padding: 8px 18px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; border: 1px solid var(--border); cursor: pointer;
+    }
+    .nav-btn.active { background: var(--accent-gradient); color: #fff; border-color: transparent; box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3); }
+
+    .container { padding: 20px 15px; max-width: 850px; margin: 0 auto; }
+    
+    .menu-section { margin-bottom: 35px; }
+    .sec-title {
+      font-size: 1.25rem; font-weight: 800; color: var(--text); margin-bottom: 15px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .sec-title::before {
+      content: ''; display: inline-block; width: 5px; height: 22px;
+      background: var(--accent-gradient); border-radius: 4px;
     }
 
-    .container { padding: 15px; max-width: 800px; margin: 0 auto; }
-    .sec-title { font-size: 1.2rem; color: var(--accent); margin: 25px 0 12px; border-right: 4px solid var(--accent); padding-right: 8px; }
-    html[dir="ltr"] .sec-title { border-right: none; border-left: 4px solid var(--accent); padding-left: 8px; }
-
-    /* بطاقات المنيو */
-    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    
     .card {
-      background: var(--card-bg); border-radius: 14px; overflow: hidden;
-      border: 1px solid #282828; cursor: pointer; transition: transform 0.2s;
+      background: var(--card-bg); border-radius: 18px; overflow: hidden;
+      border: 1px solid var(--border); position: relative; display: flex; flex-direction: column; justify-content: space-between;
+      box-shadow: var(--shadow); cursor: pointer;
     }
-    .card:active { transform: scale(0.98); }
-    .card img { width: 100%; height: 110px; object-fit: cover; }
-    .card-info { padding: 10px; }
-    .card-title { font-size: 0.88rem; font-weight: 600; line-height: 1.2; height: 32px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .card-price { color: var(--accent); font-weight: bold; margin-top: 6px; font-size: 0.85rem; }
+    .card:hover { transform: translateY(-4px); border-color: rgba(212, 175, 55, 0.4); }
+    
+    .img-wrapper { position: relative; width: 100%; height: 140px; overflow: hidden; }
+    .card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+    .card:hover img { transform: scale(1.08); }
+    
+    .badge {
+      position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(4px);
+      color: var(--accent); border: 1px solid rgba(212, 175, 55, 0.5); font-size: 0.65rem; font-weight: 700; padding: 3px 8px; border-radius: 8px;
+    }
+    html[dir="ltr"] .badge { right: auto; left: 10px; }
 
-    /* النافذة المنبثقة Modal */
+    .fav-btn {
+      position: absolute; top: 10px; left: 10px; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px);
+      border: none; color: #fff; border-radius: 50%; width: 30px; height: 30px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; z-index: 2;
+    }
+    html[dir="ltr"] .fav-btn { left: auto; right: 10px; }
+    .fav-btn.active { color: var(--danger); }
+
+    .card-info { padding: 12px; }
+    .card-title { font-size: 0.9rem; font-weight: 700; line-height: 1.3; height: 36px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .card-price { color: var(--accent); font-weight: 800; margin-top: 6px; font-size: 0.95rem; }
+
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0; background: var(--header-bg);
+      border-top: 1px solid var(--border); display: flex; justify-around; padding: 10px 0; z-index: 100;
+      backdrop-filter: blur(12px); box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+    }
+    .bottom-btn { background: none; border: none; color: var(--text-muted); font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .bottom-btn.active { color: var(--accent); }
+
     .modal {
-      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
       z-index: 1000; justify-content: center; align-items: center; padding: 20px;
     }
     .modal-content {
-      background: #1e1e1e; border-radius: 18px; max-width: 400px; width: 100%;
-      overflow: hidden; border: 1px solid #333; position: relative;
+      background: var(--card-bg); color: var(--text); border-radius: 22px; max-width: 420px; width: 100%;
+      overflow: hidden; border: 1px solid var(--border); position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
     }
-    .modal-content img { width: 100%; height: 200px; object-fit: cover; }
-    .modal-body { padding: 20px; }
-    .modal-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 8px; }
-    .modal-desc { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px; }
-    .modal-price { font-size: 1.1rem; color: var(--accent); font-weight: bold; }
-    .close-btn { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); color: #fff; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 1rem; }
-    html[dir="ltr"] .close-btn { left: auto; right: 10px; }
+    .modal-content img { width: 100%; height: 210px; object-fit: cover; }
+    .modal-body { padding: 18px; }
+    .modal-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 8px; }
+    .modal-desc { color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 15px; }
+    .modal-price { font-size: 1.1rem; color: var(--accent); font-weight: 800; }
+    .close-btn { position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.6); color: #fff; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1rem; z-index: 10; }
+    html[dir="ltr"] .close-btn { left: auto; right: 12px; }
   </style>
 </head>
 <body>
 
   <header>
-    <div class="brand">KARAK CAFÉ</div>
-    <div class="langs">
-      <button class="lang-btn active" onclick="setLang('ar')">العربية</button>
-      <button class="lang-btn" onclick="setLang('en')">English</button>
-      <button class="lang-btn" onclick="setLang('ku')">کوردی</button>
+    <div class="brand">مطعم ومنشأة بغداد</div>
+    <div class="header-top">
+      <div class="langs">
+        <button class="lang-btn active" onclick="setLang('ar')">العربية</button>
+        <button class="lang-btn" onclick="setLang('en')">English</button>
+        <button class="lang-btn" onclick="setLang('ku')">کوردی</button>
+      </div>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">☀️</button>
     </div>
-    <input type="text" id="searchInput" class="search-box" placeholder="بحث عن منتج..." onkeyup="filterMenu()">
+    <input type="text" id="searchInput" class="search-box" placeholder="بحث عن طبق أو مشروب..." onkeyup="filterMenu()">
   </header>
 
   <div class="nav-bar">
-    <a href="#hot" class="nav-link" data-ar="قهوة حارة" data-en="Hot Coffee" data-ku="قاوەی گەرم">قهوة حارة</a>
-    <a href="#cold" class="nav-link" data-ar="قهوة باردة" data-en="Cold Coffee" data-ku="قاوەی سارد">قهوة باردة</a>
-    <a href="#tea" class="nav-link" data-ar="شاي وحليب" data-en="Tea" data-ku="چا">شاي وحليب</a>
-    <a href="#mojito" class="nav-link" data-ar="موهيتو" data-en="Mojito" data-ku="مۆهیتۆ">موهيتو</a>
-    <a href="#healthy" class="nav-link" data-ar="عصائر صحية" data-en="Healthy Juice" data-ku="شەربەتی تەندروست">عصائر صحية</a>
+    <button class="nav-btn active" onclick="filterCategory('all', this)" data-ar="الكل" data-en="All" data-ku="هەموو">الكل</button>
+    <button class="nav-btn" onclick="filterCategory('appetizers', this)" data-ar="المقبلات" data-en="Appetizers" data-ku="مەقەبلات">المقبلات</button>
+    <button class="nav-btn" onclick="filterCategory('fish', this)" data-ar="أسماك ومسقوف" data-en="Fish & Masgouf" data-ku="ماسی و مەسگوف">أسماك ومسقوف</button>
+    <button class="nav-btn" onclick="filterCategory('kabab', this)" data-ar="مشاوي وكباب" data-en="Kebab & Grills" data-ku="کەباب و برژاو">مشاوي وكباب</button>
+    <button class="nav-btn" onclick="filterCategory('shisha', this)" data-ar="أراجيل" data-en="Shisha" data-ku="نێرگەلە">أراجيل</button>
+    <button class="nav-btn" onclick="filterCategory('burger', this)" data-ar="برجر" data-en="Burger" data-ku="بەرگەر">برجر</button>
+    <button class="nav-btn" onclick="filterCategory('hot', this)" data-ar="مشروبات وشاي" data-en="Drinks & Tea" data-ku="خواردنەوەکان">مشروبات وشاي</button>
   </div>
 
-  <div class="container">
-    <!-- قسم القهوة الحارة -->
-    <div id="hot" class="sec-title" data-ar="قهوة حارة" data-en="Hot Coffee" data-ku="قاوەی گەرم">قهوة حارة</div>
-    <div class="grid">
-      <div class="card" onclick="openModal('إسبريسو', 'Espresso', '2,000 IQD', 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=400', '')">
-        <img src="https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=400">
-        <div class="card-info">
-          <div class="card-title" data-ar="إسبريسو" data-en="Espresso" data-ku="ئێسپریسۆ">إسبريسو</div>
-          <div class="card-price">2,000 IQD</div>
+  <div class="container" id="menuContainer">
+    
+    <!-- قسم المقبلات الجديد -->
+    <div class="menu-section" id="appetizers">
+      <div class="sec-title" data-ar="المقبلات والمشهيات" data-en="Appetizers" data-ku="مەقەبلات">المقبلات والمشهيات</div>
+      <div class="grid">
+        <div class="card" data-id="601">
+          <span class="badge" data-ar="مميز" data-en="Special" data-ku="تایبەت">مميز</span>
+          <button class="fav-btn" onclick="toggleFav(601, this)">♥</button>
+          <div class="img-wrapper">
+            <img src="https://images.unsplash.com/photo-1541518763669-27fef04b14da?w=500">
+          </div>
+          <div class="card-info" onclick="openModal('حمص بطحينة فاخر', 'Hummus with Tahini', '4,000 IQD', 'https://images.unsplash.com/photo-1541518763669-27fef04b14da?w=500', 'حمص بطحينة ناعم مع زيت الزيتون الصافي والسماق والزيتون')">
+            <div class="card-title" data-ar="حمص بطحينة فاخر" data-en="Hummus with Tahini" data-ku="حمس بە تەحین">حمص بطحينة فاخر</div>
+            <div class="card-price">4,000 IQD</div>
+          </div>
         </div>
-      </div>
-      <div class="card" onclick="openModal('قهوة تركية', 'Turkish Coffee', '3,000 IQD', 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400', '')">
-        <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400">
-        <div class="card-info">
-          <div class="card-title" data-ar="قهوة تركية" data-en="Turkish Coffee" data-ku="قاوەی تورکی">قهوة تركية</div>
-          <div class="card-price">3,000 IQD</div>
+
+        <div class="card" data-id="602">
+          <button class="fav-btn" onclick="toggleFav(602, this)">♥</button>
+          <div class="img-wrapper">
+            <img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500">
+          </div>
+          <div class="card-info" onclick="openModal('تبولة لبنانية', 'Tabbouleh Salad', '5,000 IQD', 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500', 'بقدونس طازج مفروم مع البندورة والبرغل وزيت الزيتون والدبس')">
+            <div class="card-title" data-ar="تبولة لبنانية" data-en="Tabbouleh Salad" data-ku="تبوولە">تبولة لبنانية</div>
+            <div class="card-price">5,000 IQD</div>
+          </div>
+        </div>
+
+        <div class="card" data-id="603">
+          <button class="fav-btn" onclick="toggleFav(603, this)">♥</button>
+          <div class="img-wrapper">
+            <img src="https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?w=500">
+          </div>
+          <div class="card-info" onclick="openModal('متبل باذنجان مشوي', 'Mutabbal Eggplant', '4,500 IQD', 'https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?w=500', 'باذنجان مشوي على الفحم مهروس مع الطحينة والزبادي وزيت الزيتون')">
+            <div class="card-title" data-ar="متبل باذنجان مشوي" data-en="Mutabbal Eggplant" data-ku="موتەبەلی باینجان">متبل باذنجان مشوي</div>
+            <div class="card-price">4,500 IQD</div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- قسم الشاي -->
-    <div id="tea" class="sec-title" data-ar="شاي وحليب" data-en="Tea" data-ku="چا">شاي وحليب</div>
-    <div class="grid">
-      <div class="card" onclick="openModal('شاي كرك', 'Karak Tea', '2,000 IQD', 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=400', 'شاي كرك أصلي بالطريقة الهندية مع الهيل والزعفران')">
-        <img src="https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=400">
-        <div class="card-info">
-          <div class="card-title" data-ar="شاي كرك" data-en="Karak Tea" data-ku="چای کەرەک">شاي كرك</div>
-          <div class="card-price">2,000 IQD</div>
+    <!-- قسم الأسماك والمسقوف -->
+    <div class="menu-section" id="fish">
+      <div class="sec-title" data-ar="أسماك ومسقوف عراقي" data-en="Fish & Masgouf" data-ku="ماسی و مەسگوف">أسماك ومسقوف عراقي</div>
+      <div class="grid">
+        <div class="card" data-id="301">
+          <span class="badge" data-ar="تراثي" data-en="Traditional" data-ku="کەلەپووری">تراثي</span>
+          <button class="fav-btn" onclick="toggleFav(301, this)">♥</button>
+          <div class="img-wrapper">
+            <img src="https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=500">
+          </div>
+          <div class="card-info" onclick="openModal('سمك كطان مسقوف (كيلو)', 'Masgouf Fish (Kg)', '20,000 IQD', 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=500', 'سمك دجلة المسقوف على الحطب بالطريقة العراقية الأصلية يقدم مع التشي باب والسلاطة')">
+            <div class="card-title" data-ar="سمك مسقوف (الكيلو)" data-en="Masgouf Fish (Kg)" data-ku="ماسی مەسگوف (کیلۆ)">سمك مسقوف (الكيلو)</div>
+            <div class="card-price">20,000 IQD</div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- قسم العصائر الصحية -->
-    <div id="healthy" class="sec-title" data-ar="عصائر صحية" data-en="Healthy Juice" data-ku="شەربەتی تەندروست">عصائر صحية</div>
-    <div class="grid">
-      <div class="card" onclick="openModal('برتقال، ليمون وزنجبيل', 'Orange, Lemon & Ginger', '4,000 IQD', 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400', 'يقوي المناعة وينعش الجسم (فيتامين C)')">
-        <img src="https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400">
-        <div class="card-info">
-          <div class="card-title" data-ar="برتقال، ليمون وزنجبيل" data-en="Orange, Lemon & Ginger" data-ku="پرتەقاڵ، لیمۆ و زەنجەفیل">برتقال، ليمون وزنجبيل</div>
-          <div class="card-price">4,000 IQD</div>
+    <!-- قسم الكباب والمشاوي -->
+    <div class="menu-section" id="kabab">
+      <div class="sec-title" data-ar="مشاوي وكباب عراقي" data-en="Iraqi Kebab & Grills" data-ku="کەبابی عێراقی">مشاوي وكباب عراقي</div>
+      <div class="grid">
+        <div class="card" data-id="101">
+          <span class="badge" data-ar="الأكثر طلباً" data-en="Bestseller" data-ku="پڕفرۆشترین">الأكثر طلباً</span>
+          <button class="fav-btn" onclick="toggleFav(101, this)">♥</button>
+          <div class="img-wrapper">
+            <img src="https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=500">
+          </div>
+          <div class="card-info" onclick="openModal('كباب لحم عراقي', 'Iraqi Meat Kebab', '14,000 IQD', 'https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=500', 'كباب لحم غنم عراقي مشوي على الفحم يقدم مع الخبز الحار والطماطم المشوية')">
+            <div class="card-title" data-ar="كباب لحم عراقي" data-en="Iraqi Meat Kebab" data-ku="کەبابی گۆشتی عێراقی">كباب لحم عراقي</div>
+            <div class="card-price">14,000 IQD</div>
+          </div>
+        </div>
+
+        <div class="card" data-id="102">
+          <button class="fav-btn" onclick="toggleFav(102, this)">♥</button>
+          <div class="img-wrapper">
+            <img src="https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=500">
+          </div>
+          <div class="card-info" onclick="openModal('كباب دجاج', 'Chicken Kebab', '12,000 IQD', 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=500', 'شيلي كباب دجاج مفروم بالتوابل العراقية والمشوي على الفحم')">
+            <div class="card-title" data-ar="كباب دجاج" data-en="Chicken Kebab" data-ku="کەبابی مریشک">كباب دجاج</div>
+            <div class="card-price">12,000 IQD</div>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- قسم الأراجيل -->
+    <div class="menu-section" id="shisha">
+      <div class="sec-title" data-ar="أراجيل وشيشة" data-en="Shisha & Hookah" data-ku="نێرگەلە">أراجيل وشيشة</div>
+      <div class="grid">
+        <div class="card" data-id="501">
+          <span class="badge" data-ar="الأكثر طلباً" data-en="Bestseller" data-ku="پڕفرۆشترین">الأكثر طلباً</span>
+          <button class="fav-btn" onclick="toggleFav(501, this)">♥</button>
+          <div class="img-wrapper">
+            <img src="https://th.bing.com/th/id/OIP.tu1lggsBND6mkRhBUqYJJgHaE7?w=306&h=204&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3">
+          </div>
+          <div class="card-info" onclick="openModal('أرجيلة تفاحتين فاخر', 'Double Apple Shisha', '10,000 IQD', 'https://th.bing.com/th/id/OIP.tu1lggsBND6mkRhBUqYJJgHaE7?w=306&h=204&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3', 'أرجيلة تفاحتين فاخرة مع معسل طازج وخدمة تبديل الفحم المستمرة')">
+            <div class="card-title" data-ar="أرجيلة تفاحتين فاخر" data-en="Double Apple Shisha" data-ku="نێرگەلەی دوو سێو">أرجيلة تفاحتين فاخر</div>
+            <div class="card-price">10,000 IQD</div>
+          </div>
+        </div>
+
+        <div class="card" data-id="502">
+          <button class="fav-btn" onclick="toggleFav(502, this)">♥</button>
+          <div class="img-wrapper">
+            <img src="https://th.bing.com/th/id/OIP.tu1lggsBND6mkRhBUqYJJgHaE7?w=306&h=204&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3">
+          </div>
+          <div class="card-info" onclick="openModal('أرجيلة حامض نعناع', 'Lemon Mint Shisha', '10,000 IQD', 'https://th.bing.com/th/id/OIP.tu1lggsBND6mkRhBUqYJJgHaE7?w=306&h=204&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3', 'أرجيلة بنكهة الليمون والنعناع المنعشة مع تبديل الفحم المباشر')">
+            <div class="card-title" data-ar="أرجيلة حامض نعناع" data-en="Lemon Mint Shisha" data-ku="نێرگەلەی ليمۆ و نەعناع">أرجيلة حامض نعناع</div>
+            <div class="card-price">10,000 IQD</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- قسم البرجر -->
+    <div class="menu-section" id="burger">
+      <div class="sec-title" data-ar="برجر" data-en="Burger" data-ku="بەرگەر">برجر</div>
+      <div class="grid">
+        <div class="card" data-id="201">
+          <span class="badge" data-ar="مميز" data-en="Special" data-ku="تایبەت">مميز</span>
+          <button class="fav-btn" onclick="toggleFav(201, this)">♥</button>
+          <div class="img-wrapper">
+            <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500">
+          </div>
+          <div class="card-info" onclick="openModal('برجر لحم كلاسيك', 'Classic Beef Burger', '8,000 IQD', 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500', 'شريحة لحم بقر طازجة مع الجبن والشدر والصوص الخاص مع البطاطا')">
+            <div class="card-title" data-ar="برجر لحم كلاسيك" data-en="Classic Beef Burger" data-ku="بەرگەری گۆشت">برجر لحم كلاسيك</div>
+            <div class="card-price">8,000 IQD</div>
+          </div>
+        </div>
+
+        <div class="card" data-id="202">
+          <button class="fav-btn" onclick="toggleFav(202, this)">♥</button>
+          <div class="img-wrapper">
+            <img src="https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=500">
+          </div>
+          <div class="card-info" onclick="openModal('زنجر برجر دجاج', 'Zinger Chicken Burger', '7,000 IQD', 'https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=500', 'صدر دجاج مقرمش مع الخس والصوص الحار')">
+            <div class="card-title" data-ar="زنجر برجر دجاج" data-en="Zinger Chicken Burger" data-ku="زینگەر بەرگەر">زنجر برجر دجاج</div>
+            <div class="card-price">7,000 IQD</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- قسم المشروبات -->
+    <div class="menu-section" id="hot">
+      <div class="sec-title" data-ar="مشروبات وشاي" data-en="Drinks & Tea" data-ku="خواردنەوەکان">مشروبات وشاي</div>
+      <div class="grid">
+        <div class="card" data-id="401">
+          <button class="fav-btn" onclick="toggleFav(401, this)">♥</button>
+          <div class="img-wrapper">
+            <img src="https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500">
+          </div>
+          <div class="card-info" onclick="openModal('شاي كرك', 'Karak Tea', '2,000 IQD', 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500', 'شاي كرك مهيل مطبوخ على النار الهادئة')">
+            <div class="card-title" data-ar="شاي كرك" data-en="Karak Tea" data-ku="چای کەرەک">شاي كرك</div>
+            <div class="card-price">2,000 IQD</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- Modal تفاصيل المنتج -->
+  <div class="bottom-nav">
+    <button class="bottom-btn active" onclick="showAllNav(this)">
+      <span>🏠</span>
+      <span data-ar="الكل" data-en="All" data-ku="هەموو">الكل</span>
+    </button>
+    <button class="bottom-btn" onclick="showFavs(this)">
+      <span>❤️</span>
+      <span data-ar="المفضلة" data-en="Favorites" data-ku="دڵخوازەکان">المفضلة</span>
+    </button>
+  </div>
+
   <div id="itemModal" class="modal">
     <div class="modal-content">
       <button class="close-btn" onclick="closeModal()">✕</button>
@@ -163,6 +366,44 @@
 
   <script>
     let currentLang = 'ar';
+    let favorites = JSON.parse(localStorage.getItem('favs') || '[]');
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateFavButtons();
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      if (savedTheme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+        document.getElementById('themeBtn').textContent = '🌙';
+      }
+    });
+
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const themeBtn = document.getElementById('themeBtn');
+      if (currentTheme === 'light') {
+        document.documentElement.removeAttribute('data-theme');
+        themeBtn.textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        themeBtn.textContent = '🌙';
+        localStorage.setItem('theme', 'light');
+      }
+    }
+
+    function filterCategory(catId, btn) {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      let sections = document.querySelectorAll('.menu-section');
+      sections.forEach(sec => {
+        if (catId === 'all' || sec.id === catId) {
+          sec.style.display = 'block';
+        } else {
+          sec.style.display = 'none';
+        }
+      });
+    }
 
     function setLang(lang) {
       currentLang = lang;
@@ -174,13 +415,52 @@
       event.target.classList.add('active');
     }
 
+    function toggleFav(id, btn) {
+      event.stopPropagation();
+      if (favorites.includes(id)) {
+        favorites = favorites.filter(favId => favId !== id);
+        btn.classList.remove('active');
+      } else {
+        favorites.push(id);
+        btn.classList.add('active');
+      }
+      localStorage.setItem('favs', JSON.stringify(favorites));
+    }
+
+    function updateFavButtons() {
+      document.querySelectorAll('.card').forEach(card => {
+        let id = parseInt(card.getAttribute('data-id'));
+        let btn = card.querySelector('.fav-btn');
+        if (favorites.includes(id)) {
+          btn.classList.add('active');
+        }
+      });
+    }
+
     function filterMenu() {
       let input = document.getElementById('searchInput').value.toLowerCase();
       let cards = document.getElementsByClassName('card');
       Array.from(cards).forEach(card => {
         let title = card.innerText.toLowerCase();
-        card.style.display = title.includes(input) ? "block" : "none";
+        card.style.display = title.includes(input) ? "flex" : "none";
       });
+    }
+
+    function showFavs(btn) {
+      document.querySelectorAll('.bottom-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.menu-section').forEach(sec => sec.style.display = 'block');
+      document.querySelectorAll('.card').forEach(card => {
+        let id = parseInt(card.getAttribute('data-id'));
+        card.style.display = favorites.includes(id) ? 'flex' : 'none';
+      });
+    }
+
+    function showAllNav(btn) {
+      document.querySelectorAll('.bottom-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filterCategory('all', document.querySelectorAll('.nav-btn')[0]);
+      document.querySelectorAll('.card').forEach(card => card.style.display = 'flex');
     }
 
     function openModal(titleAr, titleEn, price, imgUrl, desc) {
