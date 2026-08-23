@@ -195,8 +195,8 @@
     const ADMIN_USER = "searsi";
     const ADMIN_PASS = "Aa112233";
 
-    const BIN_ID = "6a8b22e3f5f4af5e2938ea96";
-    const MASTER_KEY = "$2a$10$sK2SZYkqqwqqbPtoVw3weO0Tk3vSJscOSPmgBagmQnrd3ClnmpMIy";
+    // سيرفر سحابي مخصص ومباشر لتخزين وتحديث البيانات بدون مفاتيح
+    const API_URL = "https://api.npoint.io/870df2277dcae7ffc4d0";
 
     let subscriptions = [];
     let salesLog = [];
@@ -208,6 +208,8 @@
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('dashboardScreen').style.display = 'block';
         fetchCloudData();
+        // تحديث البيانات تلقائياً كل 5 ثوانٍ
+        setInterval(fetchCloudData, 5000);
       } else {
         document.getElementById('loginError').style.display = 'block';
       }
@@ -221,14 +223,11 @@
     }
 
     async function fetchCloudData() {
-      updateSyncStatus("🔄 جاري تحميل البيانات...");
       try {
-        const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-          headers: { 'X-Master-Key': MASTER_KEY }
-        });
+        const res = await fetch(API_URL);
         const data = await res.json();
-        subscriptions = data.record.subscriptions || [];
-        salesLog = data.record.salesLog || [];
+        subscriptions = data.subscriptions || [];
+        salesLog = data.salesLog || [];
         renderData();
         updateSyncStatus("⚡ متصل ومزامن");
       } catch (err) {
@@ -239,12 +238,9 @@
     async function saveCloudData() {
       updateSyncStatus("⏳ جاري الحفظ سحابياً...");
       try {
-        await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Master-Key': MASTER_KEY
-          },
+        await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ subscriptions, salesLog })
         });
         updateSyncStatus("⚡ تم الحفظ والمزامنة");
