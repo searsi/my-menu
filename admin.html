@@ -18,120 +18,35 @@
       --warning: #ffa502;
     }
 
-    * { 
-      box-sizing: border-box; 
-      margin: 0; 
-      padding: 0; 
-      font-family: 'Cairo', sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg); color: var(--text); padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); padding: 15px; }
 
-    body { 
-      background-color: var(--bg); 
-      color: var(--text); 
-      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-      padding: 15px; 
-    }
-
-    #loginScreen { 
-      display: flex; 
-      justify-content: center; 
-      align-items: center; 
-      min-height: 85vh; 
-    }
-
-    .login-card {
-      background: var(--card-bg); 
-      border: 1px solid var(--border); 
-      padding: 25px 20px;
-      border-radius: 20px; 
-      width: 100%; 
-      max-width: 380px; 
-      text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
+    #loginScreen { display: flex; justify-content: center; align-items: center; min-height: 85vh; }
+    .login-card { background: var(--card-bg); border: 1px solid var(--border); padding: 25px 20px; border-radius: 20px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     .login-card h2 { color: var(--accent); margin-bottom: 20px; font-weight: 800; font-size: 1.3rem; }
     
     .input-group { margin-bottom: 15px; text-align: right; }
     .input-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
-    
-    .input-group input, .input-group select {
-      width: 100%; 
-      padding: 12px 14px; 
-      border-radius: 12px; 
-      border: 1px solid var(--border);
-      background: #23232a; 
-      color: #fff; 
-      font-size: 0.95rem; 
-      outline: none;
-      -webkit-appearance: none;
-    }
+    .input-group input, .input-group select { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); background: #23232a; color: #fff; font-size: 0.95rem; outline: none; -webkit-appearance: none; }
     .input-group input:focus { border-color: var(--accent); }
 
-    .btn {
-      width: 100%; 
-      padding: 14px; 
-      background: linear-gradient(135deg, #f39c12, #d4af37);
-      border: none; 
-      border-radius: 12px; 
-      color: #fff; 
-      font-weight: 700; 
-      cursor: pointer; 
-      font-size: 1rem; 
-      margin-top: 5px;
-      transition: transform 0.1s ease;
-    }
+    .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #f39c12, #d4af37); border: none; border-radius: 12px; color: #fff; font-weight: 700; cursor: pointer; font-size: 1rem; margin-top: 5px; transition: transform 0.1s ease; }
     .btn:active { transform: scale(0.98); }
 
     #dashboardScreen { display: none; max-width: 1100px; margin: 0 auto; }
-    
-    .header-dash { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      margin-bottom: 20px; 
-      border-bottom: 1px solid var(--border); 
-      padding-bottom: 15px; 
-    }
+    .header-dash { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
     .header-dash h1 { color: var(--accent); font-size: 1.2rem; }
 
-    .stats-grid { 
-      display: grid; 
-      grid-template-columns: repeat(3, 1fr); 
-      gap: 10px; 
-      margin-bottom: 20px; 
-    }
-    
-    .stat-card { 
-      background: var(--card-bg); 
-      border: 1px solid var(--border); 
-      padding: 12px 8px; 
-      border-radius: 14px; 
-      text-align: center; 
-    }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); padding: 12px 8px; border-radius: 14px; text-align: center; }
     .stat-card h3 { font-size: 0.75rem; color: var(--text-muted); }
     .stat-card p { font-size: 1.1rem; font-weight: 800; color: var(--accent); margin-top: 4px; }
 
-    .section-box { 
-      background: var(--card-bg); 
-      border: 1px solid var(--border); 
-      border-radius: 16px; 
-      padding: 16px; 
-      margin-bottom: 20px; 
-    }
-    .section-title { font-size: 1rem; font-weight: 700; margin-bottom: 15px; color: #fff; }
+    .section-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 20px; }
+    .section-title { font-size: 1rem; font-weight: 700; margin-bottom: 15px; color: #fff; display: flex; justify-content: space-between; align-items: center; }
 
-    .form-grid { 
-      display: grid; 
-      grid-template-columns: 1fr; 
-      gap: 10px; 
-    }
-
-    .table-responsive {
-      width: 100%;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
+    .form-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
     table { width: 100%; border-collapse: collapse; margin-top: 5px; text-align: right; white-space: nowrap; }
     th, td { padding: 10px 8px; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
@@ -146,40 +61,14 @@
     .days-warning { color: var(--warning); }
     .days-ended { color: var(--danger); }
 
-    .action-btn { 
-      background: none; 
-      border: 1px solid var(--border); 
-      padding: 6px 10px; 
-      border-radius: 8px; 
-      color: #fff; 
-      cursor: pointer; 
-      font-size: 0.75rem; 
-      margin-left: 2px; 
-    }
+    .action-btn { background: none; border: 1px solid var(--border); padding: 6px 10px; border-radius: 8px; color: #fff; cursor: pointer; font-size: 0.75rem; margin-left: 2px; }
     .edit-btn { border-color: var(--warning); color: var(--warning); }
     .delete-btn { border-color: var(--danger); color: var(--danger); }
+    .sync-btn { background: #23232a; border: 1px solid var(--border); color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; }
     .logout-btn { background: var(--danger); border: none; padding: 8px 14px; border-radius: 10px; color: #fff; font-weight: 700; cursor: pointer; font-size: 0.85rem; }
 
-    .modal { 
-      display: none; 
-      position: fixed; 
-      inset: 0; 
-      background: rgba(0,0,0,0.85); 
-      backdrop-filter: blur(5px); 
-      z-index: 1000; 
-      justify-content: center; 
-      align-items: flex-end; 
-    }
-    .modal-card { 
-      background: var(--card-bg); 
-      border: 1px solid var(--border); 
-      padding: 20px; 
-      border-radius: 20px 20px 0 0; 
-      width: 100%; 
-      max-width: 600px;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: flex-end; }
+    .modal-card { background: var(--card-bg); border: 1px solid var(--border); padding: 20px; border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
 
     @media (min-width: 600px) {
       .form-grid { grid-template-columns: repeat(2, 1fr); }
@@ -231,38 +120,27 @@
     </div>
 
     <div class="section-box">
-      <div class="section-title">➕ تسجيل مطعم واشتراك جديد</div>
+      <div class="section-title">➕ تسجيل مطعم وااشتراك جديد</div>
       <div class="form-grid">
-        <div class="input-group">
-          <label>اسم المطعم</label>
-          <input type="text" id="resName">
-        </div>
-        <div class="input-group">
-          <label>رقم الهاتف</label>
-          <input type="tel" id="resPhone">
-        </div>
-        <div class="input-group">
-          <label>اسم ملف المنيو</label>
-          <input type="text" id="resFile">
-        </div>
-        <div class="input-group">
-          <label>تاريخ البدء</label>
-          <input type="date" id="startDate">
-        </div>
-        <div class="input-group">
-          <label>تاريخ الانتهاء</label>
-          <input type="date" id="endDate">
-        </div>
-        <div class="input-group">
-          <label>المبلغ ($)</label>
-          <input type="number" id="salePrice">
-        </div>
+        <div class="input-group"><label>اسم المطعم</label><input type="text" id="resName"></div>
+        <div class="input-group"><label>رقم الهاتف</label><input type="tel" id="resPhone"></div>
+        <div class="input-group"><label>اسم ملف المنيو</label><input type="text" id="resFile"></div>
+        <div class="input-group"><label>تاريخ البدء</label><input type="date" id="startDate"></div>
+        <div class="input-group"><label>تاريخ الانتهاء</label><input type="date" id="endDate"></div>
+        <div class="input-group"><label>المبلغ ($)</label><input type="number" id="salePrice"></div>
       </div>
       <button class="btn" onclick="addSubscription()">حفظ البيانات</button>
     </div>
 
     <div class="section-box">
-      <div class="section-title">📋 قائمة المطاعم والحالة</div>
+      <div class="section-title">
+        <span>📋 قائمة المطاعم والحالة</span>
+        <div>
+          <button class="sync-btn" onclick="exportData()">📥 تصدير ملف</button>
+          <button class="sync-btn" onclick="document.getElementById('importFile').click()">📤 استيراد ملف</button>
+          <input type="file" id="importFile" style="display:none;" onchange="importData(event)">
+        </div>
+      </div>
       <div class="table-responsive">
         <table>
           <thead>
@@ -345,25 +223,14 @@
 
     function calculateDaysLeft(endDateStr) {
       if (!endDateStr) return { text: '-', class: '' };
-      
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      const end = new Date(endDateStr);
-      end.setHours(0, 0, 0, 0);
+      const today = new Date(); today.setHours(0,0,0,0);
+      const end = new Date(endDateStr); end.setHours(0,0,0,0);
+      const diffDays = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
 
-      const diffTime = end - today;
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-      if (diffDays < 0) {
-        return { text: 'منتهي', class: 'days-ended' };
-      } else if (diffDays === 0) {
-        return { text: 'ينتهي اليوم', class: 'days-warning' };
-      } else if (diffDays <= 5) {
-        return { text: `${diffDays} يوم`, class: 'days-warning' };
-      } else {
-        return { text: `${diffDays} يوم`, class: 'days-good' };
-      }
+      if (diffDays < 0) return { text: 'منتهي', class: 'days-ended' };
+      if (diffDays === 0) return { text: 'ينتهي اليوم', class: 'days-warning' };
+      if (diffDays <= 5) return { text: `${diffDays} يوم`, class: 'days-warning' };
+      return { text: `${diffDays} يوم`, class: 'days-good' };
     }
 
     function addSubscription() {
@@ -394,6 +261,34 @@
       renderData();
     }
 
+    function exportData() {
+      const data = JSON.stringify({ subscriptions, salesLog });
+      const blob = new Blob([data], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'backup_data.json';
+      a.click();
+    }
+
+    function importData(event) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported.subscriptions && imported.salesLog) {
+            subscriptions = imported.subscriptions;
+            salesLog = imported.salesLog;
+            saveToStorage();
+            renderData();
+            alert("تم استيراد البيانات بنجاح!");
+          }
+        } catch(err) {
+          alert("الملف غير صالح!");
+        }
+      };
+      reader.readAsText(event.target.files[0]);
+    }
+
     function deleteRestaurant(id) {
       if (confirm("هل أنت تأكد من حذف هذا المطعم؟")) {
         subscriptions = subscriptions.filter(sub => sub.id !== id);
@@ -405,7 +300,6 @@
     function openEditModal(id) {
       const sub = subscriptions.find(item => item.id === id);
       if (!sub) return;
-
       document.getElementById('editId').value = sub.id;
       document.getElementById('editName').value = sub.name;
       document.getElementById('editPhone').value = sub.phone || '';
@@ -413,13 +307,10 @@
       document.getElementById('editStart').value = sub.start;
       document.getElementById('editEnd').value = sub.end;
       document.getElementById('editPrice').value = sub.price;
-
       document.getElementById('editModal').style.display = 'flex';
     }
 
-    function closeEditModal() {
-      document.getElementById('editModal').style.display = 'none';
-    }
+    function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
 
     function saveEdit() {
       const id = parseInt(document.getElementById('editId').value);
@@ -434,7 +325,6 @@
         }
         return sub;
       });
-
       saveToStorage();
       closeEditModal();
       renderData();
@@ -457,17 +347,13 @@
     function renderData() {
       const tableBody = document.getElementById('restaurantsTable');
       const salesBody = document.getElementById('salesTable');
-      
-      tableBody.innerHTML = '';
-      salesBody.innerHTML = '';
+      tableBody.innerHTML = ''; salesBody.innerHTML = '';
 
-      let activeCnt = 0;
-      let totalRev = 0;
+      let activeCnt = 0; let totalRev = 0;
 
       subscriptions.forEach(sub => {
         if (sub.status === 'active') activeCnt++;
         const daysInfo = calculateDaysLeft(sub.end);
-        
         tableBody.innerHTML += `
           <tr>
             <td><strong>${sub.name}</strong></td>
@@ -476,11 +362,7 @@
             <td>${sub.end}</td>
             <td><span class="days-badge ${daysInfo.class}">${daysInfo.text}</span></td>
             <td>${sub.price}$</td>
-            <td>
-              <span class="status-badge ${sub.status === 'active' ? 'status-active' : 'status-expired'}">
-                ${sub.status === 'active' ? 'مفعل' : 'متوقف'}
-              </span>
-            </td>
+            <td><span class="status-badge ${sub.status === 'active' ? 'status-active' : 'status-expired'}">${sub.status === 'active' ? 'مفعل' : 'متوقف'}</span></td>
             <td>
               <button class="action-btn" onclick="toggleStatus(${sub.id})">${sub.status === 'active' ? 'إيقاف' : 'تفعيل'}</button>
               <button class="action-btn edit-btn" onclick="openEditModal(${sub.id})">تعديل</button>
