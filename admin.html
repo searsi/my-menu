@@ -120,7 +120,7 @@
     </div>
 
     <div class="section-box">
-      <div class="section-title">➕ تسجيل مطعم واشتراك جديد</div>
+      <div class="section-title">➕ تسجيل مطعم وااشتراك جديد</div>
       <div class="form-grid">
         <div class="input-group"><label>اسم المطعم</label><input type="text" id="resName"></div>
         <div class="input-group"><label>رقم الهاتف</label><input type="tel" id="resPhone"></div>
@@ -195,8 +195,8 @@
     const ADMIN_USER = "searsi";
     const ADMIN_PASS = "Aa112233";
 
-    // سيرفر سحابي مخصص ومباشر لتخزين وتحديث البيانات بدون مفاتيح
-    const API_URL = "https://api.npoint.io/870df2277dcae7ffc4d0";
+    // سيرفر Firebase سحابي مباشر ومفتوح لكافة الأجهزة وبدون قيود حظر متصفح
+    const API_URL = "https://searsi-app-default-rtdb.firebaseio.com/data.json";
 
     let subscriptions = [];
     let salesLog = [];
@@ -208,8 +208,7 @@
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('dashboardScreen').style.display = 'block';
         fetchCloudData();
-        // تحديث البيانات تلقائياً كل 5 ثوانٍ
-        setInterval(fetchCloudData, 5000);
+        setInterval(fetchCloudData, 4000);
       } else {
         document.getElementById('loginError').style.display = 'block';
       }
@@ -226,8 +225,13 @@
       try {
         const res = await fetch(API_URL);
         const data = await res.json();
-        subscriptions = data.subscriptions || [];
-        salesLog = data.salesLog || [];
+        if (data) {
+          subscriptions = data.subscriptions || [];
+          salesLog = data.salesLog || [];
+        } else {
+          subscriptions = [];
+          salesLog = [];
+        }
         renderData();
         updateSyncStatus("⚡ متصل ومزامن");
       } catch (err) {
@@ -239,7 +243,7 @@
       updateSyncStatus("⏳ جاري الحفظ سحابياً...");
       try {
         await fetch(API_URL, {
-          method: 'POST',
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ subscriptions, salesLog })
         });
