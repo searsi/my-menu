@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>لوحة إدارة الاشتراكات والمبيعات</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f12;
+      --card-bg: #1c1c21;
+      --accent: #e5b849;
+      --text: #ffffff;
+      --text-muted: #a5a5ab;
+      --border: rgba(255, 255, 255, 0.1);
+      --success: #2ed573;
+      --danger: #ff4757;
+      --warning: #ffa502;
+    }
+
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: 'Cairo', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body { 
+      background-color: var(--bg); 
+      color: var(--text); 
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      padding: 15px; 
+    }
+
+    /* شاشة الدخول */
+    #loginScreen { 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      min-height: 85vh; 
+    }
+
+    .login-card {
+      background: var(--card-bg); 
+      border: 1px solid var(--border); 
+      padding: 25px 20px;
+      border-radius: 20px; 
+      width: 100%; 
+      max-width: 380px; 
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .login-card h2 { color: var(--accent); margin-bottom: 20px; font-weight: 800; font-size: 1.3rem; }
+    
+    .input-group { margin-bottom: 15px; text-align: right; }
+    .input-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
+    
+    .input-group input, .input-group select {
+      width: 100%; 
+      padding: 12px 14px; 
+      border-radius: 12px; 
+      border: 1px solid var(--border);
+      background: #23232a; 
+      color: #fff; 
+      font-size: 0.95rem; 
+      outline: none;
+      -webkit-appearance: none;
+    }
+    .input-group input:focus { border-color: var(--accent); }
+
+    .btn {
+      width: 100%; 
+      padding: 14px; 
+      background: linear-gradient(135deg, #f39c12, #d4af37);
+      border: none; 
+      border-radius: 12px; 
+      color: #fff; 
+      font-weight: 700; 
+      cursor: pointer; 
+      font-size: 1rem; 
+      margin-top: 5px;
+      transition: transform 0.1s ease;
+    }
+    .btn:active { transform: scale(0.98); }
+
+    /* لوحة التحكم الرئيسية */
+    #dashboardScreen { display: none; max-width: 1100px; margin: 0 auto; }
+    
+    .header-dash { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 20px; 
+      border-bottom: 1px solid var(--border); 
+      padding-bottom: 15px; 
+    }
+    .header-dash h1 { color: var(--accent); font-size: 1.2rem; }
+
+    .stats-grid { 
+      display: grid; 
+      grid-template-columns: repeat(3, 1fr); 
+      gap: 10px; 
+      margin-bottom: 20px; 
+    }
+    
+    .stat-card { 
+      background: var(--card-bg); 
+      border: 1px solid var(--border); 
+      padding: 12px 8px; 
+      border-radius: 14px; 
+      text-align: center; 
+    }
+    .stat-card h3 { font-size: 0.75rem; color: var(--text-muted); }
+    .stat-card p { font-size: 1.1rem; font-weight: 800; color: var(--accent); margin-top: 4px; }
+
+    .section-box { 
+      background: var(--card-bg); 
+      border: 1px solid var(--border); 
+      border-radius: 16px; 
+      padding: 16px; 
+      margin-bottom: 20px; 
+    }
+    .section-title { font-size: 1rem; font-weight: 700; margin-bottom: 15px; color: #fff; }
+
+    .form-grid { 
+      display: grid; 
+      grid-template-columns: 1fr; 
+      gap: 10px; 
+    }
+
+    /* تحسين الجداول للموبايل */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 5px; text-align: right; white-space: nowrap; }
+    th, td { padding: 10px 8px; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
+    th { color: var(--accent); font-weight: 700; background: #23232a; }
+    
+    .status-badge { padding: 4px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; display: inline-block; }
+    .status-active { background: rgba(46, 213, 115, 0.2); color: var(--success); }
+    .status-expired { background: rgba(255, 71, 87, 0.2); color: var(--danger); }
+
+    .action-btn { 
+      background: none; 
+      border: 1px solid var(--border); 
+      padding: 6px 10px; 
+      border-radius: 8px; 
+      color: #fff; 
+      cursor: pointer; 
+      font-size: 0.75rem; 
+      margin-left: 2px; 
+    }
+    .edit-btn { border-color: var(--warning); color: var(--warning); }
+    .delete-btn { border-color: var(--danger); color: var(--danger); }
+    .logout-btn { background: var(--danger); border: none; padding: 8px 14px; border-radius: 10px; color: #fff; font-weight: 700; cursor: pointer; font-size: 0.85rem; }
+
+    /* النافذة المنبثقة التفاعلية للهاتف */
+    .modal { 
+      display: none; 
+      position: fixed; 
+      inset: 0; 
+      background: rgba(0,0,0,0.85); 
+      backdrop-filter: blur(5px); 
+      z-index: 1000; 
+      justify-content: center; 
+      align-items: flex-end; 
+    }
+    .modal-card { 
+      background: var(--card-bg); 
+      border: 1px solid var(--border); 
+      padding: 20px; 
+      border-radius: 20px 20px 0 0; 
+      width: 100%; 
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    /* الاستجابة للشاشات الكبيرة (الأجهزة اللوحية والكمبيوتر) */
+    @media (min-width: 600px) {
+      .form-grid { grid-template-columns: repeat(2, 1fr); }
+      .modal { align-items: center; padding: 20px; }
+      .modal-card { border-radius: 20px; }
+      .stats-grid { gap: 15px; }
+      .stat-card p { font-size: 1.4rem; }
+      .header-dash h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loginScreen">
+    <div class="login-card">
+      <h2>تسجيل الدخول للإدارة</h2>
+      <div class="input-group">
+        <label>اسم المستخدم</label>
+        <input type="text" id="username" autocomplete="off">
+      </div>
+      <div class="input-group">
+        <label>كلمة المرور</label>
+        <input type="password" id="password" autocomplete="off">
+      </div>
+      <button class="btn" onclick="login()">دخول</button>
+      <p id="loginError" style="color: var(--danger); font-size: 0.8rem; margin-top: 10px; display: none;">اسم المستخدم أو كلمة المرور غير صحيحة!</p>
+    </div>
+  </div>
+
+  <div id="dashboardScreen">
+    <div class="header-dash">
+      <h1>إدارة الاشتراكات والمالية</h1>
+      <button class="logout-btn" onclick="logout()">خروج</button>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>المطاعم</h3>
+        <p id="totalCount">0</p>
+      </div>
+      <div class="stat-card">
+        <h3>النشطة</h3>
+        <p id="activeCount" style="color: var(--success);">0</p>
+      </div>
+      <div class="stat-card">
+        <h3>المبيعات</h3>
+        <p id="totalRevenue">0 $</p>
+      </div>
+    </div>
+
+    <div class="section-box">
+      <div class="section-title">➕ تسجيل مطعم واشتراك جديد</div>
+      <div class="form-grid">
+        <div class="input-group">
+          <label>اسم المطعم</label>
+          <input type="text" id="resName">
+        </div>
+        <div class="input-group">
+          <label>رقم الهاتف</label>
+          <input type="tel" id="resPhone">
+        </div>
+        <div class="input-group">
+          <label>اسم ملف المنيو</label>
+          <input type="text" id="resFile">
+        </div>
+        <div class="input-group">
+          <label>تاريخ البدء</label>
+          <input type="date" id="startDate">
+        </div>
+        <div class="input-group">
+          <label>تاريخ الانتهاء</label>
+          <input type="date" id="endDate">
+        </div>
+        <div class="input-group">
+          <label>المبلغ ($)</label>
+          <input type="number" id="salePrice">
+        </div>
+      </div>
+      <button class="btn" onclick="addSubscription()">حفظ البيانات</button>
+    </div>
+
+    <div class="section-box">
+      <div class="section-title">📋 قائمة المطاعم والحالة</div>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>المطعم</th>
+              <th>الهاتف</th>
+              <th>الملف</th>
+              <th>الانتهاء</th>
+              <th>المبلغ</th>
+              <th>الحالة</th>
+              <th>التحكم</th>
+            </tr>
+          </thead>
+          <tbody id="restaurantsTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-box">
+      <div class="section-title">💰 سجل المدخولات</div>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>المطعم</th>
+              <th>المبلغ</th>
+              <th>التاريخ</th>
+            </tr>
+          </thead>
+          <tbody id="salesTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="editModal" class="modal">
+    <div class="modal-card">
+      <h3 style="color: var(--accent); margin-bottom: 15px;">تعديل بيانات المطعم</h3>
+      <input type="hidden" id="editId">
+      <div class="input-group"><label>اسم المطعم</label><input type="text" id="editName"></div>
+      <div class="input-group"><label>رقم الهاتف</label><input type="tel" id="editPhone"></div>
+      <div class="input-group"><label>اسم الملف</label><input type="text" id="editFile"></div>
+      <div class="input-group"><label>تاريخ البدء</label><input type="date" id="editStart"></div>
+      <div class="input-group"><label>تاريخ الانتهاء</label><input type="date" id="editEnd"></div>
+      <div class="input-group"><label>المبلغ ($)</label><input type="number" id="editPrice"></div>
+      <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <button class="btn" onclick="saveEdit()">حفظ التعديلات</button>
+        <button class="btn" style="background: var(--card-bg); border: 1px solid var(--border);" onclick="closeEditModal()">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ADMIN_USER = "searsi";
+    const ADMIN_PASS = "Aa112233";
+
+    let subscriptions = JSON.parse(localStorage.getItem('my_subscriptions') || '[]');
+    let salesLog = JSON.parse(localStorage.getItem('my_sales_log') || '[]');
+
+    function login() {
+      const u = document.getElementById('username').value;
+      const p = document.getElementById('password').value;
+      if (u === ADMIN_USER && p === ADMIN_PASS) {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('dashboardScreen').style.display = 'block';
+        renderData();
+      } else {
+        document.getElementById('loginError').style.display = 'block';
+      }
+    }
+
+    function logout() {
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('dashboardScreen').style.display = 'none';
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
+    }
+
+    function addSubscription() {
+      const name = document.getElementById('resName').value;
+      const phone = document.getElementById('resPhone').value;
+      const file = document.getElementById('resFile').value;
+      const start = document.getElementById('startDate').value;
+      const end = document.getElementById('endDate').value;
+      const price = parseFloat(document.getElementById('salePrice').value) || 0;
+
+      if (!name || !file || !start || !end) {
+        alert("يرجى ملء البيانات الأساسية!");
+        return;
+      }
+
+      const id = Date.now();
+      subscriptions.push({ id, name, phone, file, start, end, price, status: 'active' });
+      salesLog.push({ id, name, price, date: new Date().toLocaleDateString('ar-EG') });
+
+      saveToStorage();
+      document.getElementById('resName').value = '';
+      document.getElementById('resPhone').value = '';
+      document.getElementById('resFile').value = '';
+      document.getElementById('startDate').value = '';
+      document.getElementById('endDate').value = '';
+      document.getElementById('salePrice').value = '';
+
+      renderData();
+    }
+
+    function deleteRestaurant(id) {
+      if (confirm("هل أنت تأكد من حذف هذا المطعم؟")) {
+        subscriptions = subscriptions.filter(sub => sub.id !== id);
+        saveToStorage();
+        renderData();
+      }
+    }
+
+    function openEditModal(id) {
+      const sub = subscriptions.find(item => item.id === id);
+      if (!sub) return;
+
+      document.getElementById('editId').value = sub.id;
+      document.getElementById('editName').value = sub.name;
+      document.getElementById('editPhone').value = sub.phone || '';
+      document.getElementById('editFile').value = sub.file;
+      document.getElementById('editStart').value = sub.start;
+      document.getElementById('editEnd').value = sub.end;
+      document.getElementById('editPrice').value = sub.price;
+
+      document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').style.display = 'none';
+    }
+
+    function saveEdit() {
+      const id = parseInt(document.getElementById('editId').value);
+      subscriptions = subscriptions.map(sub => {
+        if (sub.id === id) {
+          sub.name = document.getElementById('editName').value;
+          sub.phone = document.getElementById('editPhone').value;
+          sub.file = document.getElementById('editFile').value;
+          sub.start = document.getElementById('editStart').value;
+          sub.end = document.getElementById('editEnd').value;
+          sub.price = parseFloat(document.getElementById('editPrice').value) || 0;
+        }
+        return sub;
+      });
+
+      saveToStorage();
+      closeEditModal();
+      renderData();
+    }
+
+    function toggleStatus(id) {
+      subscriptions = subscriptions.map(sub => {
+        if (sub.id === id) sub.status = sub.status === 'active' ? 'expired' : 'active';
+        return sub;
+      });
+      saveToStorage();
+      renderData();
+    }
+
+    function saveToStorage() {
+      localStorage.setItem('my_subscriptions', JSON.stringify(subscriptions));
+      localStorage.setItem('my_sales_log', JSON.stringify(salesLog));
+    }
+
+    function renderData() {
+      const tableBody = document.getElementById('restaurantsTable');
+      const salesBody = document.getElementById('salesTable');
+      
+      tableBody.innerHTML = '';
+      salesBody.innerHTML = '';
+
+      let activeCnt = 0;
+      let totalRev = 0;
+
+      subscriptions.forEach(sub => {
+        if (sub.status === 'active') activeCnt++;
+        
+        tableBody.innerHTML += `
+          <tr>
+            <td><strong>${sub.name}</strong></td>
+            <td><a href="tel:${sub.phone}" style="color:var(--accent); text-decoration:none;">${sub.phone || '-'}</a></td>
+            <td><code>${sub.file}</code></td>
+            <td>${sub.end}</td>
+            <td>${sub.price}$</td>
+            <td>
+              <span class="status-badge ${sub.status === 'active' ? 'status-active' : 'status-expired'}">
+                ${sub.status === 'active' ? 'مفعل' : 'متوقف'}
+              </span>
+            </td>
+            <td>
+              <button class="action-btn" onclick="toggleStatus(${sub.id})">${sub.status === 'active' ? 'إيقاف' : 'تفعيل'}</button>
+              <button class="action-btn edit-btn" onclick="openEditModal(${sub.id})">تعديل</button>
+              <button class="action-btn delete-btn" onclick="deleteRestaurant(${sub.id})">حذف</button>
+            </td>
+          </tr>
+        `;
+      });
+
+      salesLog.forEach((sale, index) => {
+        totalRev += sale.price;
+        salesBody.innerHTML += `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${sale.name}</td>
+            <td><strong>${sale.price} $</strong></td>
+            <td>${sale.date}</td>
+          </tr>
+        `;
+      });
+
+      document.getElementById('totalCount').innerText = subscriptions.length;
+      document.getElementById('activeCount').innerText = activeCnt;
+      document.getElementById('totalRevenue').innerText = totalRev + " $";
+    }
+  </script>
+</body>
+</html>
