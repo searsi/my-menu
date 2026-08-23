@@ -72,7 +72,7 @@
     </div>
 
     <div class="section-box">
-      <div class="section-title">➕ تسجيل مطعم واشتراك جديد</div>
+      <div class="section-title">➕ تسجيل مطعم وااشتراك جديد</div>
       <div class="form-grid">
         <div class="input-group"><label>اسم المطعم</label><input type="text" id="resName"></div>
         <div class="input-group"><label>رقم الهاتف</label><input type="tel" id="resPhone"></div>
@@ -134,22 +134,18 @@
   <script>
     const ADMIN_USER = "searsi";
     const ADMIN_PASS = "Aa112233";
-
-    // رابط قاعدة بيانات سحابية موحدة جديدة
-    const BIN_ID = "66f00226e41b4d34e434f09d"; // معرّف سحابي موحد
-    const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-    const API_KEY = "$2a$10$wTIn33JvC0C62i2P4M7x3eW413fO6V6.M9zQfI.Q11z2.4N2"; // مفتاح صلاحيات الوصول
+    const API_BASE_URL = "https://admin-e3293-default-rtdb.firebaseio.com/data.json";
 
     let subscriptions = [];
     let salesLog = [];
-    let isWorking = false;
+    let isBusy = false;
 
     function login() {
       if (document.getElementById('username').value === ADMIN_USER && document.getElementById('password').value === ADMIN_PASS) {
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('dashboardScreen').style.display = 'block';
         fetchCloudData();
-        setInterval(fetchCloudData, 3000);
+        setInterval(fetchCloudData, 2500);
       } else {
         document.getElementById('loginError').style.display = 'block';
       }
@@ -161,40 +157,36 @@
     }
 
     async function fetchCloudData() {
-      if (isWorking) return;
+      if (isBusy) return;
       try {
-        const res = await fetch(API_URL + "/latest?nocache=" + Date.now(), {
-          headers: { "X-Master-Key": API_KEY }
-        });
-        const result = await res.json();
-        if (result && result.record) {
-          subscriptions = result.record.subscriptions || [];
-          salesLog = result.record.salesLog || [];
+        const res = await fetch(API_BASE_URL + "?nocache=" + Date.now());
+        const data = await res.json();
+        
+        if (data) {
+          subscriptions = Array.isArray(data.subscriptions) ? data.subscriptions : [];
+          salesLog = Array.isArray(data.salesLog) ? data.salesLog : [];
           renderData();
         }
-        document.getElementById('syncStatus').innerText = "⚡ متصل ومزامن فورياً";
+        document.getElementById('syncStatus').innerText = "⚡ متصل بـ Firebase";
       } catch (err) {
-        document.getElementById('syncStatus').innerText = "❌ خطأ بالمزامنة";
+        document.getElementById('syncStatus').innerText = "❌ خطأ في الاتصال";
       }
     }
 
     async function saveCloudData() {
-      isWorking = true;
+      isBusy = true;
       document.getElementById('syncStatus').innerText = "⏳ جاري الرفع...";
       try {
-        await fetch(API_URL, {
+        await fetch(API_BASE_URL, {
           method: 'PUT',
-          headers: {
-            "Content-Type": "application/json",
-            "X-Master-Key": API_KEY
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ subscriptions, salesLog })
         });
-        document.getElementById('syncStatus').innerText = "⚡ تم التحديث للجميع";
+        document.getElementById('syncStatus').innerText = "⚡ تم التحديث بنجاح";
       } catch (err) {
-        alert("فشل رفع البيانات للسيرفر!");
+        alert("فشل الحفظ في Firebase!");
       } finally {
-        setTimeout(() => { isWorking = false; }, 1000);
+        setTimeout(() => { isBusy = false; }, 1000);
       }
     }
 
@@ -218,6 +210,9 @@
       const price = parseFloat(document.getElementById('salePrice').value) || 0;
 
       if (!name || !file || !start || !end) { alert("يرجى ملء البيانات الأساسية!"); return; }
+
+      // جلب البيانات الحالية من Firebase أولاً لمنع مسح بيانات الموبايل/الكمبيوتر
+      await fetchCloudData();
 
       const newItem = { id: Date.now(), name, phone, file, start, end, price, status: 'active' };
       subscriptions.push(newItem);
