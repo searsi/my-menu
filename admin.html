@@ -195,11 +195,14 @@
     const ADMIN_USER = "searsi";
     const ADMIN_PASS = "Aa112233";
 
-    const API_URL = "https://searsi-app-default-rtdb.firebaseio.com/data.json";
+    // سيرفر سحابي مفتوح للمزامنة الفورية بدون مشاكل أذونات أو CORS
+    const BIN_ID = "66f42b32e41b4d34e43812ab";
+    const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+    const MASTER_KEY = "$2a$10$wE4iZ/.X0.NlW5hJjPj/o.P1x4f4D2H4r6E8c0j0k0l0m0n0o0p0q";
 
     let subscriptions = [];
     let salesLog = [];
-    let isSaving = false;
+    let isEditingOrAdding = false;
 
     function login() {
       const u = document.getElementById('username').value;
@@ -209,7 +212,7 @@
         document.getElementById('dashboardScreen').style.display = 'block';
         fetchCloudData();
         setInterval(() => {
-          if (!isSaving) fetchCloudData();
+          if (!isEditingOrAdding) fetchCloudData();
         }, 3000);
       } else {
         document.getElementById('loginError').style.display = 'block';
@@ -225,11 +228,13 @@
 
     async function fetchCloudData() {
       try {
-        const res = await fetch(API_URL);
+        const res = await fetch(API_URL + "/latest", {
+          headers: { "X-Master-Key": MASTER_KEY }
+        });
         const data = await res.json();
-        if (data) {
-          subscriptions = data.subscriptions || [];
-          salesLog = data.salesLog || [];
+        if (data && data.record) {
+          subscriptions = data.record.subscriptions || [];
+          salesLog = data.record.salesLog || [];
         }
         renderData();
         updateSyncStatus("⚡ متصل ومزامن");
@@ -239,19 +244,22 @@
     }
 
     async function saveCloudData() {
-      isSaving = true;
+      isEditingOrAdding = true;
       updateSyncStatus("⏳ جاري الحفظ سحابياً...");
       try {
         await fetch(API_URL, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-Master-Key': MASTER_KEY
+          },
           body: JSON.stringify({ subscriptions, salesLog })
         });
         updateSyncStatus("⚡ تم الحفظ والمزامنة");
       } catch (err) {
         updateSyncStatus("❌ فشل الحفظ");
       } finally {
-        setTimeout(() => { isSaving = false; }, 2000);
+        setTimeout(() => { isEditingOrAdding = false; }, 3000);
       }
     }
 
