@@ -120,7 +120,7 @@
     </div>
 
     <div class="section-box">
-      <div class="section-title">➕ تسجيل مطعم وااشتراك جديد</div>
+      <div class="section-title">➕ تسجيل مطعم واشتراك جديد</div>
       <div class="form-grid">
         <div class="input-group"><label>اسم المطعم</label><input type="text" id="resName"></div>
         <div class="input-group"><label>رقم الهاتف</label><input type="tel" id="resPhone"></div>
@@ -129,7 +129,7 @@
         <div class="input-group"><label>تاريخ الانتهاء</label><input type="date" id="endDate"></div>
         <div class="input-group"><label>المبلغ ($)</label><input type="number" id="salePrice"></div>
       </div>
-      <button class="btn" onclick="addSubscription()">حفظ البيانات</button>
+      <button class="btn" id="saveBtn" onclick="addSubscription()">حفظ البيانات</button>
     </div>
 
     <div class="section-box">
@@ -195,11 +195,11 @@
     const ADMIN_USER = "searsi";
     const ADMIN_PASS = "Aa112233";
 
-    // سيرفر Firebase سحابي مباشر ومفتوح لكافة الأجهزة وبدون قيود حظر متصفح
     const API_URL = "https://searsi-app-default-rtdb.firebaseio.com/data.json";
 
     let subscriptions = [];
     let salesLog = [];
+    let isSaving = false;
 
     function login() {
       const u = document.getElementById('username').value;
@@ -208,7 +208,9 @@
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('dashboardScreen').style.display = 'block';
         fetchCloudData();
-        setInterval(fetchCloudData, 4000);
+        setInterval(() => {
+          if (!isSaving) fetchCloudData();
+        }, 3000);
       } else {
         document.getElementById('loginError').style.display = 'block';
       }
@@ -228,9 +230,6 @@
         if (data) {
           subscriptions = data.subscriptions || [];
           salesLog = data.salesLog || [];
-        } else {
-          subscriptions = [];
-          salesLog = [];
         }
         renderData();
         updateSyncStatus("⚡ متصل ومزامن");
@@ -240,6 +239,7 @@
     }
 
     async function saveCloudData() {
+      isSaving = true;
       updateSyncStatus("⏳ جاري الحفظ سحابياً...");
       try {
         await fetch(API_URL, {
@@ -250,6 +250,8 @@
         updateSyncStatus("⚡ تم الحفظ والمزامنة");
       } catch (err) {
         updateSyncStatus("❌ فشل الحفظ");
+      } finally {
+        setTimeout(() => { isSaving = false; }, 2000);
       }
     }
 
