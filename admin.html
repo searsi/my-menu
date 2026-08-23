@@ -72,7 +72,7 @@
     </div>
 
     <div class="section-box">
-      <div class="section-title">➕ تسجيل مطعم وااشتراك جديد</div>
+      <div class="section-title">➕ تسجيل مطعم واشتراك جديد</div>
       <div class="form-grid">
         <div class="input-group"><label>اسم المطعم</label><input type="text" id="resName"></div>
         <div class="input-group"><label>رقم الهاتف</label><input type="tel" id="resPhone"></div>
@@ -81,7 +81,7 @@
         <div class="input-group"><label>تاريخ الانتهاء</label><input type="date" id="endDate"></div>
         <div class="input-group"><label>المبلغ ($)</label><input type="number" id="salePrice"></div>
       </div>
-      <button class="btn" onclick="addSubscription()">حفظ البيانات</button>
+      <button class="btn" id="addBtn" onclick="addSubscription()">حفظ البيانات</button>
     </div>
 
     <div class="section-box">
@@ -134,11 +134,11 @@
   <script>
     const ADMIN_USER = "searsi";
     const ADMIN_PASS = "Aa112233";
-
     const API_BASE_URL = "https://admin-e3293-default-rtdb.firebaseio.com/data.json";
 
     let subscriptions = JSON.parse(localStorage.getItem('subscriptions')) || [];
     let salesLog = JSON.parse(localStorage.getItem('salesLog')) || [];
+    let syncTimer = null;
     let isSaving = false;
 
     function login() {
@@ -147,52 +147,57 @@
         document.getElementById('dashboardScreen').style.display = 'block';
         renderData();
         fetchCloudData();
-        setInterval(fetchCloudData, 3000);
+        syncTimer = setInterval(fetchCloudData, 3000);
       } else {
         document.getElementById('loginError').style.display = 'block';
       }
     }
 
     function logout() {
+      if (syncTimer) clearInterval(syncTimer);
       document.getElementById('loginScreen').style.display = 'flex';
       document.getElementById('dashboardScreen').style.display = 'none';
     }
 
     async function fetchCloudData() {
-      if (isSaving) return; // منع التضارب أثناء الحفظ
+      if (isSaving) return;
       try {
-        // إضافة timestamp لتجاوز كاش المتصفح في الهاتف
-        const cacheBusterUrl = API_BASE_URL + "?t=" + new Date().getTime();
+        const cacheBusterUrl = API_BASE_URL + "?nocache=" + Date.now();
         const res = await fetch(cacheBusterUrl);
+        if (!res.ok) throw new Error("شبكة");
         const data = await res.json();
         
-        if (data) {
-          subscriptions = data.subscriptions || [];
-          salesLog = data.salesLog || [];
+        if (data && typeof data === 'object') {
+          subscriptions = Array.isArray(data.subscriptions) ? data.subscriptions : [];
+          salesLog = Array.isArray(data.salesLog) ? data.salesLog : [];
           saveToLocal();
           renderData();
         }
         document.getElementById('syncStatus').innerText = "⚡ متصل ومزامن";
       } catch (err) {
-        document.getElementById('syncStatus').innerText = "❌ خطأ في الاتصال";
+        document.getElementById('syncStatus').innerText = "❌ خطأ المزامنة";
       }
     }
 
     async function saveCloudData() {
       isSaving = true;
       saveToLocal();
-      document.getElementById('syncStatus').innerText = "⏳ جاري الحفظ...";
+      document.getElementById('syncStatus').innerText = "⏳ جاري الرفع للسيرفر...";
       try {
-        await fetch(API_BASE_URL, {
+        const res = await fetch(API_BASE_URL, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ subscriptions, salesLog })
         });
-        document.getElementById('syncStatus').innerText = "⚡ تم الحفظ والمزامنة";
+        if (res.ok) {
+          document.getElementById('syncStatus').innerText = "⚡ تم الحفظ والمزامنة بنجاح";
+        } else {
+          throw new Error("فشل الرفع");
+        }
       } catch (err) {
-        document.getElementById('syncStatus').innerText = "❌ فشل الحفظ السحابي";
+        document.getElementById('syncStatus').innerText = "❌ فشل الحفظ! تحقق من النت";
       } finally {
-        setTimeout(() => { isSaving = false; }, 1500);
+        setTimeout(() => { isSaving = false; }, 2000);
       }
     }
 
@@ -213,14 +218,17 @@
     }
 
     async function addSubscription() {
-      const name = document.getElementById('resName').value;
-      const phone = document.getElementById('resPhone').value;
-      const file = document.getElementById('resFile').value;
+      const name = document.getElementById('resName').value.trim();
+      const phone = document.getElementById('resPhone').value.trim();
+      const file = document.getElementById('resFile').value.trim();
       const start = document.getElementById('startDate').value;
       const end = document.getElementById('endDate').value;
       const price = parseFloat(document.getElementById('salePrice').value) || 0;
 
       if (!name || !file || !start || !end) { alert("يرجى ملء البيانات الأساسية!"); return; }
+
+      // جلب أحدث نسخة أولاً قبل الإضافة لضمان عدم مسح بيانات الجهاز الآخر
+      await fetchCloudData();
 
       const newItem = { id: Date.now(), name, phone, file, start, end, price, status: 'active' };
       subscriptions.push(newItem);
