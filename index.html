@@ -38,6 +38,30 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
     body { background-color: var(--bg); color: var(--text); padding-bottom: 80px; }
 
+    /* شاشة توقف الخدمة */
+    #suspendedScreen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      padding: 20px;
+      background: var(--bg);
+    }
+    .suspended-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px 24px;
+      max-width: 400px;
+      box-shadow: var(--shadow);
+    }
+    .suspended-icon { font-size: 64px; margin-bottom: 16px; }
+    .suspended-title { font-size: 1.5rem; font-weight: 800; color: var(--accent); margin-bottom: 12px; }
+    .suspended-desc { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; }
+
+    /* هيدر المنيو */
     header {
       background: var(--header-bg); padding: 20px 15px 15px; text-align: center;
       border-bottom: 1px solid var(--border); box-shadow: var(--shadow); position: relative;
@@ -49,7 +73,6 @@
     }
 
     .header-top { display: flex; justify-content: center; align-items: center; gap: 12px; margin-bottom: 12px; }
-    
     .langs { display: flex; gap: 6px; }
     .lang-btn {
       background: var(--search-bg); color: var(--text); border: 1px solid var(--border);
@@ -83,7 +106,6 @@
     .nav-btn.active { background: var(--accent-gradient); color: #fff; border-color: transparent; box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3); }
 
     .container { padding: 20px 15px; max-width: 850px; margin: 0 auto; }
-    
     .menu-section { margin-bottom: 35px; }
     .sec-title {
       font-size: 1.25rem; font-weight: 800; color: var(--text); margin-bottom: 15px;
@@ -127,7 +149,7 @@
 
     .bottom-nav {
       position: fixed; bottom: 0; left: 0; right: 0; background: var(--header-bg);
-      border-top: 1px solid var(--border); display: flex; justify-around; padding: 10px 0; z-index: 100;
+      border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0; z-index: 100;
       backdrop-filter: blur(12px); box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
     }
     .bottom-btn { background: none; border: none; color: var(--text-muted); font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; }
@@ -152,206 +174,200 @@
 </head>
 <body>
 
-  <header>
-    <div class="brand">مطعم ومنشأة بغداد</div>
-    <div class="header-top">
-      <div class="langs">
-        <button class="lang-btn active" onclick="setLang('ar')">العربية</button>
-        <button class="lang-btn" onclick="setLang('en')">English</button>
-        <button class="lang-btn" onclick="setLang('ku')">کوردی</button>
+  <!-- واجهة التوقف عند انتهاء الاشتراك -->
+  <div id="suspendedScreen">
+    <div class="suspended-card">
+      <div class="suspended-icon">⚠️</div>
+      <div class="suspended-title">الخدمة متوقفة مؤقتاً</div>
+      <div class="suspended-desc">
+        عذراً، هذا المنيو غير متوفر حالياً.<br>يرجى التواصل مع إدارة المطعم للاستفسار أو مراجعة الاشتراك.
       </div>
-      <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">☀️</button>
     </div>
-    <input type="text" id="searchInput" class="search-box" placeholder="بحث عن طبق أو مشروب..." onkeyup="filterMenu()">
-  </header>
-
-  <div class="nav-bar">
-    <button class="nav-btn active" onclick="filterCategory('all', this)" data-ar="الكل" data-en="All" data-ku="هەموو">الكل</button>
-    <button class="nav-btn" onclick="filterCategory('appetizers', this)" data-ar="المقبلات" data-en="Appetizers" data-ku="مەقەبلات">المقبلات</button>
-    <button class="nav-btn" onclick="filterCategory('fish', this)" data-ar="أسماك ومسقوف" data-en="Fish & Masgouf" data-ku="ماسی و مەسگوف">أسماك ومسقوف</button>
-    <button class="nav-btn" onclick="filterCategory('kabab', this)" data-ar="مشاوي وكباب" data-en="Kebab & Grills" data-ku="کەباب و برژاو">مشاوي وكباب</button>
-    <button class="nav-btn" onclick="filterCategory('shisha', this)" data-ar="أراجيل" data-en="Shisha" data-ku="نێرگەلە">أراجيل</button>
-    <button class="nav-btn" onclick="filterCategory('burger', this)" data-ar="برجر" data-en="Burger" data-ku="بەرگەر">برجر</button>
-    <button class="nav-btn" onclick="filterCategory('hot', this)" data-ar="مشروبات وشاي" data-en="Drinks & Tea" data-ku="خواردنەوەکان">مشروبات وشاي</button>
   </div>
 
-  <div class="container" id="menuContainer">
-    
-    <!-- قسم المقبلات الجديد -->
-    <div class="menu-section" id="appetizers">
-      <div class="sec-title" data-ar="المقبلات والمشهيات" data-en="Appetizers" data-ku="مەقەبلات">المقبلات والمشهيات</div>
-      <div class="grid">
-        <div class="card" data-id="601">
-          <span class="badge" data-ar="مميز" data-en="Special" data-ku="تایبەت">مميز</span>
-          <button class="fav-btn" onclick="toggleFav(601, this)">♥</button>
-          <div class="img-wrapper">
-            <img src="https://images.unsplash.com/photo-1541518763669-27fef04b14da?w=500">
-          </div>
-          <div class="card-info" onclick="openModal('حمص بطحينة فاخر', 'Hummus with Tahini', '4,000 IQD', 'https://images.unsplash.com/photo-1541518763669-27fef04b14da?w=500', 'حمص بطحينة ناعم مع زيت الزيتون الصافي والسماق والزيتون')">
-            <div class="card-title" data-ar="حمص بطحينة فاخر" data-en="Hummus with Tahini" data-ku="حمس بە تەحین">حمص بطحينة فاخر</div>
-            <div class="card-price">4,000 IQD</div>
-          </div>
+  <!-- الواجهة الرئيسية للمنيو -->
+  <div id="mainContent">
+    <header>
+      <div class="brand">مطعم ومنشأة بغداد</div>
+      <div class="header-top">
+        <div class="langs">
+          <button class="lang-btn active" onclick="setLang('ar')">العربية</button>
+          <button class="lang-btn" onclick="setLang('en')">English</button>
+          <button class="lang-btn" onclick="setLang('ku')">کوردی</button>
         </div>
+        <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">☀️</button>
+      </div>
+      <input type="text" id="searchInput" class="search-box" placeholder="بحث عن طبق أو مشروب..." onkeyup="filterMenu()">
+    </header>
 
-        <div class="card" data-id="602">
-          <button class="fav-btn" onclick="toggleFav(602, this)">♥</button>
-          <div class="img-wrapper">
-            <img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500">
-          </div>
-          <div class="card-info" onclick="openModal('تبولة لبنانية', 'Tabbouleh Salad', '5,000 IQD', 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500', 'بقدونس طازج مفروم مع البندورة والبرغل وزيت الزيتون والدبس')">
-            <div class="card-title" data-ar="تبولة لبنانية" data-en="Tabbouleh Salad" data-ku="تبوولە">تبولة لبنانية</div>
-            <div class="card-price">5,000 IQD</div>
-          </div>
-        </div>
+    <div class="nav-bar">
+      <button class="nav-btn active" onclick="filterCategory('all', this)" data-ar="الكل" data-en="All" data-ku="هەموو">الكل</button>
+      <button class="nav-btn" onclick="filterCategory('appetizers', this)" data-ar="المقبلات" data-en="Appetizers" data-ku="مەقەبلات">المقبلات</button>
+      <button class="nav-btn" onclick="filterCategory('fish', this)" data-ar="أسماك ومسقوف" data-en="Fish & Masgouf" data-ku="ماسی و مەسگوف">أسماك ومسقوف</button>
+      <button class="nav-btn" onclick="filterCategory('kabab', this)" data-ar="مشاوي وكباب" data-en="Kebab & Grills" data-ku="کەباب و برژاو">مشاوي وكباب</button>
+      <button class="nav-btn" onclick="filterCategory('shisha', this)" data-ar="أراجيل" data-en="Shisha" data-ku="نێرگەلە">أراجيل</button>
+      <button class="nav-btn" onclick="filterCategory('burger', this)" data-ar="برجر" data-en="Burger" data-ku="بەرگەر">برجر</button>
+      <button class="nav-btn" onclick="filterCategory('hot', this)" data-ar="مشروبات وشاي" data-en="Drinks & Tea" data-ku="خواردنەوەکان">مشروبات وشاي</button>
+    </div>
 
-        <div class="card" data-id="603">
-          <button class="fav-btn" onclick="toggleFav(603, this)">♥</button>
-          <div class="img-wrapper">
-            <img src="https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?w=500">
+    <div class="container" id="menuContainer">
+      
+      <!-- المقبلات -->
+      <div class="menu-section" id="appetizers">
+        <div class="sec-title" data-ar="المقبلات والمشهيات" data-en="Appetizers" data-ku="مەقەبلات">المقبلات والمشهيات</div>
+        <div class="grid">
+          <div class="card" data-id="601">
+            <span class="badge" data-ar="مميز" data-en="Special" data-ku="تایبەت">مميز</span>
+            <button class="fav-btn" onclick="toggleFav(601, this)">♥</button>
+            <div class="img-wrapper">
+              <img src="https://images.unsplash.com/photo-1541518763669-27fef04b14da?w=500">
+            </div>
+            <div class="card-info" onclick="openModal('حمص بطحينة فاخر', 'Hummus with Tahini', '4,000 IQD', 'https://images.unsplash.com/photo-1541518763669-27fef04b14da?w=500', 'حمص بطحينة ناعم مع زيت الزيتون الصافي والسماق والزيتون')">
+              <div class="card-title" data-ar="حمص بطحينة فاخر" data-en="Hummus with Tahini" data-ku="حمس بە تەحین">حمص بطحينة فاخر</div>
+              <div class="card-price">4,000 IQD</div>
+            </div>
           </div>
-          <div class="card-info" onclick="openModal('متبل باذنجان مشوي', 'Mutabbal Eggplant', '4,500 IQD', 'https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?w=500', 'باذنجان مشوي على الفحم مهروس مع الطحينة والزبادي وزيت الزيتون')">
-            <div class="card-title" data-ar="متبل باذنجان مشوي" data-en="Mutabbal Eggplant" data-ku="موتەبەلی باینجان">متبل باذنجان مشوي</div>
-            <div class="card-price">4,500 IQD</div>
+
+          <div class="card" data-id="602">
+            <button class="fav-btn" onclick="toggleFav(602, this)">♥</button>
+            <div class="img-wrapper">
+              <img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500">
+            </div>
+            <div class="card-info" onclick="openModal('تبولة لبنانية', 'Tabbouleh Salad', '5,000 IQD', 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500', 'بقدونس طازج مفروم مع البندورة والبرغل وزيت الزيتون والدبس')">
+              <div class="card-title" data-ar="تبولة لبنانية" data-en="Tabbouleh Salad" data-ku="تبوولە">تبولة لبنانية</div>
+              <div class="card-price">5,000 IQD</div>
+            </div>
+          </div>
+
+          <div class="card" data-id="603">
+            <button class="fav-btn" onclick="toggleFav(603, this)">♥</button>
+            <div class="img-wrapper">
+              <img src="https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?w=500">
+            </div>
+            <div class="card-info" onclick="openModal('متبل باذنجان مشوي', 'Mutabbal Eggplant', '4,500 IQD', 'https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?w=500', 'باذنجان مشوي على الفحم مهروس مع الطحينة والزبادي وزيت الزيتون')">
+              <div class="card-title" data-ar="متبل باذنجان مشوي" data-en="Mutabbal Eggplant" data-ku="موتەبەلی باینجان">متبل باذنجان مشوي</div>
+              <div class="card-price">4,500 IQD</div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- قسم الأسماك والمسقوف -->
-    <div class="menu-section" id="fish">
-      <div class="sec-title" data-ar="أسماك ومسقوف عراقي" data-en="Fish & Masgouf" data-ku="ماسی و مەسگوف">أسماك ومسقوف عراقي</div>
-      <div class="grid">
-        <div class="card" data-id="301">
-          <span class="badge" data-ar="تراثي" data-en="Traditional" data-ku="کەلەپووری">تراثي</span>
-          <button class="fav-btn" onclick="toggleFav(301, this)">♥</button>
-          <div class="img-wrapper">
-            <img src="https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=500">
-          </div>
-          <div class="card-info" onclick="openModal('سمك كطان مسقوف (كيلو)', 'Masgouf Fish (Kg)', '20,000 IQD', 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=500', 'سمك دجلة المسقوف على الحطب بالطريقة العراقية الأصلية يقدم مع التشي باب والسلاطة')">
-            <div class="card-title" data-ar="سمك مسقوف (الكيلو)" data-en="Masgouf Fish (Kg)" data-ku="ماسی مەسگوف (کیلۆ)">سمك مسقوف (الكيلو)</div>
-            <div class="card-price">20,000 IQD</div>
+      <!-- أسماك ومسقوف -->
+      <div class="menu-section" id="fish">
+        <div class="sec-title" data-ar="أسماك ومسقوف عراقي" data-en="Fish & Masgouf" data-ku="ماسی و مەسگوف">أسماك ومسقوف عراقي</div>
+        <div class="grid">
+          <div class="card" data-id="301">
+            <span class="badge" data-ar="تراثي" data-en="Traditional" data-ku="کەلەپووری">تراثي</span>
+            <button class="fav-btn" onclick="toggleFav(301, this)">♥</button>
+            <div class="img-wrapper">
+              <img src="https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=500">
+            </div>
+            <div class="card-info" onclick="openModal('سمك كطان مسقوف (كيلو)', 'Masgouf Fish (Kg)', '20,000 IQD', 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=500', 'سمك دجلة المسقوف على الحطب بالطريقة العراقية الأصلية يقدم مع التشي باب والسلاطة')">
+              <div class="card-title" data-ar="سمك مسقوف (الكيلو)" data-en="Masgouf Fish (Kg)" data-ku="ماسی مەسگوف (کیلۆ)">سمك مسقوف (الكيلو)</div>
+              <div class="card-price">20,000 IQD</div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- قسم الكباب والمشاوي -->
-    <div class="menu-section" id="kabab">
-      <div class="sec-title" data-ar="مشاوي وكباب عراقي" data-en="Iraqi Kebab & Grills" data-ku="کەبابی عێراقی">مشاوي وكباب عراقي</div>
-      <div class="grid">
-        <div class="card" data-id="101">
-          <span class="badge" data-ar="الأكثر طلباً" data-en="Bestseller" data-ku="پڕفرۆشترین">الأكثر طلباً</span>
-          <button class="fav-btn" onclick="toggleFav(101, this)">♥</button>
-          <div class="img-wrapper">
-            <img src="https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=500">
+      <!-- كباب ومشاوي -->
+      <div class="menu-section" id="kabab">
+        <div class="sec-title" data-ar="مشاوي وكباب عراقي" data-en="Iraqi Kebab & Grills" data-ku="کەبابی عێراقی">مشاوي وكباب عراقي</div>
+        <div class="grid">
+          <div class="card" data-id="101">
+            <span class="badge" data-ar="الأكثر طلباً" data-en="Bestseller" data-ku="پڕفرۆشترین">الأكثر طلباً</span>
+            <button class="fav-btn" onclick="toggleFav(101, this)">♥</button>
+            <div class="img-wrapper">
+              <img src="https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=500">
+            </div>
+            <div class="card-info" onclick="openModal('كباب لحم عراقي', 'Iraqi Meat Kebab', '14,000 IQD', 'https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=500', 'كباب لحم غنم عراقي مشوي على الفحم يقدم مع الخبز الحار والطماطم المشوية')">
+              <div class="card-title" data-ar="كباب لحم عراقي" data-en="Iraqi Meat Kebab" data-ku="کەبابی گۆشتی عێراقی">كباب لحم عراقي</div>
+              <div class="card-price">14,000 IQD</div>
+            </div>
           </div>
-          <div class="card-info" onclick="openModal('كباب لحم عراقي', 'Iraqi Meat Kebab', '14,000 IQD', 'https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=500', 'كباب لحم غنم عراقي مشوي على الفحم يقدم مع الخبز الحار والطماطم المشوية')">
-            <div class="card-title" data-ar="كباب لحم عراقي" data-en="Iraqi Meat Kebab" data-ku="کەبابی گۆشتی عێراقی">كباب لحم عراقي</div>
-            <div class="card-price">14,000 IQD</div>
-          </div>
-        </div>
 
-        <div class="card" data-id="102">
-          <button class="fav-btn" onclick="toggleFav(102, this)">♥</button>
-          <div class="img-wrapper">
-            <img src="https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=500">
-          </div>
-          <div class="card-info" onclick="openModal('كباب دجاج', 'Chicken Kebab', '12,000 IQD', 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=500', 'شيلي كباب دجاج مفروم بالتوابل العراقية والمشوي على الفحم')">
-            <div class="card-title" data-ar="كباب دجاج" data-en="Chicken Kebab" data-ku="کەبابی مریشک">كباب دجاج</div>
-            <div class="card-price">12,000 IQD</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- قسم الأراجيل -->
-    <div class="menu-section" id="shisha">
-      <div class="sec-title" data-ar="أراجيل وشيشة" data-en="Shisha & Hookah" data-ku="نێرگەلە">أراجيل وشيشة</div>
-      <div class="grid">
-        <div class="card" data-id="501">
-          <span class="badge" data-ar="الأكثر طلباً" data-en="Bestseller" data-ku="پڕفرۆشترین">الأكثر طلباً</span>
-          <button class="fav-btn" onclick="toggleFav(501, this)">♥</button>
-          <div class="img-wrapper">
-            <img src="https://th.bing.com/th/id/OIP.tu1lggsBND6mkRhBUqYJJgHaE7?w=306&h=204&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3">
-          </div>
-          <div class="card-info" onclick="openModal('أرجيلة تفاحتين فاخر', 'Double Apple Shisha', '10,000 IQD', 'https://th.bing.com/th/id/OIP.tu1lggsBND6mkRhBUqYJJgHaE7?w=306&h=204&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3', 'أرجيلة تفاحتين فاخرة مع معسل طازج وخدمة تبديل الفحم المستمرة')">
-            <div class="card-title" data-ar="أرجيلة تفاحتين فاخر" data-en="Double Apple Shisha" data-ku="نێرگەلەی دوو سێو">أرجيلة تفاحتين فاخر</div>
-            <div class="card-price">10,000 IQD</div>
-          </div>
-        </div>
-
-        <div class="card" data-id="502">
-          <button class="fav-btn" onclick="toggleFav(502, this)">♥</button>
-          <div class="img-wrapper">
-            <img src="https://th.bing.com/th/id/OIP.tu1lggsBND6mkRhBUqYJJgHaE7?w=306&h=204&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3">
-          </div>
-          <div class="card-info" onclick="openModal('أرجيلة حامض نعناع', 'Lemon Mint Shisha', '10,000 IQD', 'https://th.bing.com/th/id/OIP.tu1lggsBND6mkRhBUqYJJgHaE7?w=306&h=204&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3', 'أرجيلة بنكهة الليمون والنعناع المنعشة مع تبديل الفحم المباشر')">
-            <div class="card-title" data-ar="أرجيلة حامض نعناع" data-en="Lemon Mint Shisha" data-ku="نێرگەلەی ليمۆ و نەعناع">أرجيلة حامض نعناع</div>
-            <div class="card-price">10,000 IQD</div>
+          <div class="card" data-id="102">
+            <button class="fav-btn" onclick="toggleFav(102, this)">♥</button>
+            <div class="img-wrapper">
+              <img src="https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=500">
+            </div>
+            <div class="card-info" onclick="openModal('كباب دجاج', 'Chicken Kebab', '12,000 IQD', 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=500', 'شيلي كباب دجاج مفروم بالتوابل العراقية والمشوي على الفحم')">
+              <div class="card-title" data-ar="كباب دجاج" data-en="Chicken Kebab" data-ku="کەبابی مریشک">كباب دجاج</div>
+              <div class="card-price">12,000 IQD</div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- قسم البرجر -->
-    <div class="menu-section" id="burger">
-      <div class="sec-title" data-ar="برجر" data-en="Burger" data-ku="بەرگەر">برجر</div>
-      <div class="grid">
-        <div class="card" data-id="201">
-          <span class="badge" data-ar="مميز" data-en="Special" data-ku="تایبەت">مميز</span>
-          <button class="fav-btn" onclick="toggleFav(201, this)">♥</button>
-          <div class="img-wrapper">
-            <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500">
-          </div>
-          <div class="card-info" onclick="openModal('برجر لحم كلاسيك', 'Classic Beef Burger', '8,000 IQD', 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500', 'شريحة لحم بقر طازجة مع الجبن والشدر والصوص الخاص مع البطاطا')">
-            <div class="card-title" data-ar="برجر لحم كلاسيك" data-en="Classic Beef Burger" data-ku="بەرگەری گۆشت">برجر لحم كلاسيك</div>
-            <div class="card-price">8,000 IQD</div>
-          </div>
-        </div>
-
-        <div class="card" data-id="202">
-          <button class="fav-btn" onclick="toggleFav(202, this)">♥</button>
-          <div class="img-wrapper">
-            <img src="https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=500">
-          </div>
-          <div class="card-info" onclick="openModal('زنجر برجر دجاج', 'Zinger Chicken Burger', '7,000 IQD', 'https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=500', 'صدر دجاج مقرمش مع الخس والصوص الحار')">
-            <div class="card-title" data-ar="زنجر برجر دجاج" data-en="Zinger Chicken Burger" data-ku="زینگەر بەرگەر">زنجر برجر دجاج</div>
-            <div class="card-price">7,000 IQD</div>
+      <!-- الأراجيل -->
+      <div class="menu-section" id="shisha">
+        <div class="sec-title" data-ar="أراجيل وشيشة" data-en="Shisha & Hookah" data-ku="نێرگەلە">أراجيل وشيشة</div>
+        <div class="grid">
+          <div class="card" data-id="501">
+            <span class="badge" data-ar="الأكثر طلباً" data-en="Bestseller" data-ku="پڕفرۆشترین">الأكثر طلباً</span>
+            <button class="fav-btn" onclick="toggleFav(501, this)">♥</button>
+            <div class="img-wrapper">
+              <img src="https://th.bing.com/th/id/OIP.tu1lggsBND6mkRhBUqYJJgHaE7?w=306&h=204&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3">
+            </div>
+            <div class="card-info" onclick="openModal('أرجيلة تفاحتين فاخر', 'Double Apple Shisha', '10,000 IQD', 'https://th.bing.com/th/id/OIP.tu1lggsBND6mkRhBUqYJJgHaE7?w=306&h=204&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3', 'أرجيلة تفاحتين فاخرة مع معسل طازج وخدمة تبديل الفحم المستمرة')">
+              <div class="card-title" data-ar="أرجيلة تفاحتين فاخر" data-en="Double Apple Shisha" data-ku="نێرگەلەی دوو سێو">أرجيلة تفاحتين فاخر</div>
+              <div class="card-price">10,000 IQD</div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- قسم المشروبات -->
-    <div class="menu-section" id="hot">
-      <div class="sec-title" data-ar="مشروبات وشاي" data-en="Drinks & Tea" data-ku="خواردنەوەکان">مشروبات وشاي</div>
-      <div class="grid">
-        <div class="card" data-id="401">
-          <button class="fav-btn" onclick="toggleFav(401, this)">♥</button>
-          <div class="img-wrapper">
-            <img src="https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500">
-          </div>
-          <div class="card-info" onclick="openModal('شاي كرك', 'Karak Tea', '2,000 IQD', 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500', 'شاي كرك مهيل مطبوخ على النار الهادئة')">
-            <div class="card-title" data-ar="شاي كرك" data-en="Karak Tea" data-ku="چای کەرەک">شاي كرك</div>
-            <div class="card-price">2,000 IQD</div>
+      <!-- برجر -->
+      <div class="menu-section" id="burger">
+        <div class="sec-title" data-ar="برجر" data-en="Burger" data-ku="بەرگەر">برجر</div>
+        <div class="grid">
+          <div class="card" data-id="201">
+            <span class="badge" data-ar="مميز" data-en="Special" data-ku="تایبەت">مميز</span>
+            <button class="fav-btn" onclick="toggleFav(201, this)">♥</button>
+            <div class="img-wrapper">
+              <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500">
+            </div>
+            <div class="card-info" onclick="openModal('برجر لحم كلاسيك', 'Classic Beef Burger', '8,000 IQD', 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500', 'شريحة لحم بقر طازجة مع الجبن والشدر والصوص الخاص مع البطاطا')">
+              <div class="card-title" data-ar="برجر لحم كلاسيك" data-en="Classic Beef Burger" data-ku="بەرگەری گۆشت">برجر لحم كلاسيك</div>
+              <div class="card-price">8,000 IQD</div>
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- مشروبات وشاي -->
+      <div class="menu-section" id="hot">
+        <div class="sec-title" data-ar="مشروبات وشاي" data-en="Drinks & Tea" data-ku="خواردنەوەکان">مشروبات وشاي</div>
+        <div class="grid">
+          <div class="card" data-id="401">
+            <button class="fav-btn" onclick="toggleFav(401, this)">♥</button>
+            <div class="img-wrapper">
+              <img src="https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500">
+            </div>
+            <div class="card-info" onclick="openModal('شاي كرك', 'Karak Tea', '2,000 IQD', 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500', 'شاي كرك مهيل مطبوخ على النار الهادئة')">
+              <div class="card-title" data-ar="شاي كرك" data-en="Karak Tea" data-ku="چای کەرەک">شاي كرك</div>
+              <div class="card-price">2,000 IQD</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
+    <!-- الشريط السفلي -->
+    <div class="bottom-nav">
+      <button class="bottom-btn active" onclick="showAllNav(this)">
+        <span>🏠</span>
+        <span data-ar="الكل" data-en="All" data-ku="هەموو">الكل</span>
+      </button>
+      <button class="bottom-btn" onclick="showFavs(this)">
+        <span>❤️</span>
+        <span data-ar="المفضلة" data-en="Favorites" data-ku="دڵخوازەکان">المفضلة</span>
+      </button>
+    </div>
   </div>
 
-  <div class="bottom-nav">
-    <button class="bottom-btn active" onclick="showAllNav(this)">
-      <span>🏠</span>
-      <span data-ar="الكل" data-en="All" data-ku="هەموو">الكل</span>
-    </button>
-    <button class="bottom-btn" onclick="showFavs(this)">
-      <span>❤️</span>
-      <span data-ar="المفضلة" data-en="Favorites" data-ku="دڵخوازەکان">المفضلة</span>
-    </button>
-  </div>
-
+  <!-- النافذة المنبثقة للطلب -->
   <div id="itemModal" class="modal">
     <div class="modal-content">
       <button class="close-btn" onclick="closeModal()">✕</button>
@@ -365,10 +381,17 @@
   </div>
 
   <script>
+    // ----------------------------------------------------
+    // متغير التحكم بحالة اشتراك المطعم (active / expired)
+    // عند تغيير القيمة لـ 'expired' ستظهر واجهة التعليق تلقائياً
+    // ----------------------------------------------------
+    const RESTAURANT_STATUS = 'active';
+
     let currentLang = 'ar';
     let favorites = JSON.parse(localStorage.getItem('favs') || '[]');
 
     document.addEventListener('DOMContentLoaded', () => {
+      checkSubscription();
       updateFavButtons();
       const savedTheme = localStorage.getItem('theme') || 'dark';
       if (savedTheme === 'light') {
@@ -376,6 +399,17 @@
         document.getElementById('themeBtn').textContent = '🌙';
       }
     });
+
+    // فحص الاشتراك عند فتح الصفحة
+    function checkSubscription() {
+      if (RESTAURANT_STATUS !== 'active') {
+        document.getElementById('mainContent').style.display = 'none';
+        document.getElementById('suspendedScreen').style.display = 'flex';
+      } else {
+        document.getElementById('mainContent').style.display = 'block';
+        document.getElementById('suspendedScreen').style.display = 'none';
+      }
+    }
 
     function toggleTheme() {
       const currentTheme = document.documentElement.getAttribute('data-theme');
