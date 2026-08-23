@@ -72,7 +72,7 @@
     </div>
 
     <div class="section-box">
-      <div class="section-title">➕ تسجيل مطعم واشتراك جديد</div>
+      <div class="section-title">➕ تسجيل مطعم وااشتراك جديد</div>
       <div class="form-grid">
         <div class="input-group"><label>اسم المطعم</label><input type="text" id="resName"></div>
         <div class="input-group"><label>رقم الهاتف</label><input type="tel" id="resPhone"></div>
@@ -135,11 +135,11 @@
     const ADMIN_USER = "searsi";
     const ADMIN_PASS = "Aa112233";
 
-    const API_URL = "https://admin-e3293-default-rtdb.firebaseio.com/data.json";
+    const API_BASE_URL = "https://admin-e3293-default-rtdb.firebaseio.com/data.json";
 
-    // استعادة البيانات من الذاكرة المحلية فوراً
     let subscriptions = JSON.parse(localStorage.getItem('subscriptions')) || [];
     let salesLog = JSON.parse(localStorage.getItem('salesLog')) || [];
+    let isSaving = false;
 
     function login() {
       if (document.getElementById('username').value === ADMIN_USER && document.getElementById('password').value === ADMIN_PASS) {
@@ -147,7 +147,7 @@
         document.getElementById('dashboardScreen').style.display = 'block';
         renderData();
         fetchCloudData();
-        setInterval(fetchCloudData, 4000);
+        setInterval(fetchCloudData, 3000);
       } else {
         document.getElementById('loginError').style.display = 'block';
       }
@@ -159,11 +159,15 @@
     }
 
     async function fetchCloudData() {
+      if (isSaving) return; // منع التضارب أثناء الحفظ
       try {
-        const res = await fetch(API_URL);
+        // إضافة timestamp لتجاوز كاش المتصفح في الهاتف
+        const cacheBusterUrl = API_BASE_URL + "?t=" + new Date().getTime();
+        const res = await fetch(cacheBusterUrl);
         const data = await res.json();
-        if (data && data.subscriptions) {
-          subscriptions = data.subscriptions;
+        
+        if (data) {
+          subscriptions = data.subscriptions || [];
           salesLog = data.salesLog || [];
           saveToLocal();
           renderData();
@@ -175,10 +179,11 @@
     }
 
     async function saveCloudData() {
+      isSaving = true;
       saveToLocal();
       document.getElementById('syncStatus').innerText = "⏳ جاري الحفظ...";
       try {
-        await fetch(API_URL, {
+        await fetch(API_BASE_URL, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ subscriptions, salesLog })
@@ -186,6 +191,8 @@
         document.getElementById('syncStatus').innerText = "⚡ تم الحفظ والمزامنة";
       } catch (err) {
         document.getElementById('syncStatus').innerText = "❌ فشل الحفظ السحابي";
+      } finally {
+        setTimeout(() => { isSaving = false; }, 1500);
       }
     }
 
@@ -215,7 +222,8 @@
 
       if (!name || !file || !start || !end) { alert("يرجى ملء البيانات الأساسية!"); return; }
 
-      subscriptions.push({ id: Date.now(), name, phone, file, start, end, price, status: 'active' });
+      const newItem = { id: Date.now(), name, phone, file, start, end, price, status: 'active' };
+      subscriptions.push(newItem);
       salesLog.push({ id: Date.now(), name, price, date: new Date().toLocaleDateString('ar-EG') });
 
       document.getElementById('resName').value = '';
