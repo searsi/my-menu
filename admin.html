@@ -54,6 +54,24 @@
     .subscription-control-box {
       display: flex; gap: 10px; align-items: center; margin-bottom: 15px; background: #23232a; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border);
     }
+    
+    /* زر القائمة المنسدلة للوجبات الجديدة */
+    .dropdown-toggle-btn {
+      width: 100%;
+      background: #23232a;
+      color: var(--accent);
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      text-align: right;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .badge-type { font-size: 0.65rem; padding: 2px 6px; border-radius: 6px; margin-right: 4px; background: rgba(229, 184, 73, 0.15); color: var(--accent); }
   </style>
 </head>
 <body>
@@ -109,25 +127,32 @@
         <button class="btn-toggle-sub btn-sub-expired" onclick="changeSubscriptionStatus('expired')">إيقاف (Expired)</button>
       </div>
 
-      <!-- نموذج إضافة وجبة جديدة -->
-      <div id="addMealSection" style="display: none; background: #18181c; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border);">
-        <h4 style="color: var(--accent); margin-bottom: 10px;">➕ إضافة وجبة جديدة / قسم جديد</h4>
-        <div class="form-grid">
-          <div class="input-group"><label>اسم الوجبة</label><input type="text" id="mealTitle"></div>
-          <div class="input-group"><label>السعر (مثال: 7,000 د.ع)</label><input type="text" id="mealPrice"></div>
-          <div class="input-group"><label>الوصف / المكونات</label><input type="text" id="mealDesc"></div>
-          <div class="input-group"><label>رابط الصورة (URL)</label><input type="text" id="mealImg" placeholder="https://..."></div>
-          <div class="input-group">
-            <label>القسم (اختر قسم حالي أو اكتب قسم جديد)</label>
-            <input type="text" id="mealCategory" placeholder="مثال: مشروبات، بيتزا، أطباق خاصة">
+      <!-- زر القائمة المنسدلة لفتح إدخال الوجبات -->
+      <div id="addMealWrapper" style="display: none;">
+        <button class="dropdown-toggle-btn" onclick="toggleAddForm()">
+          <span>➕ إضافة وجبة جديدة / قسم جديد</span>
+          <span id="dropdownIcon">🔽</span>
+        </button>
+
+        <!-- نموذج إضافة وجبة جديدة (مخفي افتراضياً) -->
+        <div id="addMealSection" style="display: none; background: #18181c; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border);">
+          <div class="form-grid">
+            <div class="input-group"><label>اسم الوجبة</label><input type="text" id="mealTitle"></div>
+            <div class="input-group"><label>السعر (مثال: 7,000 د.ع)</label><input type="text" id="mealPrice"></div>
+            <div class="input-group"><label>الوصف / المكونات</label><input type="text" id="mealDesc"></div>
+            <div class="input-group"><label>رابط الصورة (URL)</label><input type="text" id="mealImg" placeholder="https://..."></div>
+            <div class="input-group">
+              <label>القسم (اختر قسم حالي أو اكتب قسم جديد)</label>
+              <input type="text" id="mealCategory" placeholder="مثال: مشروبات، بيتزا، أطباق خاصة">
+            </div>
           </div>
+          <button class="btn" style="margin-top: 10px; background: var(--success);" onclick="addNewMeal()">إضافة الوجبة إلى المنيو 🚀</button>
         </div>
-        <button class="btn" style="margin-top: 10px; background: var(--success);" onclick="addNewMeal()">إضافة الوجبة إلى المنيو 🚀</button>
       </div>
 
-      <!-- قائمة عرض الوجبات وإمكانية الحذف -->
-      <div id="menuItemsContainer" style="max-height: 400px; overflow-y: auto;">
-        <p style="color: var(--text-muted); font-size: 0.85rem;">اكتب اسم الملف واضغط (جلب البيانات) للتحكم بالوجبات وحذفها.</p>
+      <!-- قائمة عرض الوجبات وإمكانية الحذف والتعديل -->
+      <div id="menuItemsContainer" style="max-height: 450px; overflow-y: auto;">
+        <p style="color: var(--text-muted); font-size: 0.85rem;">اكتب اسم الملف واضغط (جلب البيانات) للتحكم بالوجبات وحالتها.</p>
       </div>
     </div>
 
@@ -156,7 +181,9 @@
     const API_BASE_URL = "https://admin-e3293-default-rtdb.firebaseio.com/";
 
     let subscriptions = [];
-    let currentMeals = [];
+    let customMeals = [];
+    let baseMeals = [];
+    let allMeals = [];
     let menuStatus = {};
 
     function login() {
@@ -173,6 +200,18 @@
     function logout() {
       document.getElementById('loginScreen').style.display = 'flex';
       document.getElementById('dashboardScreen').style.display = 'none';
+    }
+
+    function toggleAddForm() {
+      const form = document.getElementById('addMealSection');
+      const icon = document.getElementById('dropdownIcon');
+      if (form.style.display === 'none' || form.style.display === '') {
+        form.style.display = 'block';
+        icon.innerText = '🔼';
+      } else {
+        form.style.display = 'none';
+        icon.innerText = '🔽';
+      }
     }
 
     async function fetchCloudData() {
@@ -194,20 +233,85 @@
       if (!fileName) { alert("يرجى كتابة اسم ملف المنيو أولاً!"); return; }
 
       document.getElementById('subControlPanel').style.display = 'flex';
-      document.getElementById('addMealSection').style.display = 'block';
+      document.getElementById('addMealWrapper').style.display = 'block';
       checkSingleSubStatus(fileName);
 
       try {
-        const mealsRes = await fetch(`${API_BASE_URL}custom_meals_${fileName}.json?nocache=` + Date.now());
-        currentMeals = await mealsRes.json() || [];
+        // 1. جلب الوجبات المضافة يدوياً من السيرفر
+        const customRes = await fetch(`${API_BASE_URL}custom_meals_${fileName}.json?nocache=` + Date.now());
+        customMeals = await customRes.json() || [];
 
+        // 2. جلب حالات التوفر للوجبات
         const statusRes = await fetch(`${API_BASE_URL}items_${fileName}.json?nocache=` + Date.now());
         menuStatus = await statusRes.json() || {};
 
-        renderMenuItems(fileName);
+        // 3. جلب الوجبات الأساسية الثابتة من قاعدة البيانات أو قراءة صفحة المنيو مباشرة
+        let fetchedBaseMeals = [];
+        try {
+          const baseRes = await fetch(`${API_BASE_URL}menu_meals_${fileName}.json?nocache=` + Date.now());
+          fetchedBaseMeals = await baseRes.json() || [];
+        } catch(e) {}
+
+        // إذا لم توجد وجبات أساسية محفوضة بـ Firebase، نقتطع الوجبات الثابتة من ملف الـ HTML مباشرة
+        if (!fetchedBaseMeals || fetchedBaseMeals.length === 0) {
+          fetchedBaseMeals = await extractMealsFromHTML(fileName);
+        }
+        
+        baseMeals = fetchedBaseMeals;
+
+        // دمج وتوليد العرض
+        combineAndRenderMeals(fileName);
       } catch(e) {
         alert("تعذر جلب بيانات الوجبات!");
       }
+    }
+
+    // دالة تقوم بقراءة ملف الـ HTML وتستخرج الوجبات تلقائياً
+    async function extractMealsFromHTML(fileName) {
+      try {
+        const htmlRes = await fetch(`${fileName}.html?nocache=` + Date.now());
+        if (!htmlRes.ok) return [];
+        const htmlText = await htmlRes.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, 'text/html');
+
+        let extracted = [];
+        // البحث عن العناصر الأكثر استخداماً للمأكولات في صفحات المنيو
+        const items = doc.querySelectorAll('.menu-item, .item-card, .card, [data-id]');
+        
+        items.forEach((el, index) => {
+          const id = el.getAttribute('data-id') || el.id || `base_item_${index + 1}`;
+          const title = el.querySelector('h3, h4, .title, .item-name')?.innerText.trim() || `وجبة ${index + 1}`;
+          const price = el.querySelector('.price, .item-price')?.innerText.trim() || '';
+          const desc = el.querySelector('p, .description, .item-desc')?.innerText.trim() || '';
+          const category = el.closest('[data-category]')?.getAttribute('data-category') || 'الوجبات الأساسية';
+
+          if (title) {
+            extracted.push({ id, title, price, desc, category });
+          }
+        });
+
+        // حفظ الوجبات المستخرجة بـ Firebase لسرعة الاستدعاء في المرات القادمة
+        if (extracted.length > 0) {
+          fetch(`${API_BASE_URL}menu_meals_${fileName}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(extracted)
+          });
+        }
+
+        return extracted;
+      } catch (err) {
+        return [];
+      }
+    }
+
+    function combineAndRenderMeals(fileName) {
+      const formattedCustom = customMeals.map(m => ({ ...m, isCustom: true }));
+      const formattedBase = baseMeals.map(m => ({ ...m, isCustom: false }));
+
+      allMeals = [...formattedBase, ...formattedCustom];
+      renderMenuItems(fileName);
     }
 
     async function addNewMeal() {
@@ -232,12 +336,12 @@
         category
       };
 
-      currentMeals.push(newMeal);
+      customMeals.push(newMeal);
 
       await fetch(`${API_BASE_URL}custom_meals_${fileName}.json`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(currentMeals)
+        body: JSON.stringify(customMeals)
       });
 
       alert("تمت إضافة الوجبة بنجاح!");
@@ -245,48 +349,49 @@
       document.getElementById('mealPrice').value = '';
       document.getElementById('mealDesc').value = '';
       document.getElementById('mealImg').value = '';
+      toggleAddForm(); // إغلاق النافذة المنسدلة تلقائياً بعد الإضافة
 
-      renderMenuItems(fileName);
+      combineAndRenderMeals(fileName);
     }
 
-    // وظيفة حذف الوجبة
-    async function deleteMeal(fileName, index) {
+    async function deleteMeal(fileName, mealId) {
       if(!confirm("هل أنت تأكد من إزالة هذه الوجبة نهائياً من المنيو؟")) return;
       
-      currentMeals.splice(index, 1);
+      customMeals = customMeals.filter(m => m.id !== mealId);
 
       await fetch(`${API_BASE_URL}custom_meals_${fileName}.json`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(currentMeals)
+        body: JSON.stringify(customMeals)
       });
 
-      renderMenuItems(fileName);
+      combineAndRenderMeals(fileName);
     }
 
     function renderMenuItems(fileName) {
       const container = document.getElementById('menuItemsContainer');
       container.innerHTML = '';
 
-      if (currentMeals.length === 0) {
-        container.innerHTML = `<p style="color:var(--text-muted); font-size:0.85rem;">لا توجد وجبات مضافة حالياً. يمكنك إضافة وجبة جديدة من النموذج أعلاه.</p>`;
+      if (allMeals.length === 0) {
+        container.innerHTML = `<p style="color:var(--text-muted); font-size:0.85rem;">لم يتم العثور على وجبات لهذا المنيو. يمكنك إضافة وجبة جديدة بالضغط على الزر أعلاه.</p>`;
         return;
       }
 
-      currentMeals.forEach((meal, index) => {
+      allMeals.forEach((meal) => {
         const isSoldOut = menuStatus[meal.id] === 'soldout';
+        const typeBadge = meal.isCustom ? `<span class="badge-type">مضافة</span>` : `<span class="badge-type" style="color:#2ed573;">أساسية</span>`;
         
         container.innerHTML += `
           <div class="item-row">
             <div>
-              <strong>${meal.title}</strong> <small style="color:var(--accent);">[${meal.category}]</small>
-              <br><small style="color:#aaa;">${meal.price} - ${meal.desc}</small>
+              <strong>${meal.title}</strong> ${typeBadge} <small style="color:var(--accent);">[${meal.category || 'عام'}]</small>
+              <br><small style="color:#aaa;">${meal.price || ''} ${meal.desc ? '- ' + meal.desc : ''}</small>
             </div>
             <div style="display:flex; align-items:center;">
               <button class="toggle-item-btn ${isSoldOut ? 'btn-soldout' : 'btn-available'}" onclick="toggleItemState('${fileName}', '${meal.id}')">
-                ${isSoldOut ? '🚫 نافذة' : '✅ متوفرة'}
+                ${isSoldOut ? '🚫 نفدت (غير متوفر)' : '✅ متوفرة'}
               </button>
-              <button class="btn-delete" onclick="deleteMeal('${fileName}', ${index})">🗑️ حذف</button>
+              ${meal.isCustom ? `<button class="btn-delete" onclick="deleteMeal('${fileName}', '${meal.id}')">🗑️ حذف</button>` : ''}
             </div>
           </div>
         `;
@@ -299,6 +404,7 @@
 
       await fetch(`${API_BASE_URL}items_${fileName}/${itemId}.json`, {
         method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(currentState)
       });
 
