@@ -219,6 +219,7 @@
     let subscriptions = [];
     let customMeals = [];
     let baseMeals = [];
+    let deletedBaseMeals = []; // قائمة الوجبات الأساسية المحذوفة
     let allMeals = [];
     let menuStatus = {};
     let currentCategories = [];
@@ -300,6 +301,10 @@
       try {
         const customRes = await fetch(`${API_BASE_URL}custom_meals_${fileName}.json?nocache=` + Date.now());
         customMeals = await customRes.json() || [];
+
+        // جلب الوجبات الأساسية المحذوفة إن وجدت
+        const delBaseRes = await fetch(`${API_BASE_URL}deleted_base_meals_${fileName}.json?nocache=` + Date.now());
+        deletedBaseMeals = await delBaseRes.json() || [];
 
         const statusRes = await fetch(`${API_BASE_URL}items_${fileName}.json?nocache=` + Date.now());
         menuStatus = await statusRes.json() || {};
@@ -443,7 +448,9 @@
 
     function combineAndRenderMeals(fileName) {
       const formattedCustom = customMeals.map(m => ({ ...m, isCustom: true }));
-      const formattedBase = baseMeals.map(m => ({ ...m, isCustom: false }));
+      // استبعاد الوجبات الأساسية التي تم حذفها مسبقاً
+      const filteredBase = baseMeals.filter(m => !deletedBaseMeals.includes(m.id));
+      const formattedBase = filteredBase.map(m => ({ ...m, isCustom: false }));
 
       allMeals = [...formattedBase, ...formattedCustom];
       renderMenuItems(fileName);
@@ -489,16 +496,26 @@
       combineAndRenderMeals(fileName);
     }
 
-    async function deleteMeal(fileName, mealId) {
-      if(!confirm("هل أنت تأكد من إزالة هذه الوجبة نهائياً؟")) return;
+    async function deleteMeal(fileName, mealId, isCustom) {
+      if(!confirm("هل أنت متأكد من إزالة هذه الوجبة نهائياً؟")) return;
       
-      customMeals = customMeals.filter(m => m.id !== mealId);
-
-      await fetch(`${API_BASE_URL}custom_meals_${fileName}.json`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(customMeals)
-      });
+      if (isCustom) {
+        customMeals = customMeals.filter(m => m.id !== mealId);
+        await fetch(`${API_BASE_URL}custom_meals_${fileName}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(customMeals)
+        });
+      } else {
+        if (!deletedBaseMeals.includes(mealId)) {
+          deletedBaseMeals.push(mealId);
+        }
+        await fetch(`${API_BASE_URL}deleted_base_meals_${fileName}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(deletedBaseMeals)
+        });
+      }
 
       combineAndRenderMeals(fileName);
     }
@@ -526,7 +543,7 @@
               <button class="toggle-item-btn ${isSoldOut ? 'btn-soldout' : 'btn-available'}" onclick="toggleItemState('${fileName}', '${meal.id}')">
                 ${isSoldOut ? '🚫 نفدت' : '✅ متوفرة'}
               </button>
-              ${meal.isCustom ? `<button class="btn-delete" onclick="deleteMeal('${fileName}', '${meal.id}')">🗑️ حذف</button>` : ''}
+              <button class="btn-delete" onclick="deleteMeal('${fileName}', '${meal.id}', ${meal.isCustom})">🗑️ حذف</button>
             </div>
           </div>
         `;
