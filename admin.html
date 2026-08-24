@@ -44,20 +44,15 @@
     .btn-sub-expired { background: rgba(255, 71, 87, 0.2); color: var(--danger); border: 1px solid var(--danger); }
     .sync-indicator { font-size: 0.75rem; color: var(--success); font-weight: 600; }
     .logout-btn { background: var(--danger); border: none; padding: 8px 14px; border-radius: 10px; color: #fff; font-weight: 700; cursor: pointer; }
+    
     .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); background: #23232a; margin-bottom: 8px; border-radius: 10px; }
-    .toggle-item-btn { padding: 8px 16px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-size: 0.85rem; }
+    .toggle-item-btn { padding: 6px 12px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-size: 0.75rem; }
     .btn-available { background: rgba(46, 213, 115, 0.2); color: var(--success); border: 1px solid var(--success); }
     .btn-soldout { background: rgba(255, 71, 87, 0.2); color: var(--danger); border: 1px solid var(--danger); }
-    
+    .btn-delete { background: var(--danger); color: #fff; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.75rem; margin-right: 5px; }
+
     .subscription-control-box {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 15px;
-      background: #23232a;
-      padding: 10px 14px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
+      display: flex; gap: 10px; align-items: center; margin-bottom: 15px; background: #23232a; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border);
     }
   </style>
 </head>
@@ -101,7 +96,7 @@
 
     <!-- قسم التحكم بالمنيو والوجبات -->
     <div class="section-box">
-      <div class="section-title">🍔 اختيار المنيو لإدارته</div>
+      <div class="section-title">🍔 إدارة الوجبات والأقسام للمنيو</div>
       <div style="display: flex; gap: 10px; margin-bottom: 15px;">
         <input type="text" id="targetFile" placeholder="أدخل اسم الملف مثل: index" style="flex:1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #23232a; color:#fff;">
         <button class="btn" style="width: auto; padding: 10px 20px;" onclick="fetchMenuData()">جلب البيانات</button>
@@ -114,7 +109,7 @@
         <button class="btn-toggle-sub btn-sub-expired" onclick="changeSubscriptionStatus('expired')">إيقاف (Expired)</button>
       </div>
 
-      <!-- نموذج إضافة وجبة جديدة أو قسم جديد -->
+      <!-- نموذج إضافة وجبة جديدة -->
       <div id="addMealSection" style="display: none; background: #18181c; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border);">
         <h4 style="color: var(--accent); margin-bottom: 10px;">➕ إضافة وجبة جديدة / قسم جديد</h4>
         <div class="form-grid">
@@ -130,8 +125,9 @@
         <button class="btn" style="margin-top: 10px; background: var(--success);" onclick="addNewMeal()">إضافة الوجبة إلى المنيو 🚀</button>
       </div>
 
-      <div id="menuItemsContainer" style="max-height: 350px; overflow-y: auto;">
-        <p style="color: var(--text-muted); font-size: 0.85rem;">اكتب اسم الملف واضغط (جلب البيانات) لعرض الوجبات وإضافة جديد.</p>
+      <!-- قائمة عرض الوجبات وإمكانية الحذف -->
+      <div id="menuItemsContainer" style="max-height: 400px; overflow-y: auto;">
+        <p style="color: var(--text-muted); font-size: 0.85rem;">اكتب اسم الملف واضغط (جلب البيانات) للتحكم بالوجبات وحذفها.</p>
       </div>
     </div>
 
@@ -202,11 +198,9 @@
       checkSingleSubStatus(fileName);
 
       try {
-        // جلب الوجبات الديناميكية المضافة
         const mealsRes = await fetch(`${API_BASE_URL}custom_meals_${fileName}.json?nocache=` + Date.now());
         currentMeals = await mealsRes.json() || [];
 
-        // جلب حالة الإخفاء/الإظهار
         const statusRes = await fetch(`${API_BASE_URL}items_${fileName}.json?nocache=` + Date.now());
         menuStatus = await statusRes.json() || {};
 
@@ -240,7 +234,6 @@
 
       currentMeals.push(newMeal);
 
-      // حفظ الوجبات الجديدة في قاعدة البيانات
       await fetch(`${API_BASE_URL}custom_meals_${fileName}.json`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -256,37 +249,10 @@
       renderMenuItems(fileName);
     }
 
-    function renderMenuItems(fileName) {
-      const container = document.getElementById('menuItemsContainer');
-      container.innerHTML = '';
-
-      if (currentMeals.length === 0) {
-        container.innerHTML = `<p style="color:var(--text-muted); font-size:0.85rem;">لا توجد وجبات مضافة عبر لوحة الأدمن بعد. يمكنك إضافة أول وجبة من النموذج أعلاه.</p>`;
-        return;
-      }
-
-      currentMeals.forEach((meal, index) => {
-        const isSoldOut = menuStatus[meal.id] === 'soldout';
-        
-        container.innerHTML += `
-          <div class="item-row">
-            <div>
-              <strong>${meal.title}</strong> <small style="color:var(--accent);">(${meal.category})</small>
-              <br><small style="color:#aaa;">${meal.price} - ${meal.desc}</small>
-            </div>
-            <div>
-              <button class="toggle-item-btn ${isSoldOut ? 'btn-soldout' : 'btn-available'}" onclick="toggleItemState('${fileName}', '${meal.id}')">
-                ${isSoldOut ? '🚫 منتهية' : '✅ متوفرة'}
-              </button>
-              <button style="background:var(--danger); border:none; color:#fff; padding:6px 10px; border-radius:6px; cursor:pointer;" onclick="deleteMeal('${fileName}', ${index})">🗑️ حذف</button>
-            </div>
-          </div>
-        `;
-      });
-    }
-
+    // وظيفة حذف الوجبة
     async function deleteMeal(fileName, index) {
-      if(!confirm("هل أنت تأكد من حذف هذه الوجبة؟")) return;
+      if(!confirm("هل أنت تأكد من إزالة هذه الوجبة نهائياً من المنيو؟")) return;
+      
       currentMeals.splice(index, 1);
 
       await fetch(`${API_BASE_URL}custom_meals_${fileName}.json`, {
@@ -296,6 +262,35 @@
       });
 
       renderMenuItems(fileName);
+    }
+
+    function renderMenuItems(fileName) {
+      const container = document.getElementById('menuItemsContainer');
+      container.innerHTML = '';
+
+      if (currentMeals.length === 0) {
+        container.innerHTML = `<p style="color:var(--text-muted); font-size:0.85rem;">لا توجد وجبات مضافة حالياً. يمكنك إضافة وجبة جديدة من النموذج أعلاه.</p>`;
+        return;
+      }
+
+      currentMeals.forEach((meal, index) => {
+        const isSoldOut = menuStatus[meal.id] === 'soldout';
+        
+        container.innerHTML += `
+          <div class="item-row">
+            <div>
+              <strong>${meal.title}</strong> <small style="color:var(--accent);">[${meal.category}]</small>
+              <br><small style="color:#aaa;">${meal.price} - ${meal.desc}</small>
+            </div>
+            <div style="display:flex; align-items:center;">
+              <button class="toggle-item-btn ${isSoldOut ? 'btn-soldout' : 'btn-available'}" onclick="toggleItemState('${fileName}', '${meal.id}')">
+                ${isSoldOut ? '🚫 نافذة' : '✅ متوفرة'}
+              </button>
+              <button class="btn-delete" onclick="deleteMeal('${fileName}', ${index})">🗑️ حذف</button>
+            </div>
+          </div>
+        `;
+      });
     }
 
     async function toggleItemState(fileName, itemId) {
