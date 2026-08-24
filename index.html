@@ -3,39 +3,99 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>قائمة الطعام</title>
+  <title>Iraqi Food & Cafe Menu</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
   <style>
     :root {
-      --bg: #0f0f12; 
-      --header-bg: #18181c; 
+      --bg: #0f0f12;
+      --header-bg: #18181c;
       --card-bg: #1c1c21;
-      --accent: #e5b849; 
+      --accent: #e5b849;
       --accent-gradient: linear-gradient(135deg, #f39c12, #d4af37);
-      --text: #ffffff; 
-      --text-muted: #a5a5ab; 
+      --text: #ffffff;
+      --text-muted: #a5a5ab;
       --border: rgba(255, 255, 255, 0.08);
+      --search-bg: #23232a;
       --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding-bottom: 50px; }
+
+    /* Light Theme Overlay */
+    body.light-mode {
+      --bg: #f5f6fa;
+      --header-bg: #ffffff;
+      --card-bg: #ffffff;
+      --accent: #d4af37;
+      --text: #2f3640;
+      --text-muted: #718093;
+      --border: rgba(0, 0, 0, 0.08);
+      --search-bg: #f1f2f6;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; transition: background 0.3s, color 0.3s; }
+    body { background-color: var(--bg); color: var(--text); padding-bottom: 80px; }
 
     header { 
       background: var(--header-bg); 
-      padding: 20px 15px; 
-      text-align: center; 
+      padding: 15px 20px; 
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       border-bottom: 1px solid var(--border); 
-      margin-bottom: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
     .brand { 
-      font-size: 1.8rem; 
+      font-size: 1.4rem; 
       font-weight: 800; 
       background: var(--accent-gradient); 
       -webkit-background-clip: text; 
       -webkit-text-fill-color: transparent; 
     }
 
-    .container { padding: 0 15px; max-width: 850px; margin: 0 auto; }
+    .header-controls { display: flex; gap: 10px; align-items: center; }
+    .control-btn {
+      background: var(--search-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .container { padding: 15px; max-width: 850px; margin: 0 auto; }
+
+    /* Categories Horizontal Scroll */
+    .categories-bar {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+      scrollbar-width: none;
+    }
+    .categories-bar::-webkit-scrollbar { display: none; }
+    .cat-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 20px;
+      white-space: nowrap;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+    .cat-btn.active {
+      background: var(--accent-gradient);
+      color: #fff;
+      border: none;
+    }
+
     .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
     
     .card { 
@@ -44,12 +104,11 @@
       overflow: hidden; 
       border: 1px solid var(--border); 
       box-shadow: var(--shadow); 
-      transition: transform 0.2s ease, opacity 0.2s ease;
     }
     .img-wrapper { width: 100%; height: 130px; background: #23232a; }
     .card img { width: 100%; height: 100%; object-fit: cover; }
     .card-info { padding: 12px; }
-    .card-title { font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .card-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
     .card-desc { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; line-height: 1.3; }
     .card-price { color: var(--accent); font-weight: 800; font-size: 1rem; }
   </style>
@@ -57,77 +116,119 @@
 <body>
 
   <header>
-    <div class="brand">قائمة الوجبات</div>
+    <div class="brand" id="brandText">مطعم ومنشأة بغداد</div>
+    <div class="header-controls">
+      <button class="control-btn" id="langBtn" onclick="toggleLanguage()">English</button>
+      <button class="control-btn" onclick="toggleTheme()">🌙 / ☀️</button>
+    </div>
   </header>
 
   <div class="container">
+    <!-- شريط الأقسام -->
+    <div class="categories-bar">
+      <button class="cat-btn active" onclick="filterCategory('all', this)" data-ar="الكل" data-en="All">الكل</button>
+      <button class="cat-btn" onclick="filterCategory('burgers', this)" data-ar="البرجر" data-en="Burgers">البرجر</button>
+      <button class="cat-btn" onclick="filterCategory('pizza', this)" data-ar="البيتزا" data-en="Pizza">البيتزا</button>
+      <button class="cat-btn" onclick="filterCategory('shawarma', this)" data-ar="الشاورما" data-en="Shawarma">الشاورما</button>
+      <button class="cat-btn" onclick="filterCategory('drinks', this)" data-ar="المشروبات" data-en="Drinks">المشروبات</button>
+    </div>
+
+    <!-- شبكة عرض الوجبات -->
     <div class="grid" id="menuGrid">
       
-      <!-- يمكنك تعديل أو إضافة الوجبات هنا بكل سهولة -->
-      <!-- لاحظ وجود data-id لكل وجبة لكي يتعرف عليها الفايربيس بدقة -->
-      
-      <div class="card" data-id="item_burger_classic">
-        <div class="img-wrapper">
-          <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500" alt="برجر كلاسيك">
-        </div>
+      <div class="card" data-category="burgers" data-id="item_burger_classic">
+        <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500" alt="برجر"></div>
         <div class="card-info">
-          <div class="card-title">برجر كلاسيك</div>
-          <div class="card-desc">شريحة لحم بقر مع الجبن والصوص الخاص</div>
+          <div class="card-title" data-ar="برجر كلاسيك" data-en="Classic Burger">برجر كلاسيك</div>
+          <div class="card-desc" data-ar="شريحة لحم بقر مع الجبن والصوص الخاص" data-en="Beef patty with cheese and special sauce">شريحة لحم بقر مع الجبن والصوص الخاص</div>
           <div class="card-price">7,000 د.ع</div>
         </div>
       </div>
 
-      <div class="card" data-id="item_burger_zinger">
-        <div class="img-wrapper">
-          <img src="https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=500" alt="برجر زنجر">
-        </div>
+      <div class="card" data-category="burgers" data-id="item_burger_zinger">
+        <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=500" alt="زنجر"></div>
         <div class="card-info">
-          <div class="card-title">برجر زنجر دجاج</div>
-          <div class="card-desc">صدر دجاج مقرمش مع الخس والصوص الحار</div>
+          <div class="card-title" data-ar="برجر زنجر دجاج" data-en="Zinger Burger">برجر زنجر دجاج</div>
+          <div class="card-desc" data-ar="صدر دجاج مقرمش مع الخس والصوص الحار" data-en="Crispy chicken breast with lettuce and spicy sauce">صدر دجاج مقرمش مع الخس والصوص الحار</div>
           <div class="card-price">6,500 د.ع</div>
         </div>
       </div>
 
-      <div class="card" data-id="item_pizza_pepperoni">
-        <div class="img-wrapper">
-          <img src="https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500" alt="بيتزا ببروني">
-        </div>
+      <div class="card" data-category="pizza" data-id="item_pizza_pepperoni">
+        <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500" alt="بيتزا"></div>
         <div class="card-info">
-          <div class="card-title">بيتزا ببروني</div>
-          <div class="card-desc">جبنة موزاريلا مع شرائح الببروني الفاخرة</div>
+          <div class="card-title" data-ar="بيتزا ببروني" data-en="Pepperoni Pizza">بيتزا ببروني</div>
+          <div class="card-desc" data-ar="جبنة موزاريلا مع شرائح الببروني الفاخرة" data-en="Mozzarella cheese with premium pepperoni">جبنة موزاريلا مع شرائح الببروني الفاخرة</div>
           <div class="card-price">10,000 د.ع</div>
         </div>
       </div>
 
-      <div class="card" data-id="item_shawarma_plate">
-        <div class="img-wrapper">
-          <img src="https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=500" alt="صاج شاورما">
-        </div>
+      <div class="card" data-category="shawarma" data-id="item_shawarma_plate">
+        <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=500" alt="شاورما"></div>
         <div class="card-info">
-          <div class="card-title">وجبة شاورما عربي</div>
-          <div class="card-desc">تقطيع صاج مع الثومية والبطاطا والطرشي</div>
+          <div class="card-title" data-ar="وجبة شاورما عربي" data-en="Shawarma Meal">وجبة شاورما عربي</div>
+          <div class="card-desc" data-ar="تقطيع صاج مع الثومية والبطاطا والطرشي" data-en="Saj wrap with garlic sauce, fries and pickles">تقطيع صاج مع الثومية والبطاطا والطرشي</div>
           <div class="card-price">8,000 د.ع</div>
+        </div>
+      </div>
+
+      <div class="card" data-category="drinks" data-id="item_cola">
+        <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500" alt="مشروب"></div>
+        <div class="card-info">
+          <div class="card-title" data-ar="كوكاكولا بارد" data-en="Cold Coca-Cola">كوكاكولا بارد</div>
+          <div class="card-desc" data-ar="مشروب غازي منعش 330 مل" data-en="Refreshing soft drink 330ml">مشروب غازي منعش 330 مل</div>
+          <div class="card-price">1,000 د.ع</div>
         </div>
       </div>
 
     </div>
   </div>
 
-  <!-- ⚡ سكريبت الربط والمزامنة مع لوحة التحكم Firebase ⚡ -->
   <script>
+    // 1. ميزة الدارك واللايت مود
+    function toggleTheme() {
+      document.body.classList.toggle('light-mode');
+    }
+
+    // 2. ميزة تحويل اللغات
+    let currentLang = 'ar';
+    function toggleLanguage() {
+      currentLang = currentLang === 'ar' ? 'en' : 'ar';
+      document.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+      document.getElementById('langBtn').innerText = currentLang === 'ar' ? 'English' : 'عربي';
+
+      document.querySelectorAll('[data-ar]').forEach(el => {
+        el.innerText = el.getAttribute(`data-${currentLang}`);
+      });
+    }
+
+    // 3. ميزة تصفية الأقسام
+    function filterCategory(cat, btn) {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      document.querySelectorAll('.card').forEach(card => {
+        if (cat === 'all' || card.getAttribute('data-category') === cat) {
+          // التأكد من عدم إظهار الوجبة إذا كانت مخفية من الفايربيس
+          if (!card.classList.contains('sold-out-hidden')) {
+            card.style.display = 'block';
+          }
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    // ⚡ 4. سكريبت المزامنة والإخفاء اللحظي من Firebase ⚡
     const API_BASE_URL = "https://admin-e3293-default-rtdb.firebaseio.com/";
-    // اسم الملف المسجل بـ admin.html (بدون .html)
     const MENU_FILE_NAME = "index"; 
 
-    // 1. مزامنة فهرس أسماء الوجبات وإرسالها للوحة التحكم تلقائياً
     async function syncCatalogToAdmin() {
       let catalogData = {};
-      
       document.querySelectorAll('.card').forEach((card, index) => {
         let itemId = card.getAttribute('data-id') || `item_${index}`;
         let titleElement = card.querySelector('.card-title');
-        let itemName = titleElement ? titleElement.innerText.trim() : `وجبة ${index + 1}`;
-        
+        let itemName = titleElement ? titleElement.getAttribute('data-ar') || titleElement.innerText.trim() : `وجبة ${index + 1}`;
         catalogData[itemId] = itemName;
       });
 
@@ -138,13 +239,10 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(catalogData)
           });
-        } catch(e) {
-          console.error("خطأ في رفع الفهرس:", e);
-        }
+        } catch(e) { console.error("Sync error:", e); }
       }
     }
 
-    // 2. قراءة حالة الإخفاء من Firebase وإخفاء الوجبة من الشاشة
     async function applyHiddenItems() {
       try {
         const res = await fetch(`${API_BASE_URL}items_${MENU_FILE_NAME}.json?nocache=` + Date.now());
@@ -153,17 +251,15 @@
         document.querySelectorAll('.card').forEach((card, index) => {
           let itemId = card.getAttribute('data-id') || `item_${index}`;
           if (menuStatus[itemId] === 'soldout') {
-            card.style.display = 'none'; // إخفاء الوجبة
+            card.classList.add('sold-out-hidden');
+            card.style.display = 'none';
           } else {
-            card.style.display = 'block'; // إظهار الوجبة
+            card.classList.remove('sold-out-hidden');
           }
         });
-      } catch(e) {
-        console.error("خطأ في جلب حالة الإخفاء:", e);
-      }
+      } catch(e) { console.error("Fetch error:", e); }
     }
 
-    // تشغيل المزامنة والتحديث فور فتح الصفحة
     document.addEventListener('DOMContentLoaded', async () => {
       await syncCatalogToAdmin();
       await applyHiddenItems();
