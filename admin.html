@@ -14,7 +14,7 @@
     .login-card h2 { color: var(--accent); margin-bottom: 20px; font-weight: 800; }
     .input-group { margin-bottom: 15px; text-align: right; }
     .input-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
-    .input-group input { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); background: #23232a; color: #fff; font-size: 0.95rem; outline: none; }
+    .input-group input, .input-group select { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); background: #23232a; color: #fff; font-size: 0.95rem; outline: none; }
     .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #f39c12, #d4af37); border: none; border-radius: 12px; color: #fff; font-weight: 700; cursor: pointer; }
     #dashboardScreen { display: none; max-width: 1100px; margin: 0 auto; }
     .header-dash { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
@@ -25,7 +25,8 @@
     .stat-card p { font-size: 1.1rem; font-weight: 800; color: var(--accent); margin-top: 4px; }
     .section-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 20px; }
     .section-title { font-size: 1rem; font-weight: 700; margin-bottom: 15px; color: #fff; display: flex; justify-content: space-between; }
-    .form-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media(max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
     .table-responsive { width: 100%; overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; text-align: right; white-space: nowrap; }
     th, td { padding: 10px 8px; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
@@ -84,40 +85,57 @@
       <div class="stat-card"><h3>المبيعات</h3><p id="totalRevenue">0 $</p></div>
     </div>
 
+    <!-- قسم تسجيل مطعم -->
     <div class="section-box">
       <div class="section-title">➕ تسجيل مطعم جديد</div>
       <div class="form-grid">
         <div class="input-group"><label>اسم المطعم</label><input type="text" id="resName"></div>
         <div class="input-group"><label>رقم الهاتف</label><input type="tel" id="resPhone"></div>
-        <div class="input-group"><label>اسم ملف المنيو (مثلاً index.html)</label><input type="text" id="resFile"></div>
+        <div class="input-group"><label>اسم ملف المنيو (مثلاً index)</label><input type="text" id="resFile"></div>
         <div class="input-group"><label>تاريخ البدء</label><input type="date" id="startDate"></div>
         <div class="input-group"><label>تاريخ الانتهاء</label><input type="date" id="endDate"></div>
         <div class="input-group"><label>المبلغ ($)</label><input type="number" id="salePrice"></div>
       </div>
-      <button class="btn" id="saveBtn" onclick="addSubscription()">حفظ البيانات</button>
+      <button class="btn" id="saveBtn" onclick="addSubscription()">حفظ المطعم</button>
     </div>
 
-    <!-- قسم التحكم بالاشتراك والوجبات -->
+    <!-- قسم التحكم بالمنيو والوجبات -->
     <div class="section-box">
-      <div class="section-title">🍔 التحكم بالاشتراك والوجبات</div>
+      <div class="section-title">🍔 اختيار المنيو لإدارته</div>
       <div style="display: flex; gap: 10px; margin-bottom: 15px;">
         <input type="text" id="targetFile" placeholder="أدخل اسم الملف مثل: index" style="flex:1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #23232a; color:#fff;">
-        <button class="btn" style="width: auto; padding: 10px 20px;" onclick="fetchMenuStatus()">جلب الوجبات</button>
+        <button class="btn" style="width: auto; padding: 10px 20px;" onclick="fetchMenuData()">جلب البيانات</button>
       </div>
 
-      <!-- التحكم السريع بالاشتراك للملف المختار -->
       <div class="subscription-control-box" id="subControlPanel" style="display: none;">
-        <span style="font-size:0.85rem; font-weight:700;">حالة اشتراك هذا الملف:</span>
+        <span style="font-size:0.85rem; font-weight:700;">حالة اشتراك هذا المنيو:</span>
         <span id="currentFileStatus" class="status-badge">جاري الفحص...</span>
-        <button class="btn-toggle-sub btn-sub-active" onclick="changeSubscriptionStatus('active')">تفعيل المنيو</button>
-        <button class="btn-toggle-sub btn-sub-expired" onclick="changeSubscriptionStatus('expired')">إيقاف المنيو (Expired)</button>
+        <button class="btn-toggle-sub btn-sub-active" onclick="changeSubscriptionStatus('active')">تفعيل</button>
+        <button class="btn-toggle-sub btn-sub-expired" onclick="changeSubscriptionStatus('expired')">إيقاف (Expired)</button>
       </div>
 
-      <div id="menuItemsContainer" style="max-height: 300px; overflow-y: auto;">
-        <p style="color: var(--text-muted); font-size: 0.85rem;">افتح صفحة المنيو مرة واحدة على الأقل، ثم اكتب اسم الملف هنا واضغط (جلب الوجبات).</p>
+      <!-- نموذج إضافة وجبة جديدة أو قسم جديد -->
+      <div id="addMealSection" style="display: none; background: #18181c; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border);">
+        <h4 style="color: var(--accent); margin-bottom: 10px;">➕ إضافة وجبة جديدة / قسم جديد</h4>
+        <div class="form-grid">
+          <div class="input-group"><label>اسم الوجبة</label><input type="text" id="mealTitle"></div>
+          <div class="input-group"><label>السعر (مثال: 7,000 د.ع)</label><input type="text" id="mealPrice"></div>
+          <div class="input-group"><label>الوصف / المكونات</label><input type="text" id="mealDesc"></div>
+          <div class="input-group"><label>رابط الصورة (URL)</label><input type="text" id="mealImg" placeholder="https://..."></div>
+          <div class="input-group">
+            <label>القسم (اختر قسم حالي أو اكتب قسم جديد)</label>
+            <input type="text" id="mealCategory" placeholder="مثال: مشروبات، بيتزا، أطباق خاصة">
+          </div>
+        </div>
+        <button class="btn" style="margin-top: 10px; background: var(--success);" onclick="addNewMeal()">إضافة الوجبة إلى المنيو 🚀</button>
+      </div>
+
+      <div id="menuItemsContainer" style="max-height: 350px; overflow-y: auto;">
+        <p style="color: var(--text-muted); font-size: 0.85rem;">اكتب اسم الملف واضغط (جلب البيانات) لعرض الوجبات وإضافة جديد.</p>
       </div>
     </div>
 
+    <!-- جدول المطاعم -->
     <div class="section-box">
       <div class="section-title">
         <span>📋 قائمة المطاعم والحالة</span>
@@ -127,7 +145,7 @@
         <table>
           <thead>
             <tr>
-              <th>المطعم</th><th>الهاتف</th><th>الملف</th><th>الانتهاء</th><th>المتبقي</th><th>المبلغ</th><th>الحالة</th><th>التحكم بالاشتراك والوجبات</th>
+              <th>المطعم</th><th>الهاتف</th><th>الملف</th><th>الانتهاء</th><th>المتبقي</th><th>المبلغ</th><th>الحالة</th><th>التحكم</th>
             </tr>
           </thead>
           <tbody id="restaurantsTable"></tbody>
@@ -142,8 +160,8 @@
     const API_BASE_URL = "https://admin-e3293-default-rtdb.firebaseio.com/";
 
     let subscriptions = [];
+    let currentMeals = [];
     let menuStatus = {};
-    let catalog = {};
 
     function login() {
       if (document.getElementById('username').value === ADMIN_USER && document.getElementById('password').value === ADMIN_PASS) {
@@ -175,26 +193,121 @@
       }
     }
 
-    async function fetchMenuStatus() {
+    async function fetchMenuData() {
       let fileName = document.getElementById('targetFile').value.trim().replace('.html', '');
       if (!fileName) { alert("يرجى كتابة اسم ملف المنيو أولاً!"); return; }
 
       document.getElementById('subControlPanel').style.display = 'flex';
+      document.getElementById('addMealSection').style.display = 'block';
       checkSingleSubStatus(fileName);
 
       try {
-        // 1. جلب فهرس أسماء الوجبات المرسل من المنيو
-        const catRes = await fetch(`${API_BASE_URL}catalog_${fileName}.json?nocache=` + Date.now());
-        catalog = await catRes.json() || {};
+        // جلب الوجبات الديناميكية المضافة
+        const mealsRes = await fetch(`${API_BASE_URL}custom_meals_${fileName}.json?nocache=` + Date.now());
+        currentMeals = await mealsRes.json() || [];
 
-        // 2. جلب حالة الإخفاء والإظهار
+        // جلب حالة الإخفاء/الإظهار
         const statusRes = await fetch(`${API_BASE_URL}items_${fileName}.json?nocache=` + Date.now());
         menuStatus = await statusRes.json() || {};
 
         renderMenuItems(fileName);
       } catch(e) {
-        alert("تعذر جلب حالة الوجبات!");
+        alert("تعذر جلب بيانات الوجبات!");
       }
+    }
+
+    async function addNewMeal() {
+      let fileName = document.getElementById('targetFile').value.trim().replace('.html', '');
+      const title = document.getElementById('mealTitle').value.trim();
+      const price = document.getElementById('mealPrice').value.trim();
+      const desc = document.getElementById('mealDesc').value.trim();
+      const img = document.getElementById('mealImg').value.trim();
+      const category = document.getElementById('mealCategory').value.trim();
+
+      if (!title || !price || !category) {
+        alert("يرجى كتابة اسم الوجبة، السعر، والقسم على الأقل!");
+        return;
+      }
+
+      const newMeal = {
+        id: "custom_" + Date.now(),
+        title,
+        price,
+        desc: desc || "",
+        img: img || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500",
+        category
+      };
+
+      currentMeals.push(newMeal);
+
+      // حفظ الوجبات الجديدة في قاعدة البيانات
+      await fetch(`${API_BASE_URL}custom_meals_${fileName}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(currentMeals)
+      });
+
+      alert("تمت إضافة الوجبة بنجاح!");
+      document.getElementById('mealTitle').value = '';
+      document.getElementById('mealPrice').value = '';
+      document.getElementById('mealDesc').value = '';
+      document.getElementById('mealImg').value = '';
+
+      renderMenuItems(fileName);
+    }
+
+    function renderMenuItems(fileName) {
+      const container = document.getElementById('menuItemsContainer');
+      container.innerHTML = '';
+
+      if (currentMeals.length === 0) {
+        container.innerHTML = `<p style="color:var(--text-muted); font-size:0.85rem;">لا توجد وجبات مضافة عبر لوحة الأدمن بعد. يمكنك إضافة أول وجبة من النموذج أعلاه.</p>`;
+        return;
+      }
+
+      currentMeals.forEach((meal, index) => {
+        const isSoldOut = menuStatus[meal.id] === 'soldout';
+        
+        container.innerHTML += `
+          <div class="item-row">
+            <div>
+              <strong>${meal.title}</strong> <small style="color:var(--accent);">(${meal.category})</small>
+              <br><small style="color:#aaa;">${meal.price} - ${meal.desc}</small>
+            </div>
+            <div>
+              <button class="toggle-item-btn ${isSoldOut ? 'btn-soldout' : 'btn-available'}" onclick="toggleItemState('${fileName}', '${meal.id}')">
+                ${isSoldOut ? '🚫 منتهية' : '✅ متوفرة'}
+              </button>
+              <button style="background:var(--danger); border:none; color:#fff; padding:6px 10px; border-radius:6px; cursor:pointer;" onclick="deleteMeal('${fileName}', ${index})">🗑️ حذف</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    async function deleteMeal(fileName, index) {
+      if(!confirm("هل أنت تأكد من حذف هذه الوجبة؟")) return;
+      currentMeals.splice(index, 1);
+
+      await fetch(`${API_BASE_URL}custom_meals_${fileName}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(currentMeals)
+      });
+
+      renderMenuItems(fileName);
+    }
+
+    async function toggleItemState(fileName, itemId) {
+      const currentState = menuStatus[itemId] === 'soldout' ? 'available' : 'soldout';
+      menuStatus[itemId] = currentState;
+
+      await fetch(`${API_BASE_URL}items_${fileName}/${itemId}.json`, {
+        method: 'PUT',
+        body: JSON.stringify(currentState)
+      });
+
+      renderMenuItems(fileName);
     }
 
     async function checkSingleSubStatus(fileName) {
@@ -223,7 +336,6 @@
           sub.status = status;
           fileName = sub.file.replace('.html', '');
           
-          // تحديث الجدول في الفايربيس
           await fetch(API_BASE_URL + "data.json", {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -234,7 +346,6 @@
 
       if (!fileName) return;
 
-      // تحديث حالة الملف المباشرة التي يقرأها المنيو
       await fetch(`${API_BASE_URL}status_${fileName}.json`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -243,43 +354,6 @@
 
       checkSingleSubStatus(fileName);
       fetchCloudData();
-    }
-
-    function renderMenuItems(fileName) {
-      const container = document.getElementById('menuItemsContainer');
-      container.innerHTML = '';
-
-      const itemKeys = Object.keys(catalog);
-      if (itemKeys.length === 0) {
-        container.innerHTML = `<p style="color:var(--text-muted); font-size:0.85rem;">لم يتم العثور على وجبات تلقائية. تأكد من فتح صفحة المنيو (${fileName}.html) مرة واحدة على الأقل بالمتصفح ليتم تسجيل وجباتها تلقائياً.</p>`;
-        return;
-      }
-
-      itemKeys.forEach(itemId => {
-        const itemArabicName = catalog[itemId] || itemId;
-        const isSoldOut = menuStatus[itemId] === 'soldout';
-        
-        container.innerHTML += `
-          <div class="item-row">
-            <span><strong>${itemArabicName}</strong> <small style="color:#aaa;">(${itemId})</small></span>
-            <button class="toggle-item-btn ${isSoldOut ? 'btn-soldout' : 'btn-available'}" onclick="toggleItemState('${fileName}', '${itemId}')">
-              ${isSoldOut ? '🚫 منتهية (مخفية)' : '✅ متوفرة (ظاهرة)'}
-            </button>
-          </div>
-        `;
-      });
-    }
-
-    async function toggleItemState(fileName, itemId) {
-      const currentState = menuStatus[itemId] === 'soldout' ? 'available' : 'soldout';
-      menuStatus[itemId] = currentState;
-
-      await fetch(`${API_BASE_URL}items_${fileName}/${itemId}.json`, {
-        method: 'PUT',
-        body: JSON.stringify(currentState)
-      });
-
-      renderMenuItems(fileName);
     }
 
     function calculateDaysLeft(endDateStr) {
@@ -306,7 +380,6 @@
       const newItem = { id: Date.now(), name, phone, file, start, end, price, status: 'active' };
       subscriptions.push(newItem);
 
-      // تحديث الحالة المباشرة للمنيو ليكون شغال عند الإنشاء
       const cleanFileName = file.replace('.html', '');
       await fetch(`${API_BASE_URL}status_${cleanFileName}.json`, {
         method: 'PUT',
@@ -331,7 +404,6 @@
         if (sub.status === 'active') activeCnt++;
         totalRev += parseFloat(sub.price) || 0;
         const daysInfo = calculateDaysLeft(sub.end);
-
         const isActive = sub.status === 'active';
 
         tableBody.innerHTML += `
@@ -348,7 +420,7 @@
                       onclick="changeSubscriptionStatus('${isActive ? 'expired' : 'active'}', ${sub.id})">
                 ${isActive ? 'إيقاف 🛑' : 'تفعيل ⚡'}
               </button>
-              <button class="action-btn" onclick="document.getElementById('targetFile').value='${sub.file.replace('.html','')}'; fetchMenuStatus();">إدارة الوجبات</button>
+              <button class="action-btn" onclick="document.getElementById('targetFile').value='${sub.file.replace('.html','')}'; fetchMenuData();">إدارة الوجبات</button>
             </td>
           </tr>`;
       });
