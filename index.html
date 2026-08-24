@@ -411,7 +411,7 @@
       });
     }
 
-    // ⚡ 4. Firebase: جلب الأقسام المخصصة، الوجبات الإضافية، فحص الاشتراك، وتطبيق حالات التوفر ⚡
+    // ⚡ 4. Firebase: جلب الأقسام، الوجبات الإضافية، المحذوفات، فحص الاشتراك، وحالات التوفر ⚡
     const API_BASE_URL = "https://admin-e3293-default-rtdb.firebaseio.com/";
     const MENU_FILE_NAME = window.location.pathname.split('/').pop().replace('.html', '') || "index"; 
 
@@ -457,7 +457,7 @@
       }
     }
 
-    // جلب الوجبات المضافة حديثاً من لوحة التحكم ورسمها بالصفحة
+    // جلب الوجبات المضافة حديثاً
     async function fetchCustomMeals() {
       try {
         const res = await fetch(`${API_BASE_URL}custom_meals_${MENU_FILE_NAME}.json?nocache=` + Date.now());
@@ -488,7 +488,7 @@
             grid.appendChild(card);
           });
           
-          applyItemStatuses();
+          applyItemStatusesAndDeletions();
           filterMenu();
         }
       } catch (e) {
@@ -511,15 +511,35 @@
       } catch(e) { console.error("Subscription check error:", e); }
     }
 
-    // تطبيق حالة توفر الوجبات (بدون رمش أو إعادة بناء)
-    async function applyItemStatuses() {
+    // تطبيق حالة توفر الوجبات وحذف الوجبات الأساسية والمضافة
+    async function applyItemStatusesAndDeletions() {
       try {
-        const res = await fetch(`${API_BASE_URL}items_${MENU_FILE_NAME}.json?nocache=` + Date.now());
-        const menuStatus = await res.json() || {};
+        // 1. جلب حالات التوفر (نفاد الكمية)
+        const statusRes = await fetch(`${API_BASE_URL}items_${MENU_FILE_NAME}.json?nocache=` + Date.now());
+        const menuStatus = await statusRes.json() || {};
+
+        // 2. جلب قائمة الوجبات المحذوفة
+        const deletedRes = await fetch(`${API_BASE_URL}deleted_meals_${MENU_FILE_NAME}.json?nocache=` + Date.now());
+        const deletedMeals = await deletedRes.json() || [];
 
         document.querySelectorAll('.card').forEach((card) => {
           let itemId = card.getAttribute('data-id');
-          if (itemId && menuStatus[itemId] === 'soldout') {
+          if (!itemId) return;
+
+          // فحص الحذف (إخفاء الوجبة تماماً من القائمة)
+          if (Array.isArray(deletedMeals) && deletedMeals.includes(itemId)) {
+            card.style.display = 'none';
+            card.classList.add('is-deleted-marker'); // علامة إضافية
+            return;
+          } else {
+            // إذا لم تكن محذوفة، استمر وعالج حالة نفاد الكمية
+            if (card.classList.contains('is-deleted-marker')) {
+              card.classList.remove('is-deleted-marker');
+            }
+          }
+
+          // فحص نفاد الكمية (Sold Out)
+          if (menuStatus[itemId] === 'soldout') {
             if (!card.classList.contains('sold-out')) {
               card.classList.add('sold-out');
             }
@@ -529,6 +549,7 @@
             }
           }
         });
+        filterMenu();
       } catch(e) { console.error("Fetch status error:", e); }
     }
 
@@ -538,13 +559,13 @@
       await checkSubscription();
       await fetchCustomCategories();
       await fetchCustomMeals(); 
-      await applyItemStatuses();
+      await applyItemStatusesAndDeletions();
 
-      // مزامنة لحظية للأقسام، الاشتراك، الحالات، والوجبات كل 3 ثوانٍ
+      // مزامنة لحظية لكل شيء كل 3 ثوانٍ
       setInterval(async () => {
         checkSubscription();
         await fetchCustomCategories();
-        await applyItemStatuses();
+        await applyItemStatusesAndDeletions();
       }, 3000);
     });
   </script>
