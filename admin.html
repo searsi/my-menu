@@ -6,59 +6,71 @@
   <title>لوحة إدارة الاشتراكات والوجبات</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root { --bg: #0f0f12; --card-bg: #1c1c21; --accent: #e5b849; --text: #ffffff; --text-muted: #a5a5ab; --border: rgba(255, 255, 255, 0.1); --success: #2ed573; --danger: #ff4757; --warning: #ffa502; }
+    :root { 
+      --bg: #f4f6f9; 
+      --card-bg: #ffffff; 
+      --accent: #d48a00; 
+      --text: #2d3748; 
+      --text-muted: #718096; 
+      --border: rgba(0, 0, 0, 0.08); 
+      --success: #27ae60; 
+      --danger: #e74c3c; 
+      --warning: #f39c12; 
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
     body { background-color: var(--bg); color: var(--text); padding: 15px; }
     #loginScreen { display: flex; justify-content: center; align-items: center; min-height: 85vh; }
-    .login-card { background: var(--card-bg); border: 1px solid var(--border); padding: 25px 20px; border-radius: 20px; width: 100%; max-width: 380px; text-align: center; }
+    .login-card { background: var(--card-bg); border: 1px solid var(--border); padding: 25px 20px; border-radius: 20px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
     .login-card h2 { color: var(--accent); margin-bottom: 20px; font-weight: 800; }
     .input-group { margin-bottom: 15px; text-align: right; }
     .input-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
-    .input-group input, .input-group select { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); background: #23232a; color: #fff; font-size: 0.95rem; outline: none; }
-    .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #f39c12, #d4af37); border: none; border-radius: 12px; color: #fff; font-weight: 700; cursor: pointer; }
+    .input-group input, .input-group select { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); background: #fdfdfd; color: #2d3748; font-size: 0.95rem; outline: none; }
+    .input-group input:focus, .input-group select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(212, 138, 0, 0.1); }
+    .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #f39c12, #d4af37); border: none; border-radius: 12px; color: #fff; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(243, 156, 18, 0.3); }
+    .btn:hover { opacity: 0.95; }
     #dashboardScreen { display: none; max-width: 1100px; margin: 0 auto; }
     .header-dash { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
     .header-dash h1 { color: var(--accent); font-size: 1.2rem; }
     .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-    .stat-card { background: var(--card-bg); border: 1px solid var(--border); padding: 12px 8px; border-radius: 14px; text-align: center; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); padding: 14px 8px; border-radius: 14px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
     .stat-card h3 { font-size: 0.75rem; color: var(--text-muted); }
-    .stat-card p { font-size: 1.1rem; font-weight: 800; color: var(--accent); margin-top: 4px; }
-    .section-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 20px; }
-    .section-title { font-size: 1rem; font-weight: 700; margin-bottom: 15px; color: #fff; display: flex; justify-content: space-between; }
+    .stat-card p { font-size: 1.2rem; font-weight: 800; color: var(--accent); margin-top: 4px; }
+    .section-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+    .section-title { font-size: 1rem; font-weight: 700; margin-bottom: 15px; color: var(--text); display: flex; justify-content: space-between; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     @media(max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
     .table-responsive { width: 100%; overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; text-align: right; white-space: nowrap; }
-    th, td { padding: 10px 8px; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
-    th { color: var(--accent); background: #23232a; }
+    th, td { padding: 12px 10px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+    th { color: var(--accent); background: #f8fafc; }
     .status-badge { padding: 4px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; }
-    .status-active { background: rgba(46, 213, 115, 0.2); color: var(--success); }
-    .status-expired { background: rgba(255, 71, 87, 0.2); color: var(--danger); }
+    .status-active { background: rgba(39, 174, 96, 0.15); color: var(--success); }
+    .status-expired { background: rgba(231, 76, 60, 0.15); color: var(--danger); }
     .days-badge { padding: 4px 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; }
     .days-good { color: var(--success); }
     .days-warning { color: var(--warning); }
     .days-ended { color: var(--danger); }
-    .action-btn { background: none; border: 1px solid var(--border); padding: 6px 10px; border-radius: 8px; color: #fff; cursor: pointer; font-size: 0.75rem; margin-left: 4px; }
+    .action-btn { background: #edf2f7; border: 1px solid var(--border); padding: 6px 10px; border-radius: 8px; color: var(--text); cursor: pointer; font-size: 0.75rem; margin-left: 4px; }
+    .action-btn:hover { background: #e2e8f0; }
     .btn-toggle-sub { border-radius: 8px; padding: 6px 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer; border: none; }
-    .btn-sub-active { background: rgba(46, 213, 115, 0.2); color: var(--success); border: 1px solid var(--success); }
-    .btn-sub-expired { background: rgba(255, 71, 87, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+    .btn-sub-active { background: rgba(39, 174, 96, 0.15); color: var(--success); border: 1px solid var(--success); }
+    .btn-sub-expired { background: rgba(231, 76, 60, 0.15); color: var(--danger); border: 1px solid var(--danger); }
     .sync-indicator { font-size: 0.75rem; color: var(--success); font-weight: 600; }
     .logout-btn { background: var(--danger); border: none; padding: 8px 14px; border-radius: 10px; color: #fff; font-weight: 700; cursor: pointer; }
     
-    .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); background: #23232a; margin-bottom: 8px; border-radius: 10px; }
+    .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); background: #f8fafc; margin-bottom: 8px; border-radius: 10px; }
     .toggle-item-btn { padding: 6px 12px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-size: 0.75rem; }
-    .btn-available { background: rgba(46, 213, 115, 0.2); color: var(--success); border: 1px solid var(--success); }
-    .btn-soldout { background: rgba(255, 71, 87, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+    .btn-available { background: rgba(39, 174, 96, 0.15); color: var(--success); border: 1px solid var(--success); }
+    .btn-soldout { background: rgba(231, 76, 60, 0.15); color: var(--danger); border: 1px solid var(--danger); }
     .btn-delete { background: var(--danger); color: #fff; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.75rem; margin-right: 5px; }
 
     .subscription-control-box {
-      display: flex; gap: 10px; align-items: center; margin-bottom: 15px; background: #23232a; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border);
+      display: flex; gap: 10px; align-items: center; margin-bottom: 15px; background: #f8fafc; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); flex-wrap: wrap;
     }
     
-    /* زر القائمة المنسدلة للوجبات الجديدة */
     .dropdown-toggle-btn {
       width: 100%;
-      background: #23232a;
+      background: #f8fafc;
       color: var(--accent);
       border: 1px solid var(--border);
       padding: 12px;
@@ -70,8 +82,14 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 10px;
+      transition: 0.3s;
     }
-    .badge-type { font-size: 0.65rem; padding: 2px 6px; border-radius: 6px; margin-right: 4px; background: rgba(229, 184, 73, 0.15); color: var(--accent); }
+    .dropdown-toggle-btn:hover { background: #edf2f7; }
+    .badge-type { font-size: 0.65rem; padding: 2px 6px; border-radius: 6px; margin-right: 4px; background: rgba(212, 138, 0, 0.1); color: var(--accent); }
+    
+    .cat-manage-box { background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 15px; }
+    .cat-chip { display: inline-flex; align-items: center; background: #fff; border: 1px solid var(--border); padding: 5px 10px; border-radius: 8px; margin: 4px; font-size: 0.8rem; font-weight: 600; }
+    .cat-chip button { background: none; border: none; color: var(--danger); margin-right: 6px; cursor: pointer; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -88,7 +106,7 @@
 
   <div id="dashboardScreen">
     <div class="header-dash">
-      <h1>إدارة الاشتراكات والوجبات</h1>
+      <h1>لوحة إدارة الاشتراكات والوجبات</h1>
       <button class="logout-btn" onclick="logout()">خروج</button>
     </div>
 
@@ -116,47 +134,65 @@
     <div class="section-box">
       <div class="section-title">🍔 إدارة الوجبات والأقسام للمنيو</div>
       <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-        <input type="text" id="targetFile" placeholder="أدخل اسم الملف مثل: index" style="flex:1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #23232a; color:#fff;">
+        <input type="text" id="targetFile" placeholder="أدخل اسم الملف مثل: index" style="flex:1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #fff; color:#2d3748;">
         <button class="btn" style="width: auto; padding: 10px 20px;" onclick="fetchMenuData()">جلب البيانات</button>
       </div>
 
-      <div class="subscription-control-box" id="subControlPanel" style="display: none;">
-        <span style="font-size:0.85rem; font-weight:700;">حالة اشتراك هذا المنيو:</span>
-        <span id="currentFileStatus" class="status-badge">جاري الفحص...</span>
-        <button class="btn-toggle-sub btn-sub-active" onclick="changeSubscriptionStatus('active')">تفعيل</button>
-        <button class="btn-toggle-sub btn-sub-expired" onclick="changeSubscriptionStatus('expired')">إيقاف (Expired)</button>
-      </div>
+      <div id="loadedMenuContainer" style="display: none;">
+        
+        <!-- لوحة حالة اشتراك المنيو -->
+        <div class="subscription-control-box" id="subControlPanel">
+          <span style="font-size:0.85rem; font-weight:700;">حالة اشتراك هذا المنيو:</span>
+          <span id="currentFileStatus" class="status-badge">جاري الفحص...</span>
+          <button class="btn-toggle-sub btn-sub-active" onclick="changeSubscriptionStatus('active')">تفعيل</button>
+          <button class="btn-toggle-sub btn-sub-expired" onclick="changeSubscriptionStatus('expired')">إيقاف (Expired)</button>
+        </div>
 
-      <!-- زر القائمة المنسدلة لفتح إدخال الوجبات -->
-      <div id="addMealWrapper" style="display: none;">
+        <!-- 📂 ميزة إدارة الأقسام (إضافة وحذف الأقسام) -->
+        <button class="dropdown-toggle-btn" onclick="toggleCategoryManager()">
+          <span>📁 إدارة أقسام المنيو (إضافة أو حذف قسم)</span>
+          <span id="catManagerIcon">🔽</span>
+        </button>
+        <div id="catManagerSection" class="cat-manage-box" style="display: none;">
+          <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+            <input type="text" id="newCategoryGlobal" placeholder="اسم القسم الجديد (مثل: مشروبات باردة، وجبات سريعة)" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #fff;">
+            <button class="btn" style="width: auto; padding: 10px 16px; background: var(--success);" onclick="addNewCategoryGlobal()">إضافة قسم ➕</button>
+          </div>
+          <div id="categoriesChipsList" style="display: flex; flex-wrap: wrap; gap: 5px;"></div>
+        </div>
+
+        <!-- زر إضافة وجبة جديدة -->
         <button class="dropdown-toggle-btn" onclick="toggleAddForm()">
-          <span>➕ إضافة وجبة جديدة / قسم جديد</span>
+          <span>➕ إضافة وجبة جديدة</span>
           <span id="dropdownIcon">🔽</span>
         </button>
 
-        <!-- نموذج إضافة وجبة جديدة (مخفي افتراضياً) -->
-        <div id="addMealSection" style="display: none; background: #18181c; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border);">
+        <div id="addMealSection" style="display: none; background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border);">
           <div class="form-grid">
             <div class="input-group"><label>اسم الوجبة</label><input type="text" id="mealTitle"></div>
             <div class="input-group"><label>السعر (مثال: 7,000 د.ع)</label><input type="text" id="mealPrice"></div>
             <div class="input-group"><label>الوصف / المكونات</label><input type="text" id="mealDesc"></div>
             <div class="input-group"><label>رابط الصورة (URL)</label><input type="text" id="mealImg" placeholder="https://..."></div>
-            <div class="input-group">
-              <label>القسم (اختر قسم حالي أو اكتب قسم جديد)</label>
-              <input type="text" id="mealCategory" placeholder="مثال: مشروبات، بيتزا، أطباق خاصة">
+            <div class="input-group" style="grid-column: span 2;">
+              <label>القسم (اختر من الأقسام المتاحة)</label>
+              <select id="mealCategory" style="width: 100%;"></select>
             </div>
           </div>
-          <button class="btn" style="margin-top: 10px; background: var(--success);" onclick="addNewMeal()">إضافة الوجبة إلى المنيو 🚀</button>
+          <button class="btn" style="margin-top: 10px; background: var(--success);" onclick="addNewMeal()">حفظ وإضافة الوجبة 🚀</button>
         </div>
-      </div>
 
-      <!-- قائمة عرض الوجبات وإمكانية الحذف والتعديل -->
-      <div id="menuItemsContainer" style="max-height: 450px; overflow-y: auto;">
-        <p style="color: var(--text-muted); font-size: 0.85rem;">اكتب اسم الملف واضغط (جلب البيانات) للتحكم بالوجبات وحالتها.</p>
+        <!-- قائمة الوجبات الحالية -->
+        <button class="dropdown-toggle-btn" onclick="toggleMealsList()">
+          <span>📋 قائمة الوجبات الحالية والتحكم بها (نفدت / متوفرة / حذف)</span>
+          <span id="mealsListIcon">🔽</span>
+        </button>
+
+        <div id="menuItemsContainer" style="display: none; max-height: 450px; overflow-y: auto; background: #fff; padding: 10px; border-radius: 12px; border: 1px solid var(--border);"></div>
+
       </div>
     </div>
 
-    <!-- جدول المطاعم -->
+    <!-- جدول المطاعم العام -->
     <div class="section-box">
       <div class="section-title">
         <span>📋 قائمة المطاعم والحالة</span>
@@ -185,6 +221,7 @@
     let baseMeals = [];
     let allMeals = [];
     let menuStatus = {};
+    let currentCategories = [];
 
     function login() {
       if (document.getElementById('username').value === ADMIN_USER && document.getElementById('password').value === ADMIN_PASS) {
@@ -214,6 +251,30 @@
       }
     }
 
+    function toggleMealsList() {
+      const container = document.getElementById('menuItemsContainer');
+      const icon = document.getElementById('mealsListIcon');
+      if (container.style.display === 'none' || container.style.display === '') {
+        container.style.display = 'block';
+        icon.innerText = '🔼';
+      } else {
+        container.style.display = 'none';
+        icon.innerText = '🔽';
+      }
+    }
+
+    function toggleCategoryManager() {
+      const section = document.getElementById('catManagerSection');
+      const icon = document.getElementById('catManagerIcon');
+      if (section.style.display === 'none' || section.style.display === '') {
+        section.style.display = 'block';
+        icon.innerText = '🔼';
+      } else {
+        section.style.display = 'none';
+        icon.innerText = '🔽';
+      }
+    }
+
     async function fetchCloudData() {
       try {
         const res = await fetch(API_BASE_URL + "data.json?nocache=" + Date.now());
@@ -232,41 +293,117 @@
       let fileName = document.getElementById('targetFile').value.trim().replace('.html', '');
       if (!fileName) { alert("يرجى كتابة اسم ملف المنيو أولاً!"); return; }
 
-      document.getElementById('subControlPanel').style.display = 'flex';
-      document.getElementById('addMealWrapper').style.display = 'block';
+      document.getElementById('loadedMenuContainer').style.display = 'block';
       checkSingleSubStatus(fileName);
+      await loadCategoriesData(fileName);
 
       try {
-        // 1. جلب الوجبات المضافة يدوياً من السيرفر
         const customRes = await fetch(`${API_BASE_URL}custom_meals_${fileName}.json?nocache=` + Date.now());
         customMeals = await customRes.json() || [];
 
-        // 2. جلب حالات التوفر للوجبات
         const statusRes = await fetch(`${API_BASE_URL}items_${fileName}.json?nocache=` + Date.now());
         menuStatus = await statusRes.json() || {};
 
-        // 3. جلب الوجبات الأساسية الثابتة من قاعدة البيانات أو قراءة صفحة المنيو مباشرة
         let fetchedBaseMeals = [];
         try {
           const baseRes = await fetch(`${API_BASE_URL}menu_meals_${fileName}.json?nocache=` + Date.now());
           fetchedBaseMeals = await baseRes.json() || [];
         } catch(e) {}
 
-        // إذا لم توجد وجبات أساسية محفوضة بـ Firebase، نقتطع الوجبات الثابتة من ملف الـ HTML مباشرة
         if (!fetchedBaseMeals || fetchedBaseMeals.length === 0) {
           fetchedBaseMeals = await extractMealsFromHTML(fileName);
         }
         
         baseMeals = fetchedBaseMeals;
-
-        // دمج وتوليد العرض
         combineAndRenderMeals(fileName);
       } catch(e) {
         alert("تعذر جلب بيانات الوجبات!");
       }
     }
 
-    // دالة تقوم بقراءة ملف الـ HTML وتستخرج الوجبات تلقائياً
+    // جلب وإدارة الأقسام المخصصة والافتراضية
+    async function loadCategoriesData(fileName) {
+      const defaultCategories = ["burgers", "pizza", "shawarma", "drinks", "sweets", "test"];
+      let allCatsSet = new Set(defaultCategories);
+
+      try {
+        const res = await fetch(`${API_BASE_URL}custom_categories_${fileName}.json`);
+        let savedCats = await res.json();
+        if (Array.isArray(savedCats)) {
+          savedCats.forEach(c => allCatsSet.add(c));
+        }
+
+        // إضافة أقسام الوجبات الحالية للضمان
+        allMeals.forEach(m => { if (m.category) allCatsSet.add(m.category); });
+
+        currentCategories = Array.from(allCatsSet);
+        renderCategoriesManager(fileName);
+        renderCategoriesDropdown();
+      } catch(e) {
+        currentCategories = defaultCategories;
+        renderCategoriesManager(fileName);
+        renderCategoriesDropdown();
+      }
+    }
+
+    function renderCategoriesDropdown() {
+      const select = document.getElementById('mealCategory');
+      select.innerHTML = '<option value="">اختر القسم...</option>';
+      currentCategories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.innerText = cat;
+        select.appendChild(opt);
+      });
+    }
+
+    function renderCategoriesManager(fileName) {
+      const chipsList = document.getElementById('categoriesChipsList');
+      chipsList.innerHTML = '';
+      currentCategories.forEach(cat => {
+        chipsList.innerHTML += `
+          <div class="cat-chip">
+            <span>${cat}</span>
+            <button onclick="deleteCategory('${fileName}', '${cat}')" title="حذف القسم">×</button>
+          </div>
+        `;
+      });
+    }
+
+    async function addNewCategoryGlobal() {
+      let fileName = document.getElementById('targetFile').value.trim().replace('.html', '');
+      const newCat = document.getElementById('newCategoryGlobal').value.trim().toLowerCase();
+      if (!newCat) { alert("يرجى كتابة اسم القسم!"); return; }
+
+      if (!currentCategories.includes(newCat)) {
+        currentCategories.push(newCat);
+        await saveCategoriesToFirebase(fileName);
+        document.getElementById('newCategoryGlobal').value = '';
+        renderCategoriesManager(fileName);
+        renderCategoriesDropdown();
+        alert("تمت إضافة القسم بنجاح!");
+      } else {
+        alert("هذا القسم موجود مسبقاً!");
+      }
+    }
+
+    async function deleteCategory(fileName, catToDelete) {
+      if (!confirm(`هل أنت متأكد من حذف القسم "${catToDelete}"؟`)) return;
+
+      currentCategories = currentCategories.filter(c => c !== catToDelete);
+      await saveCategoriesToFirebase(fileName);
+      renderCategoriesManager(fileName);
+      renderCategoriesDropdown();
+    }
+
+    async function saveCategoriesToFirebase(fileName) {
+      await fetch(`${API_BASE_URL}custom_categories_${fileName}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(currentCategories)
+      });
+    }
+
     async function extractMealsFromHTML(fileName) {
       try {
         const htmlRes = await fetch(`${fileName}.html?nocache=` + Date.now());
@@ -276,7 +413,6 @@
         const doc = parser.parseFromString(htmlText, 'text/html');
 
         let extracted = [];
-        // البحث عن العناصر الأكثر استخداماً للمأكولات في صفحات المنيو
         const items = doc.querySelectorAll('.menu-item, .item-card, .card, [data-id]');
         
         items.forEach((el, index) => {
@@ -284,14 +420,13 @@
           const title = el.querySelector('h3, h4, .title, .item-name')?.innerText.trim() || `وجبة ${index + 1}`;
           const price = el.querySelector('.price, .item-price')?.innerText.trim() || '';
           const desc = el.querySelector('p, .description, .item-desc')?.innerText.trim() || '';
-          const category = el.closest('[data-category]')?.getAttribute('data-category') || 'الوجبات الأساسية';
+          const category = el.closest('[data-category]')?.getAttribute('data-category') || 'عام';
 
           if (title) {
             extracted.push({ id, title, price, desc, category });
           }
         });
 
-        // حفظ الوجبات المستخرجة بـ Firebase لسرعة الاستدعاء في المرات القادمة
         if (extracted.length > 0) {
           fetch(`${API_BASE_URL}menu_meals_${fileName}.json`, {
             method: 'PUT',
@@ -320,10 +455,10 @@
       const price = document.getElementById('mealPrice').value.trim();
       const desc = document.getElementById('mealDesc').value.trim();
       const img = document.getElementById('mealImg').value.trim();
-      const category = document.getElementById('mealCategory').value.trim();
+      const category = document.getElementById('mealCategory').value;
 
       if (!title || !price || !category) {
-        alert("يرجى كتابة اسم الوجبة، السعر، والقسم على الأقل!");
+        alert("يرجى ملء اسم الوجبة، السعر، واختيار القسم!");
         return;
       }
 
@@ -349,13 +484,13 @@
       document.getElementById('mealPrice').value = '';
       document.getElementById('mealDesc').value = '';
       document.getElementById('mealImg').value = '';
-      toggleAddForm(); // إغلاق النافذة المنسدلة تلقائياً بعد الإضافة
+      toggleAddForm(); 
 
       combineAndRenderMeals(fileName);
     }
 
     async function deleteMeal(fileName, mealId) {
-      if(!confirm("هل أنت تأكد من إزالة هذه الوجبة نهائياً من المنيو؟")) return;
+      if(!confirm("هل أنت تأكد من إزالة هذه الوجبة نهائياً؟")) return;
       
       customMeals = customMeals.filter(m => m.id !== mealId);
 
@@ -373,23 +508,23 @@
       container.innerHTML = '';
 
       if (allMeals.length === 0) {
-        container.innerHTML = `<p style="color:var(--text-muted); font-size:0.85rem;">لم يتم العثور على وجبات لهذا المنيو. يمكنك إضافة وجبة جديدة بالضغط على الزر أعلاه.</p>`;
+        container.innerHTML = `<p style="color:var(--text-muted); font-size:0.85rem;">لم يتم العثور على وجبات لهذا المنيو.</p>`;
         return;
       }
 
       allMeals.forEach((meal) => {
         const isSoldOut = menuStatus[meal.id] === 'soldout';
-        const typeBadge = meal.isCustom ? `<span class="badge-type">مضافة</span>` : `<span class="badge-type" style="color:#2ed573;">أساسية</span>`;
+        const typeBadge = meal.isCustom ? `<span class="badge-type">مضافة</span>` : `<span class="badge-type" style="color:#27ae60;">أساسية</span>`;
         
         container.innerHTML += `
           <div class="item-row">
             <div>
               <strong>${meal.title}</strong> ${typeBadge} <small style="color:var(--accent);">[${meal.category || 'عام'}]</small>
-              <br><small style="color:#aaa;">${meal.price || ''} ${meal.desc ? '- ' + meal.desc : ''}</small>
+              <br><small style="color:var(--text-muted);">${meal.price || ''} ${meal.desc ? '- ' + meal.desc : ''}</small>
             </div>
             <div style="display:flex; align-items:center;">
               <button class="toggle-item-btn ${isSoldOut ? 'btn-soldout' : 'btn-available'}" onclick="toggleItemState('${fileName}', '${meal.id}')">
-                ${isSoldOut ? '🚫 نفدت (غير متوفر)' : '✅ متوفرة'}
+                ${isSoldOut ? '🚫 نفدت' : '✅ متوفرة'}
               </button>
               ${meal.isCustom ? `<button class="btn-delete" onclick="deleteMeal('${fileName}', '${meal.id}')">🗑️ حذف</button>` : ''}
             </div>
