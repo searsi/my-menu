@@ -241,14 +241,14 @@
       <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن وجبة..." oninput="filterMenu()">
     </div>
 
-    <!-- شريط الأقسام -->
-    <div class="categories-bar">
-      <button class="cat-btn active" onclick="filterCategory('all', this)" data-ar="الكل" data-en="All">الكل</button>
-      <button class="cat-btn" onclick="filterCategory('burgers', this)" data-ar="البرجر" data-en="Burgers">البرجر</button>
-      <button class="cat-btn" onclick="filterCategory('pizza', this)" data-ar="البيتزا" data-en="Pizza">البيتزا</button>
-      <button class="cat-btn" onclick="filterCategory('shawarma', this)" data-ar="الشاورما والصاج" data-en="Shawarma & Saj">الشاورما والصاج</button>
-      <button class="cat-btn" onclick="filterCategory('drinks', this)" data-ar="المشروبات" data-en="Drinks">المشروبات</button>
-      <button class="cat-btn" onclick="filterCategory('sweets', this)" data-ar="الحلويات" data-en="Sweets">الحلويات</button>
+    <!-- شريط الأقسام (الديناميكي) -->
+    <div class="categories-bar" id="categoriesBarContainer">
+      <button class="cat-btn active" onclick="filterCategory('all', this)" data-cat="all">الكل</button>
+      <button class="cat-btn" onclick="filterCategory('burgers', this)" data-cat="burgers">البرجر</button>
+      <button class="cat-btn" onclick="filterCategory('pizza', this)" data-cat="pizza">البيتزا</button>
+      <button class="cat-btn" onclick="filterCategory('shawarma', this)" data-cat="shawarma">الشاورما والصاج</button>
+      <button class="cat-btn" onclick="filterCategory('drinks', this)" data-cat="drinks">المشروبات</button>
+      <button class="cat-btn" onclick="filterCategory('sweets', this)" data-cat="sweets">الحلويات</button>
     </div>
 
     <!-- شبكة عرض الوجبات كاملة -->
@@ -402,7 +402,7 @@
       document.querySelectorAll('.card').forEach(card => {
         const itemCategory = card.getAttribute('data-category');
         const titleText = card.querySelector('.card-title').innerText.toLowerCase();
-        const descText = card.querySelector('.card-desc').innerText.toLowerCase();
+        const descText = card.querySelector('.card-desc') ? card.querySelector('.card-desc').innerText.toLowerCase() : '';
 
         const matchesCategory = (activeCategory === 'all' || itemCategory === activeCategory);
         const matchesSearch = titleText.includes(searchQuery) || descText.includes(searchQuery);
@@ -411,9 +411,51 @@
       });
     }
 
-    // ⚡ 4. Firebase: جلب الوجبات الإضافية، فحص الاشتراك، وتطبيق حالات التوفر ⚡
+    // ⚡ 4. Firebase: جلب الأقسام المخصصة، الوجبات الإضافية، فحص الاشتراك، وتطبيق حالات التوفر ⚡
     const API_BASE_URL = "https://admin-e3293-default-rtdb.firebaseio.com/";
     const MENU_FILE_NAME = window.location.pathname.split('/').pop().replace('.html', '') || "index"; 
+
+    // جلب الأقسام الديناميكية المضافة وتحديث الشريط العلوي
+    async function fetchCustomCategories() {
+      try {
+        const res = await fetch(`${API_BASE_URL}custom_categories_${MENU_FILE_NAME}.json?nocache=` + Date.now());
+        const savedCats = await res.json();
+        
+        const defaultCategories = [
+          { id: 'all', ar: 'الكل', en: 'All' },
+          { id: 'burgers', ar: 'البرجر', en: 'Burgers' },
+          { id: 'pizza', ar: 'البيتزا', en: 'Pizza' },
+          { id: 'shawarma', ar: 'الشاورما والصاج', en: 'Shawarma & Saj' },
+          { id: 'drinks', ar: 'المشروبات', en: 'Drinks' },
+          { id: 'sweets', ar: 'الحلويات', en: 'Sweets' }
+        ];
+
+        let catsMap = new Map();
+        defaultCategories.forEach(c => catsMap.set(c.id, c));
+
+        if (Array.isArray(savedCats)) {
+          savedCats.forEach(c => {
+            if (!catsMap.has(c)) {
+              catsMap.set(c, { id: c, ar: c, en: c });
+            }
+          });
+        }
+
+        const barContainer = document.getElementById('categoriesBarContainer');
+        barContainer.innerHTML = '';
+
+        catsMap.forEach((catObj, catId) => {
+          const isActive = activeCategory === catId ? 'active' : '';
+          barContainer.innerHTML += `
+            <button class="cat-btn ${isActive}" onclick="filterCategory('${catId}', this)" data-cat="${catId}" data-ar="${catObj.ar}" data-en="${catObj.en}">
+              ${currentLang === 'ar' ? catObj.ar : catObj.en}
+            </button>
+          `;
+        });
+      } catch (e) {
+        console.error("Error fetching categories:", e);
+      }
+    }
 
     // جلب الوجبات المضافة حديثاً من لوحة التحكم ورسمها بالصفحة
     async function fetchCustomMeals() {
@@ -446,8 +488,8 @@
             grid.appendChild(card);
           });
           
-          // تطبيق حالة التوفر فور رسم الوجبات الجديدة
           applyItemStatuses();
+          filterMenu();
         }
       } catch (e) {
         console.error("Error fetching custom meals:", e);
@@ -494,12 +536,14 @@
       applySavedTheme();
       updateSoldOutBadges();
       await checkSubscription();
+      await fetchCustomCategories();
       await fetchCustomMeals(); 
       await applyItemStatuses();
 
-      // مزامنة لحظية للاشتراك، الحالات، والوجبات كل 3 ثوانٍ
+      // مزامنة لحظية للأقسام، الاشتراك، الحالات، والوجبات كل 3 ثوانٍ
       setInterval(async () => {
         checkSubscription();
+        await fetchCustomCategories();
         await applyItemStatuses();
       }, 3000);
     });
