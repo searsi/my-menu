@@ -38,12 +38,10 @@
     .days-warning { color: var(--warning); }
     .days-ended { color: var(--danger); }
     .action-btn { background: none; border: 1px solid var(--border); padding: 6px 10px; border-radius: 8px; color: #fff; cursor: pointer; font-size: 0.75rem; }
-    .edit-btn { border-color: var(--warning); color: var(--warning); }
-    .delete-btn { border-color: var(--danger); color: var(--danger); }
     .sync-indicator { font-size: 0.75rem; color: var(--success); font-weight: 600; }
     .logout-btn { background: var(--danger); border: none; padding: 8px 14px; border-radius: 10px; color: #fff; font-weight: 700; cursor: pointer; }
-    .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--border); }
-    .toggle-item-btn { padding: 6px 12px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-size: 0.8rem; }
+    .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); background: #23232a; margin-bottom: 8px; border-radius: 10px; }
+    .toggle-item-btn { padding: 8px 16px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-size: 0.85rem; }
     .btn-available { background: rgba(46, 213, 115, 0.2); color: var(--success); border: 1px solid var(--success); }
     .btn-soldout { background: rgba(255, 71, 87, 0.2); color: var(--danger); border: 1px solid var(--danger); }
   </style>
@@ -77,7 +75,7 @@
       <div class="form-grid">
         <div class="input-group"><label>اسم المطعم</label><input type="text" id="resName"></div>
         <div class="input-group"><label>رقم الهاتف</label><input type="tel" id="resPhone"></div>
-        <div class="input-group"><label>اسم ملف المنيو (مثلاً menu1.html)</label><input type="text" id="resFile"></div>
+        <div class="input-group"><label>اسم ملف المنيو (مثلاً index.html)</label><input type="text" id="resFile"></div>
         <div class="input-group"><label>تاريخ البدء</label><input type="date" id="startDate"></div>
         <div class="input-group"><label>تاريخ الانتهاء</label><input type="date" id="endDate"></div>
         <div class="input-group"><label>المبلغ ($)</label><input type="number" id="salePrice"></div>
@@ -85,16 +83,15 @@
       <button class="btn" id="saveBtn" onclick="addSubscription()">حفظ البيانات</button>
     </div>
 
+    <!-- قسم التحكم بالوجبات -->
     <div class="section-box">
-      <div class="section-title">
-        <span>🍔 التحكم بحالة الوجبات (إخفاء / إظهار الوجبة)</span>
-      </div>
+      <div class="section-title">🍔 التحكم بحالة الوجبات (إخفاء / إظهار)</div>
       <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-        <input type="text" id="targetFile" placeholder="أدخل اسم الملف مثل: menu1.html" style="flex:1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #23232a; color:#fff;">
+        <input type="text" id="targetFile" placeholder="أدخل اسم الملف مثل: index" style="flex:1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #23232a; color:#fff;">
         <button class="btn" style="width: auto; padding: 10px 20px;" onclick="fetchMenuStatus()">جلب الوجبات</button>
       </div>
-      <div id="menuItemsContainer" style="max-height: 250px; overflow-y: auto;">
-        <p style="color: var(--text-muted); font-size: 0.85rem;">اختر ملف مطعم لعرض وجباته والتحكم بها.</p>
+      <div id="menuItemsContainer" style="max-height: 300px; overflow-y: auto;">
+        <p style="color: var(--text-muted); font-size: 0.85rem;">افتح صفحة المنيو مرة واحدة على الأقل، ثم اكتب اسم الملف هنا واضغط (جلب الوجبات).</p>
       </div>
     </div>
 
@@ -123,6 +120,7 @@
 
     let subscriptions = [];
     let menuStatus = {};
+    let catalog = {};
 
     function login() {
       if (document.getElementById('username').value === ADMIN_USER && document.getElementById('password').value === ADMIN_PASS) {
@@ -155,15 +153,18 @@
     }
 
     async function fetchMenuStatus() {
-      const fileName = document.getElementById('targetFile').value.trim().replace('.html', '');
+      let fileName = document.getElementById('targetFile').value.trim().replace('.html', '');
       if (!fileName) { alert("يرجى كتابة اسم ملف المنيو أولاً!"); return; }
 
       try {
-        const res = await fetch(`${API_BASE_URL}items_${fileName}.json?nocache=` + Date.now());
-        const data = await res.json();
-        menuStatus = data || {};
-        
-        // جلب أسماء العناصر المكتوبة بالصفحة أوتوماتيكياً إن أمكن
+        // 1. جلب فهرس أسماء الوجبات المرسل من المنيو
+        const catRes = await fetch(`${API_BASE_URL}catalog_${fileName}.json?nocache=` + Date.now());
+        catalog = await catRes.json() || {};
+
+        // 2. جلب حالة الإخفاء والإظهار
+        const statusRes = await fetch(`${API_BASE_URL}items_${fileName}.json?nocache=` + Date.now());
+        menuStatus = await statusRes.json() || {};
+
         renderMenuItems(fileName);
       } catch(e) {
         alert("تعذر جلب حالة الوجبات!");
@@ -174,23 +175,20 @@
       const container = document.getElementById('menuItemsContainer');
       container.innerHTML = '';
 
-      // مصفوفة تجريبية أو ديناميكية للوجبات
-      const itemKeys = Object.keys(menuStatus);
+      const itemKeys = Object.keys(catalog);
       if (itemKeys.length === 0) {
-        container.innerHTML = `<p style="color:var(--text-muted); font-size:0.85rem;">لا توجد وجبات مسجلة معدلة بعد. اكتب معرّف/اسم الوجبة لإضافته أو التحكم به:</p>
-        <div style="display:flex; gap:10px; margin-top:10px;">
-          <input type="text" id="newItemName" placeholder="معرف الوجبة (مثلاً: item1)" style="padding:8px; border-radius:8px; border:1px solid var(--border); background:#23232a; color:#fff;">
-          <button class="btn" style="width:auto; padding:8px 15px;" onclick="toggleItemState('${fileName}', document.getElementById('newItemName').value)">إضافة/تغيير الحالة</button>
-        </div>`;
+        container.innerHTML = `<p style="color:var(--text-muted); font-size:0.85rem;">لم يتم العثور على وجبات تلقائية. تأكد من فتح صفحة المنيو (${fileName}.html) مرة واحدة على الأقل بالمتصفح ليتم تسجيل وجباتها تلقائياً.</p>`;
         return;
       }
 
-      itemKeys.forEach(item => {
-        const isSoldOut = menuStatus[item] === 'soldout';
+      itemKeys.forEach(itemId => {
+        const itemArabicName = catalog[itemId] || itemId;
+        const isSoldOut = menuStatus[itemId] === 'soldout';
+        
         container.innerHTML += `
           <div class="item-row">
-            <span><strong>الوجبة:</strong> ${item}</span>
-            <button class="toggle-item-btn ${isSoldOut ? 'btn-soldout' : 'btn-available'}" onclick="toggleItemState('${fileName}', '${item}')">
+            <span><strong>${itemArabicName}</strong> <small style="color:#aaa;">(${itemId})</small></span>
+            <button class="toggle-item-btn ${isSoldOut ? 'btn-soldout' : 'btn-available'}" onclick="toggleItemState('${fileName}', '${itemId}')">
               ${isSoldOut ? '🚫 منتهية (مخفية)' : '✅ متوفرة (ظاهرة)'}
             </button>
           </div>
@@ -199,7 +197,6 @@
     }
 
     async function toggleItemState(fileName, itemId) {
-      if (!itemId) return;
       const currentState = menuStatus[itemId] === 'soldout' ? 'available' : 'soldout';
       menuStatus[itemId] = currentState;
 
@@ -263,7 +260,7 @@
             <td>${sub.price}$</td>
             <td><span class="status-badge ${sub.status === 'active' ? 'status-active' : 'status-expired'}">${sub.status === 'active' ? 'مفعل' : 'متوقف'}</span></td>
             <td>
-              <button class="action-btn" onclick="document.getElementById('targetFile').value='${sub.file}'; fetchMenuStatus();">إدارة الوجبات</button>
+              <button class="action-btn" onclick="document.getElementById('targetFile').value='${sub.file.replace('.html','')}'; fetchMenuStatus();">إدارة الوجبات</button>
             </td>
           </tr>`;
       });
