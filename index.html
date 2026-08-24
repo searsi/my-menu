@@ -161,9 +161,89 @@
       z-index: 10;
       white-space: nowrap;
     }
+
+    /* ------------------------------------ */
+    /*   شاشة إيقاف الخدمة عند انتهاء الاشتراك  */
+    /* ------------------------------------ */
+    #expiredOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 15, 18, 0.96);
+      backdrop-filter: blur(10px);
+      z-index: 99999;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 25px;
+      color: #ffffff;
+    }
+
+    .expired-card {
+      background: #1c1c21;
+      border: 1px solid rgba(255, 71, 87, 0.4);
+      border-radius: 24px;
+      padding: 35px 25px;
+      max-width: 420px;
+      width: 90%;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      animation: popIn 0.4s ease-out;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.85); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .expired-icon {
+      font-size: 3.5rem;
+      margin-bottom: 15px;
+    }
+
+    .expired-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #ff4757;
+      margin-bottom: 10px;
+    }
+
+    .expired-msg {
+      font-size: 0.95rem;
+      color: #a5a5ab;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .expired-badge {
+      display: inline-block;
+      background: rgba(255, 71, 87, 0.15);
+      color: #ff4757;
+      border: 1px solid rgba(255, 71, 87, 0.3);
+      padding: 8px 16px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
   </style>
 </head>
 <body class="light-mode">
+
+  <!-- شاشة التنبيه عند توقف الخدمة -->
+  <div id="expiredOverlay">
+    <div class="expired-card">
+      <div class="expired-icon">⚠️</div>
+      <div class="expired-title">المنيو خارج الخدمة مؤقتاً</div>
+      <div class="expired-msg">
+        عذراً، هذه الخدمة متوقفة حالياً.<br>
+        يرجى مراجعة إدارة المطعم أو المزود لإعادة التفعيل.
+      </div>
+      <div class="expired-badge">حالة الاشتراك: منتهي / Expired</div>
+    </div>
+  </div>
 
   <header>
     <div class="brand" id="brandText">مطعم ومنشأة بغداد</div>
@@ -189,7 +269,7 @@
       <button class="cat-btn" onclick="filterCategory('sweets', this)" data-ar="الحلويات" data-en="Sweets">الحلويات</button>
     </div>
 
-    <!-- شبكة عرض الوجبات -->
+    <!-- شبكة عرض الوجبات كاملة -->
     <div class="grid" id="menuGrid">
       
       <!-- Burgers -->
@@ -282,7 +362,7 @@
   </div>
 
   <script>
-    // 1. ميزة الدارك واللايت مود مع الحفظ في LocalStorage
+    // 1. الثيمات وحفظ التفضيل
     function applySavedTheme() {
       const savedTheme = localStorage.getItem('menu_theme') || 'light';
       if (savedTheme === 'dark') {
@@ -304,20 +384,17 @@
       }
     }
 
-    // 2. ميزة تحويل اللغات
+    // 2. تحويل اللغات
     let currentLang = 'ar';
     function toggleLanguage() {
       currentLang = currentLang === 'ar' ? 'en' : 'ar';
       document.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
       document.getElementById('langBtn').innerText = currentLang === 'ar' ? 'English' : 'عربي';
-      
-      const searchPlaceholder = currentLang === 'ar' ? 'ابحث عن وجبة...' : 'Search for a meal...';
-      document.getElementById('searchInput').placeholder = searchPlaceholder;
+      document.getElementById('searchInput').placeholder = currentLang === 'ar' ? 'ابحث عن وجبة...' : 'Search for a meal...';
 
       document.querySelectorAll('[data-ar]').forEach(el => {
         el.innerText = el.getAttribute(`data-${currentLang}`);
       });
-
       updateSoldOutBadges();
       filterMenu(); 
     }
@@ -329,9 +406,8 @@
       });
     }
 
-    // 3. التصفية حسب القسم والبحث الفوري
+    // 3. التصفية والبحث
     let activeCategory = 'all';
-
     function filterCategory(cat, btn) {
       activeCategory = cat;
       document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -341,7 +417,6 @@
 
     function filterMenu() {
       const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
-
       document.querySelectorAll('.card').forEach(card => {
         const itemCategory = card.getAttribute('data-category');
         const titleText = card.querySelector('.card-title').innerText.toLowerCase();
@@ -350,18 +425,30 @@
         const matchesCategory = (activeCategory === 'all' || itemCategory === activeCategory);
         const matchesSearch = titleText.includes(searchQuery) || descText.includes(searchQuery);
 
-        if (matchesCategory && matchesSearch) {
-          card.style.display = 'block';
-        } else {
-          card.style.display = 'none';
-        }
+        card.style.display = (matchesCategory && matchesSearch) ? 'block' : 'none';
       });
     }
 
-    // 4. سكريبت المزامنة والتظليل اللحظي من Firebase
+    // ⚡ 4. Firebase: مزامنة الكتالوج، فحص حالة الاشتراك، وتظليل الوجبات ⚡
     const API_BASE_URL = "https://admin-e3293-default-rtdb.firebaseio.com/";
     const MENU_FILE_NAME = window.location.pathname.split('/').pop().replace('.html', '') || "index"; 
 
+    // فحص الاشتراك
+    async function checkSubscription() {
+      try {
+        const res = await fetch(`${API_BASE_URL}status_${MENU_FILE_NAME}.json?nocache=` + Date.now());
+        const status = await res.json();
+        const overlay = document.getElementById('expiredOverlay');
+
+        if (status === 'expired') {
+          overlay.style.display = 'flex';
+        } else {
+          overlay.style.display = 'none';
+        }
+      } catch(e) { console.error("Subscription check error:", e); }
+    }
+
+    // مزامنة الكتالوج إلى الأدمن
     async function syncCatalogToAdmin() {
       let catalogData = {};
       document.querySelectorAll('.card').forEach((card, index) => {
@@ -382,6 +469,7 @@
       }
     }
 
+    // تطبيق حالة توفر الوجبات (تظليل غير المتوفر)
     async function applyHiddenItems() {
       try {
         const res = await fetch(`${API_BASE_URL}items_${MENU_FILE_NAME}.json?nocache=` + Date.now());
@@ -389,7 +477,6 @@
 
         document.querySelectorAll('.card').forEach((card, index) => {
           let itemId = card.getAttribute('data-id') || `item_${index}`;
-          
           if (menuStatus[itemId] === 'soldout') {
             card.classList.add('sold-out');
           } else {
@@ -403,10 +490,14 @@
       applySavedTheme();
       updateSoldOutBadges();
       await syncCatalogToAdmin();
+      await checkSubscription();
       await applyHiddenItems();
 
-      // تحديث حالة الوجبات كل 3 ثوانٍ
-      setInterval(applyHiddenItems, 3000);
+      // مزامنة لحظية للاشتراك والوجبات كل 3 ثوانٍ
+      setInterval(() => {
+        checkSubscription();
+        applyHiddenItems();
+      }, 3000);
     });
   </script>
 </body>
