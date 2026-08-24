@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>لوحة إدارة الاشتراكات والمبيعات</title>
+  <title>لوحة إدارة الاشتراكات والوجبات</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root { --bg: #0f0f12; --card-bg: #1c1c21; --accent: #e5b849; --text: #ffffff; --text-muted: #a5a5ab; --border: rgba(255, 255, 255, 0.1); --success: #2ed573; --danger: #ff4757; --warning: #ffa502; }
@@ -42,9 +42,10 @@
     .delete-btn { border-color: var(--danger); color: var(--danger); }
     .sync-indicator { font-size: 0.75rem; color: var(--success); font-weight: 600; }
     .logout-btn { background: var(--danger); border: none; padding: 8px 14px; border-radius: 10px; color: #fff; font-weight: 700; cursor: pointer; }
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
-    .modal-card { background: var(--card-bg); border: 1px solid var(--border); padding: 20px; border-radius: 20px; width: 100%; max-width: 500px; }
-    @media (min-width: 600px) { .form-grid { grid-template-columns: repeat(2, 1fr); } }
+    .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--border); }
+    .toggle-item-btn { padding: 6px 12px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-size: 0.8rem; }
+    .btn-available { background: rgba(46, 213, 115, 0.2); color: var(--success); border: 1px solid var(--success); }
+    .btn-soldout { background: rgba(255, 71, 87, 0.2); color: var(--danger); border: 1px solid var(--danger); }
   </style>
 </head>
 <body>
@@ -61,7 +62,7 @@
 
   <div id="dashboardScreen">
     <div class="header-dash">
-      <h1>إدارة الاشتراكات والمالية</h1>
+      <h1>إدارة الاشتراكات والوجبات</h1>
       <button class="logout-btn" onclick="logout()">خروج</button>
     </div>
 
@@ -72,16 +73,29 @@
     </div>
 
     <div class="section-box">
-      <div class="section-title">➕ تسجيل مطعم وااشتراك جديد</div>
+      <div class="section-title">➕ تسجيل مطعم جديد</div>
       <div class="form-grid">
         <div class="input-group"><label>اسم المطعم</label><input type="text" id="resName"></div>
         <div class="input-group"><label>رقم الهاتف</label><input type="tel" id="resPhone"></div>
-        <div class="input-group"><label>اسم ملف المنيو</label><input type="text" id="resFile"></div>
+        <div class="input-group"><label>اسم ملف المنيو (مثلاً menu1.html)</label><input type="text" id="resFile"></div>
         <div class="input-group"><label>تاريخ البدء</label><input type="date" id="startDate"></div>
         <div class="input-group"><label>تاريخ الانتهاء</label><input type="date" id="endDate"></div>
         <div class="input-group"><label>المبلغ ($)</label><input type="number" id="salePrice"></div>
       </div>
       <button class="btn" id="saveBtn" onclick="addSubscription()">حفظ البيانات</button>
+    </div>
+
+    <div class="section-box">
+      <div class="section-title">
+        <span>🍔 التحكم بحالة الوجبات (إخفاء / إظهار الوجبة)</span>
+      </div>
+      <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+        <input type="text" id="targetFile" placeholder="أدخل اسم الملف مثل: menu1.html" style="flex:1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #23232a; color:#fff;">
+        <button class="btn" style="width: auto; padding: 10px 20px;" onclick="fetchMenuStatus()">جلب الوجبات</button>
+      </div>
+      <div id="menuItemsContainer" style="max-height: 250px; overflow-y: auto;">
+        <p style="color: var(--text-muted); font-size: 0.85rem;">اختر ملف مطعم لعرض وجباته والتحكم بها.</p>
+      </div>
     </div>
 
     <div class="section-box">
@@ -100,52 +114,22 @@
         </table>
       </div>
     </div>
-
-    <div class="section-box">
-      <div class="section-title">💰 سجل المدخولات</div>
-      <div class="table-responsive">
-        <table>
-          <thead>
-            <tr><th>#</th><th>المطعم</th><th>المبلغ</th><th>التاريخ</th></tr>
-          </thead>
-          <tbody id="salesTable"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <div id="editModal" class="modal">
-    <div class="modal-card">
-      <h3 style="color: var(--accent); margin-bottom: 15px;">تعديل بيانات المطعم</h3>
-      <input type="hidden" id="editId">
-      <div class="input-group"><label>اسم المطعم</label><input type="text" id="editName"></div>
-      <div class="input-group"><label>رقم الهاتف</label><input type="tel" id="editPhone"></div>
-      <div class="input-group"><label>اسم الملف</label><input type="text" id="editFile"></div>
-      <div class="input-group"><label>تاريخ البدء</label><input type="date" id="editStart"></div>
-      <div class="input-group"><label>تاريخ الانتهاء</label><input type="date" id="editEnd"></div>
-      <div class="input-group"><label>المبلغ ($)</label><input type="number" id="editPrice"></div>
-      <div style="display: flex; gap: 10px; margin-top: 15px;">
-        <button class="btn" onclick="saveEdit()">حفظ التعديلات</button>
-        <button class="btn" style="background: var(--card-bg); border: 1px solid var(--border);" onclick="closeEditModal()">إلغاء</button>
-      </div>
-    </div>
   </div>
 
   <script>
     const ADMIN_USER = "searsi";
     const ADMIN_PASS = "Aa112233";
-    const API_BASE_URL = "https://admin-e3293-default-rtdb.firebaseio.com/data.json";
+    const API_BASE_URL = "https://admin-e3293-default-rtdb.firebaseio.com/";
 
     let subscriptions = [];
-    let salesLog = [];
-    let isBusy = false;
+    let menuStatus = {};
 
     function login() {
       if (document.getElementById('username').value === ADMIN_USER && document.getElementById('password').value === ADMIN_PASS) {
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('dashboardScreen').style.display = 'block';
         fetchCloudData();
-        setInterval(fetchCloudData, 2500);
+        setInterval(fetchCloudData, 3000);
       } else {
         document.getElementById('loginError').style.display = 'block';
       }
@@ -157,14 +141,11 @@
     }
 
     async function fetchCloudData() {
-      if (isBusy) return;
       try {
-        const res = await fetch(API_BASE_URL + "?nocache=" + Date.now());
+        const res = await fetch(API_BASE_URL + "data.json?nocache=" + Date.now());
         const data = await res.json();
-        
-        if (data) {
+        if (data && data.subscriptions) {
           subscriptions = Array.isArray(data.subscriptions) ? data.subscriptions : [];
-          salesLog = Array.isArray(data.salesLog) ? data.salesLog : [];
           renderData();
         }
         document.getElementById('syncStatus').innerText = "⚡ متصل بـ Firebase";
@@ -173,21 +154,61 @@
       }
     }
 
-    async function saveCloudData() {
-      isBusy = true;
-      document.getElementById('syncStatus').innerText = "⏳ جاري الرفع...";
+    async function fetchMenuStatus() {
+      const fileName = document.getElementById('targetFile').value.trim().replace('.html', '');
+      if (!fileName) { alert("يرجى كتابة اسم ملف المنيو أولاً!"); return; }
+
       try {
-        await fetch(API_BASE_URL, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ subscriptions, salesLog })
-        });
-        document.getElementById('syncStatus').innerText = "⚡ تم التحديث بنجاح";
-      } catch (err) {
-        alert("فشل الحفظ في Firebase!");
-      } finally {
-        setTimeout(() => { isBusy = false; }, 1000);
+        const res = await fetch(`${API_BASE_URL}items_${fileName}.json?nocache=` + Date.now());
+        const data = await res.json();
+        menuStatus = data || {};
+        
+        // جلب أسماء العناصر المكتوبة بالصفحة أوتوماتيكياً إن أمكن
+        renderMenuItems(fileName);
+      } catch(e) {
+        alert("تعذر جلب حالة الوجبات!");
       }
+    }
+
+    function renderMenuItems(fileName) {
+      const container = document.getElementById('menuItemsContainer');
+      container.innerHTML = '';
+
+      // مصفوفة تجريبية أو ديناميكية للوجبات
+      const itemKeys = Object.keys(menuStatus);
+      if (itemKeys.length === 0) {
+        container.innerHTML = `<p style="color:var(--text-muted); font-size:0.85rem;">لا توجد وجبات مسجلة معدلة بعد. اكتب معرّف/اسم الوجبة لإضافته أو التحكم به:</p>
+        <div style="display:flex; gap:10px; margin-top:10px;">
+          <input type="text" id="newItemName" placeholder="معرف الوجبة (مثلاً: item1)" style="padding:8px; border-radius:8px; border:1px solid var(--border); background:#23232a; color:#fff;">
+          <button class="btn" style="width:auto; padding:8px 15px;" onclick="toggleItemState('${fileName}', document.getElementById('newItemName').value)">إضافة/تغيير الحالة</button>
+        </div>`;
+        return;
+      }
+
+      itemKeys.forEach(item => {
+        const isSoldOut = menuStatus[item] === 'soldout';
+        container.innerHTML += `
+          <div class="item-row">
+            <span><strong>الوجبة:</strong> ${item}</span>
+            <button class="toggle-item-btn ${isSoldOut ? 'btn-soldout' : 'btn-available'}" onclick="toggleItemState('${fileName}', '${item}')">
+              ${isSoldOut ? '🚫 منتهية (مخفية)' : '✅ متوفرة (ظاهرة)'}
+            </button>
+          </div>
+        `;
+      });
+    }
+
+    async function toggleItemState(fileName, itemId) {
+      if (!itemId) return;
+      const currentState = menuStatus[itemId] === 'soldout' ? 'available' : 'soldout';
+      menuStatus[itemId] = currentState;
+
+      await fetch(`${API_BASE_URL}items_${fileName}/${itemId}.json`, {
+        method: 'PUT',
+        body: JSON.stringify(currentState)
+      });
+
+      renderMenuItems(fileName);
     }
 
     function calculateDaysLeft(endDateStr) {
@@ -211,108 +232,39 @@
 
       if (!name || !file || !start || !end) { alert("يرجى ملء البيانات الأساسية!"); return; }
 
-      // جلب البيانات الحالية من Firebase أولاً لمنع مسح بيانات الموبايل/الكمبيوتر
-      await fetchCloudData();
-
       const newItem = { id: Date.now(), name, phone, file, start, end, price, status: 'active' };
       subscriptions.push(newItem);
-      salesLog.push({ id: Date.now(), name, price, date: new Date().toLocaleDateString('ar-EG') });
 
-      document.getElementById('resName').value = '';
-      document.getElementById('resPhone').value = '';
-      document.getElementById('resFile').value = '';
-      document.getElementById('startDate').value = '';
-      document.getElementById('endDate').value = '';
-      document.getElementById('salePrice').value = '';
-
-      renderData();
-      await saveCloudData();
-    }
-
-    async function deleteRestaurant(id) {
-      if (confirm("هل أنت تأكد من حذف هذا المطعم؟")) {
-        subscriptions = subscriptions.filter(sub => sub.id !== id);
-        renderData();
-        await saveCloudData();
-      }
-    }
-
-    function openEditModal(id) {
-      const sub = subscriptions.find(item => item.id === id);
-      if (!sub) return;
-      document.getElementById('editId').value = sub.id;
-      document.getElementById('editName').value = sub.name;
-      document.getElementById('editPhone').value = sub.phone || '';
-      document.getElementById('editFile').value = sub.file;
-      document.getElementById('editStart').value = sub.start;
-      document.getElementById('editEnd').value = sub.end;
-      document.getElementById('editPrice').value = sub.price;
-      document.getElementById('editModal').style.display = 'flex';
-    }
-
-    function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
-
-    async function saveEdit() {
-      const id = parseInt(document.getElementById('editId').value);
-      subscriptions = subscriptions.map(sub => {
-        if (sub.id === id) {
-          sub.name = document.getElementById('editName').value;
-          sub.phone = document.getElementById('editPhone').value;
-          sub.file = document.getElementById('editFile').value;
-          sub.start = document.getElementById('editStart').value;
-          sub.end = document.getElementById('editEnd').value;
-          sub.price = parseFloat(document.getElementById('editPrice').value) || 0;
-        }
-        return sub;
+      await fetch(API_BASE_URL + "data.json", {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscriptions })
       });
-      closeEditModal();
-      renderData();
-      await saveCloudData();
-    }
 
-    async function toggleStatus(id) {
-      subscriptions = subscriptions.map(sub => {
-        if (sub.id === id) sub.status = sub.status === 'active' ? 'expired' : 'active';
-        return sub;
-      });
-      renderData();
-      await saveCloudData();
+      fetchCloudData();
     }
 
     function renderData() {
       const tableBody = document.getElementById('restaurantsTable');
-      const salesBody = document.getElementById('salesTable');
-      tableBody.innerHTML = ''; salesBody.innerHTML = '';
+      tableBody.innerHTML = '';
       let activeCnt = 0; let totalRev = 0;
 
       subscriptions.forEach(sub => {
         if (sub.status === 'active') activeCnt++;
+        totalRev += parseFloat(sub.price) || 0;
         const daysInfo = calculateDaysLeft(sub.end);
         tableBody.innerHTML += `
           <tr>
             <td><strong>${sub.name}</strong></td>
-            <td><a href="tel:${sub.phone}" style="color:var(--accent); text-decoration:none;">${sub.phone || '-'}</a></td>
+            <td>${sub.phone || '-'}</td>
             <td><code>${sub.file}</code></td>
             <td>${sub.end}</td>
             <td><span class="days-badge ${daysInfo.class}">${daysInfo.text}</span></td>
             <td>${sub.price}$</td>
             <td><span class="status-badge ${sub.status === 'active' ? 'status-active' : 'status-expired'}">${sub.status === 'active' ? 'مفعل' : 'متوقف'}</span></td>
             <td>
-              <button class="action-btn" onclick="toggleStatus(${sub.id})">${sub.status === 'active' ? 'إيقاف' : 'تفعيل'}</button>
-              <button class="action-btn edit-btn" onclick="openEditModal(${sub.id})">تعديل</button>
-              <button class="action-btn delete-btn" onclick="deleteRestaurant(${sub.id})">حذف</button>
+              <button class="action-btn" onclick="document.getElementById('targetFile').value='${sub.file}'; fetchMenuStatus();">إدارة الوجبات</button>
             </td>
-          </tr>`;
-      });
-
-      salesLog.forEach((sale, index) => {
-        totalRev += parseFloat(sale.price) || 0;
-        salesBody.innerHTML += `
-          <tr>
-            <td>${index + 1}</td>
-            <td>${sale.name}</td>
-            <td><strong>${sale.price} $</strong></td>
-            <td>${sale.date}</td>
           </tr>`;
       });
 
