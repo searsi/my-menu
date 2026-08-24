@@ -162,9 +162,7 @@
       white-space: nowrap;
     }
 
-    /* ------------------------------------ */
-    /*   شاشة إيقاف الخدمة عند انتهاء الاشتراك  */
-    /* ------------------------------------ */
+    /* شاشة إيقاف الخدمة عند انتهاء الاشتراك */
     #expiredOverlay {
       position: fixed;
       top: 0;
@@ -199,25 +197,9 @@
       to { transform: scale(1); opacity: 1; }
     }
 
-    .expired-icon {
-      font-size: 3.5rem;
-      margin-bottom: 15px;
-    }
-
-    .expired-title {
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: #ff4757;
-      margin-bottom: 10px;
-    }
-
-    .expired-msg {
-      font-size: 0.95rem;
-      color: #a5a5ab;
-      line-height: 1.6;
-      margin-bottom: 20px;
-    }
-
+    .expired-icon { font-size: 3.5rem; margin-bottom: 15px; }
+    .expired-title { font-size: 1.4rem; font-weight: 800; color: #ff4757; margin-bottom: 10px; }
+    .expired-msg { font-size: 0.95rem; color: #a5a5ab; line-height: 1.6; margin-bottom: 20px; }
     .expired-badge {
       display: inline-block;
       background: rgba(255, 71, 87, 0.15);
@@ -273,7 +255,7 @@
     <div class="grid" id="menuGrid">
       
       <!-- Burgers -->
-      <div class="card" data-category="burgers" data-id="item_burger_classic">
+      <div class="card" data-category="burgers" data-id="item_burger_classic" data-soldout-text="غير متوفر">
         <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500" alt="برجر"></div>
         <div class="card-info">
           <div class="card-title" data-ar="برجر كلاسيك" data-en="Classic Burger">برجر كلاسيك</div>
@@ -282,7 +264,7 @@
         </div>
       </div>
 
-      <div class="card" data-category="burgers" data-id="item_burger_zinger">
+      <div class="card" data-category="burgers" data-id="item_burger_zinger" data-soldout-text="غير متوفر">
         <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=500" alt="زنجر"></div>
         <div class="card-info">
           <div class="card-title" data-ar="برجر زنجر دجاج" data-en="Zinger Burger">برجر زنجر دجاج</div>
@@ -292,7 +274,7 @@
       </div>
 
       <!-- Pizza -->
-      <div class="card" data-category="pizza" data-id="item_pizza_pepperoni">
+      <div class="card" data-category="pizza" data-id="item_pizza_pepperoni" data-soldout-text="غير متوفر">
         <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500" alt="بيتزا"></div>
         <div class="card-info">
           <div class="card-title" data-ar="بيتزا ببروني" data-en="Pepperoni Pizza">بيتزا ببروني</div>
@@ -301,7 +283,7 @@
         </div>
       </div>
 
-      <div class="card" data-category="pizza" data-id="item_pizza_veggie">
+      <div class="card" data-category="pizza" data-id="item_pizza_veggie" data-soldout-text="غير متوفر">
         <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500" alt="بيتزا خضار"></div>
         <div class="card-info">
           <div class="card-title" data-ar="بيتزا خضار" data-en="Veggie Pizza">بيتزا خضار</div>
@@ -311,7 +293,7 @@
       </div>
 
       <!-- Shawarma & Saj -->
-      <div class="card" data-category="shawarma" data-id="item_shawarma_plate">
+      <div class="card" data-category="shawarma" data-id="item_shawarma_plate" data-soldout-text="غير متوفر">
         <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=500" alt="شاورما"></div>
         <div class="card-info">
           <div class="card-title" data-ar="وجبة شاورما عربي" data-en="Shawarma Meal">وجبة شاورما عربي</div>
@@ -320,7 +302,7 @@
         </div>
       </div>
 
-      <div class="card" data-category="shawarma" data-id="item_saj_chicken">
+      <div class="card" data-category="shawarma" data-id="item_saj_chicken" data-soldout-text="غير متوفر">
         <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500" alt="صاج دجاج"></div>
         <div class="card-info">
           <div class="card-title" data-ar="لفة صاج دجاج" data-en="Chicken Saj Wrap">لفة صاج دجاج</div>
@@ -330,7 +312,7 @@
       </div>
 
       <!-- Drinks -->
-      <div class="card" data-category="drinks" data-id="item_cola">
+      <div class="card" data-category="drinks" data-id="item_cola" data-soldout-text="غير متوفر">
         <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500" alt="مشروب"></div>
         <div class="card-info">
           <div class="card-title" data-ar="كوكاكولا بارد" data-en="Cold Coca-Cola">كوكاكولا بارد</div>
@@ -339,7 +321,7 @@
         </div>
       </div>
 
-      <div class="card" data-category="drinks" data-id="item_orange_juice">
+      <div class="card" data-category="drinks" data-id="item_orange_juice" data-soldout-text="غير متوفر">
         <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1613478223719-2ab802602423?w=500" alt="عصير برتقال"></div>
         <div class="card-info">
           <div class="card-title" data-ar="عصير برتقال طبيعي" data-en="Fresh Orange Juice">عصير برتقال طبيعي</div>
@@ -349,7 +331,7 @@
       </div>
 
       <!-- Sweets -->
-      <div class="card" data-category="sweets" data-id="item_waffle">
+      <div class="card" data-category="sweets" data-id="item_waffle" data-soldout-text="غير متوفر">
         <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1562376552-0d160a2f238d?w=500" alt="وافل"></div>
         <div class="card-info">
           <div class="card-title" data-ar="وافل بالنوتيلا" data-en="Nutella Waffle">وافل بالنوتيلا</div>
@@ -429,9 +411,48 @@
       });
     }
 
-    // ⚡ 4. Firebase: مزامنة الكتالوج، فحص حالة الاشتراك، وتظليل الوجبات ⚡
+    // ⚡ 4. Firebase: جلب الوجبات الإضافية، فحص الاشتراك، وتطبيق حالات التوفر ⚡
     const API_BASE_URL = "https://admin-e3293-default-rtdb.firebaseio.com/";
     const MENU_FILE_NAME = window.location.pathname.split('/').pop().replace('.html', '') || "index"; 
+
+    // جلب الوجبات المضافة حديثاً من لوحة التحكم ورسمها بالصفحة
+    async function fetchCustomMeals() {
+      try {
+        const res = await fetch(`${API_BASE_URL}custom_meals_${MENU_FILE_NAME}.json?nocache=` + Date.now());
+        const customMeals = await res.json();
+        
+        if (customMeals && Array.isArray(customMeals)) {
+          const grid = document.getElementById('menuGrid');
+          
+          document.querySelectorAll('.card.custom-added-meal').forEach(el => el.remove());
+
+          const soldOutText = currentLang === 'ar' ? 'غير متوفر' : 'Unavailable';
+
+          customMeals.forEach(meal => {
+            const card = document.createElement('div');
+            card.className = 'card custom-added-meal';
+            card.setAttribute('data-category', meal.category ? meal.category.toLowerCase().trim() : 'other');
+            card.setAttribute('data-id', meal.id);
+            card.setAttribute('data-soldout-text', soldOutText);
+
+            card.innerHTML = `
+              <div class="img-wrapper"><img src="${meal.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" alt="${meal.title}"></div>
+              <div class="card-info">
+                <div class="card-title" data-ar="${meal.title}" data-en="${meal.title}">${meal.title}</div>
+                <div class="card-desc" data-ar="${meal.desc || ''}" data-en="${meal.desc || ''}">${meal.desc || ''}</div>
+                <div class="card-price">${meal.price}</div>
+              </div>
+            `;
+            grid.appendChild(card);
+          });
+          
+          // تطبيق حالة التوفر فور رسم الوجبات الجديدة
+          applyItemStatuses();
+        }
+      } catch (e) {
+        console.error("Error fetching custom meals:", e);
+      }
+    }
 
     // فحص الاشتراك
     async function checkSubscription() {
@@ -448,55 +469,38 @@
       } catch(e) { console.error("Subscription check error:", e); }
     }
 
-    // مزامنة الكتالوج إلى الأدمن
-    async function syncCatalogToAdmin() {
-      let catalogData = {};
-      document.querySelectorAll('.card').forEach((card, index) => {
-        let itemId = card.getAttribute('data-id') || `item_${index}`;
-        let titleElement = card.querySelector('.card-title');
-        let itemName = titleElement ? titleElement.getAttribute('data-ar') || titleElement.innerText.trim() : `وجبة ${index + 1}`;
-        catalogData[itemId] = itemName;
-      });
-
-      if (Object.keys(catalogData).length > 0) {
-        try {
-          await fetch(`${API_BASE_URL}catalog_${MENU_FILE_NAME}.json`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(catalogData)
-          });
-        } catch(e) { console.error("Sync error:", e); }
-      }
-    }
-
-    // تطبيق حالة توفر الوجبات (تظليل غير المتوفر)
-    async function applyHiddenItems() {
+    // تطبيق حالة توفر الوجبات (بدون رمش أو إعادة بناء)
+    async function applyItemStatuses() {
       try {
         const res = await fetch(`${API_BASE_URL}items_${MENU_FILE_NAME}.json?nocache=` + Date.now());
         const menuStatus = await res.json() || {};
 
-        document.querySelectorAll('.card').forEach((card, index) => {
-          let itemId = card.getAttribute('data-id') || `item_${index}`;
-          if (menuStatus[itemId] === 'soldout') {
-            card.classList.add('sold-out');
+        document.querySelectorAll('.card').forEach((card) => {
+          let itemId = card.getAttribute('data-id');
+          if (itemId && menuStatus[itemId] === 'soldout') {
+            if (!card.classList.contains('sold-out')) {
+              card.classList.add('sold-out');
+            }
           } else {
-            card.classList.remove('sold-out');
+            if (card.classList.contains('sold-out')) {
+              card.classList.remove('sold-out');
+            }
           }
         });
-      } catch(e) { console.error("Fetch error:", e); }
+      } catch(e) { console.error("Fetch status error:", e); }
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
       applySavedTheme();
       updateSoldOutBadges();
-      await syncCatalogToAdmin();
       await checkSubscription();
-      await applyHiddenItems();
+      await fetchCustomMeals(); 
+      await applyItemStatuses();
 
-      // مزامنة لحظية للاشتراك والوجبات كل 3 ثوانٍ
-      setInterval(() => {
+      // مزامنة لحظية للاشتراك، الحالات، والوجبات كل 3 ثوانٍ
+      setInterval(async () => {
         checkSubscription();
-        applyHiddenItems();
+        await applyItemStatuses();
       }, 3000);
     });
   </script>
