@@ -1,93 +1,183 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>المنيو الرقمي</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Cairo', sans-serif; background: #121212; color: #fff; padding: 20px; }
-    .menu-container { max-width: 500px; margin: 0 auto; }
-    .menu-item { background: #1e1e1e; border: 1px solid #333; padding: 15px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-    .item-info h3 { margin: 0 0 5px 0; font-size: 1.1rem; color: #e5b849; }
-    .item-info p { margin: 0; color: #aaa; font-size: 0.9rem; }
-    .price { font-weight: bold; color: #2ed573; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قائمة الطعام - المنيو</title>
+    
+    <style>
+        /* === 1. تنسيقات الصفحة والمنيو الأصلي === */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* بطاقة الوجبة الأصلية */
+        .menu-item {
+            background: #ffffff;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+
+        .menu-item img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .menu-item-info {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .menu-item-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #222;
+        }
+
+        .menu-item-desc {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+
+        .menu-item-price {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #e63946;
+        }
+
+        /* === 2. تأثير التظليل للوجبة غير المتوفرة === */
+        .menu-item.unavailable {
+            opacity: 0.5; /* تظليل الوجبة */
+            filter: grayscale(80%); /* تقليل الألوان */
+            pointer-events: none; /* منع التفاعل مع الوجبة */
+        }
+
+        /* شارة غير متوفر */
+        .menu-item.unavailable::after {
+            content: "غير متوفر";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(220, 53, 69, 0.95); /* لون أحمر واضح */
+            color: #ffffff;
+            padding: 8px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            pointer-events: auto;
+            z-index: 10;
+            letter-spacing: 0.5px;
+        }
+    </style>
 </head>
 <body>
 
-  <div class="menu-container">
-    <h2 style="text-align: center; margin-bottom: 20px; color: #e5b849;">قائمة الطعام</h2>
-
-    <!-- قائمة الوجبات: لاحظ إضافة data-id و data-name -->
-    <div class="menu-item" data-id="item_burger" data-name="برجر كلاسيك">
-      <div class="item-info">
-        <h3>برجر كلاسيك</h3>
-        <p>لحم بقر طازج مع الجبن والصوص الخاص</p>
-      </div>
-      <span class="price">5,000 د.ع</span>
+    <div class="header">
+        <h1>قائمة الطعام</h1>
     </div>
 
-    <div class="menu-item" data-id="item_pizza" data-name="بيتزا ببروني">
-      <div class="item-info">
-        <h3>بيتزا ببروني</h3>
-        <p>صلصة طماطم، جبن موزاريلا، وببروني</p>
-      </div>
-      <span class="price">8,000 د.ع</span>
+    <!-- حاوية المنيو -->
+    <div class="menu-grid" id="menuContainer">
+        <!-- سيتم تحميل الوجبات هنا ديناميكيًا من Firebase -->
     </div>
 
-    <div class="menu-item" data-id="item_crispy" data-name="وجبة كريسبي">
-      <div class="item-info">
-        <h3>وجبة كريسبي</h3>
-        <p>4 قطع دجاج مقرمش مع البطاطا والصلصة</p>
-      </div>
-      <span class="price">6,500 د.ع</span>
-    </div>
-  </div>
+    <!-- جلب مكتبات Firebase (SDK v9+) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-  <!-- سكربت مزامنة حالة الوجبات وإرسال القائمة لوحة التحكم -->
-  <script>
-    const API_URL = "https://admin-e3293-default-rtdb.firebaseio.com/";
-    // استخراج اسم الملف تلقائياً (مثلاً index)
-    const fileName = window.location.pathname.split("/").pop().replace(".html", "") || "index";
+        // 1. إعدادات Firebase الخاصة بمشروعك (استبدلها بإعداداتك)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
 
-    async function syncAndCheckItems() {
-      // 1. جمع الوجبات الموجودة في الصفحة وإرسالها لـ Firebase لتظهر باللوحة
-      const itemsInPage = {};
-      document.querySelectorAll('.menu-item').forEach(el => {
-        const id = el.getAttribute('data-id');
-        const name = el.getAttribute('data-name') || id;
-        itemsInPage[id] = name;
-      });
+        // تهيئة التطبيق والقاعدة
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
 
-      try {
-        // إرسال قائمة الوجبات لتسجيل أسمائها في قاعدة البيانات
-        fetch(`${API_URL}catalog_${fileName}.json`, {
-          method: 'PUT',
-          body: JSON.stringify(itemsInPage)
-        });
+        const menuContainer = document.getElementById("menuContainer");
 
-        // 2. جلب الوجبات المنتهية لإخفائها
-        const res = await fetch(`${API_URL}items_${fileName}.json?t=` + Date.now());
-        const soldOutData = await res.json();
+        // 2. الاستماع للخيارات والتحديثات اللحظية من Firebase
+        const menuRef = ref(database, 'menu_items');
 
-        if (soldOutData) {
-          document.querySelectorAll('.menu-item').forEach(item => {
-            const id = item.getAttribute('data-id');
-            if (soldOutData[id] === 'soldout') {
-              item.style.display = 'none'; // إخفاء الوجبة المنتهية
+        onValue(menuRef, (snapshot) => {
+            const data = snapshot.val();
+            menuContainer.innerHTML = ""; // مسح القائمة لإعادة الرسم
+
+            if (data) {
+                Object.keys(data).forEach((key) => {
+                    const item = data[key];
+                    
+                    // إنشاء عنصر الوجبة
+                    const itemCard = document.createElement("div");
+                    
+                    // فحص حالة التوفر: إذا كانت available === false يضاف كلاس unavailable
+                    const isAvailable = item.available !== false; 
+                    itemCard.className = `menu-item ${isAvailable ? '' : 'unavailable'}`;
+                    itemCard.id = `item-${key}`;
+
+                    // تركيب هيكل الوجبة (الصورة، الاسم، الوصف، السعر)
+                    itemCard.innerHTML = `
+                        <img src="${item.image || 'https://via.placeholder.com/250x180?text=No+Image'}" alt="${item.name}">
+                        <div class="menu-item-info">
+                            <div class="menu-item-title">${item.name}</div>
+                            <div class="menu-item-desc">${item.description || ''}</div>
+                            <div class="menu-item-price">${item.price} د.ع</div>
+                        </div>
+                    `;
+
+                    menuContainer.appendChild(itemCard);
+                });
             } else {
-              item.style.display = 'flex'; // إظهار الوجبة المتوفرة
+                menuContainer.innerHTML = "<p style='text-align:center; grid-column: 1/-1;'>لا توجد وجبات لعرضها حالياً.</p>";
             }
-          });
-        }
-      } catch (e) {
-        console.log("خطأ المزامنة:", e);
-      }
-    }
-
-    syncAndCheckItems();
-    setInterval(syncAndCheckItems, 3000); // فحص مستمر كل 3 ثوانٍ
-  </script>
+        });
+    </script>
 </body>
 </html>
