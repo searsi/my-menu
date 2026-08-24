@@ -407,7 +407,18 @@
         const matchesCategory = (activeCategory === 'all' || itemCategory === activeCategory);
         const matchesSearch = titleText.includes(searchQuery) || descText.includes(searchQuery);
 
-        card.style.display = (matchesCategory && matchesSearch) ? 'block' : 'none';
+        // إذا كانت الوجبة محذوفة مسبقاً، أبقِها مخفية بغض النظر عن البحث والتصنيف
+        if (card.classList.contains('is-deleted-marker') || card.style.display === 'none' && card.dataset.forceHide) {
+          return;
+        }
+
+        if (matchesCategory && matchesSearch) {
+          if (!card.classList.contains('is-deleted-marker')) {
+            card.style.display = 'block';
+          }
+        } else {
+          card.style.display = 'none';
+        }
       });
     }
 
@@ -518,7 +529,10 @@
         const statusRes = await fetch(`${API_BASE_URL}items_${MENU_FILE_NAME}.json?nocache=` + Date.now());
         const menuStatus = await statusRes.json() || {};
 
-        // 2. جلب قائمة الوجبات المحذوفة
+        // 2. جلب قائمة الوجبات المحذوفة (العامة والمخصصة)
+        const deletedBaseRes = await fetch(`${API_BASE_URL}deleted_base_meals_${MENU_FILE_NAME}.json?nocache=` + Date.now());
+        const deletedBaseMeals = await deletedBaseRes.json() || [];
+
         const deletedRes = await fetch(`${API_BASE_URL}deleted_meals_${MENU_FILE_NAME}.json?nocache=` + Date.now());
         const deletedMeals = await deletedRes.json() || [];
 
@@ -526,13 +540,13 @@
           let itemId = card.getAttribute('data-id');
           if (!itemId) return;
 
-          // فحص الحذف (إخفاء الوجبة تماماً من القائمة)
-          if (Array.isArray(deletedMeals) && deletedMeals.includes(itemId)) {
+          // فحص الحذف سواء كانت أساسية أو مضافة وإخفاؤها تماماً
+          if ((Array.isArray(deletedMeals) && deletedMeals.includes(itemId)) || 
+              (Array.isArray(deletedBaseMeals) && deletedBaseMeals.includes(itemId))) {
             card.style.display = 'none';
-            card.classList.add('is-deleted-marker'); // علامة إضافية
+            card.classList.add('is-deleted-marker'); // علامة إضافية لتأكيد الحذف
             return;
           } else {
-            // إذا لم تكن محذوفة، استمر وعالج حالة نفاد الكمية
             if (card.classList.contains('is-deleted-marker')) {
               card.classList.remove('is-deleted-marker');
             }
