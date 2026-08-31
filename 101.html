@@ -247,10 +247,10 @@
         <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن وجبة..." oninput="filterMenu()">
       </div>
 
-      <!-- شريط الأقسام (فارغ تماماً بالبداية وسيتم ملؤه حصراً بما تضيفه أنت من لوحة التحكم) -->
+      <!-- شريط الأقسام (فارغ بالكامل ولن يظهر أي قسم إلا ما تقوم بإنشائه من لوحة التحكم) -->
       <div class="categories-bar" id="categoriesBarContainer"></div>
 
-      <!-- شبكة الوجبات (فارغة تماماً بالبداية وتستقبل وجباتك المضافة فقط) -->
+      <!-- شبكة الوجبات -->
       <div class="grid" id="menuGrid"></div>
     </div>
   </div>
@@ -281,6 +281,8 @@
     }
 
     let currentLang = 'ar';
+    let activeCategory = ''; // يبدأ فارغاً لكي يتم تحديد أول قسم تلقائياً أو بناءً على الإضافة
+
     function selectLanguage(lang) {
       currentLang = lang;
       document.getElementById('welcomeView').style.display = 'none';
@@ -295,6 +297,7 @@
         el.innerText = el.getAttribute(`data-${currentLang}`);
       });
       updateSoldOutBadges();
+      renderCategoriesForCurrentLang();
       filterMenu();
     }
 
@@ -309,6 +312,7 @@
         el.innerText = el.getAttribute(`data-${currentLang}`);
       });
       updateSoldOutBadges();
+      renderCategoriesForCurrentLang();
       filterMenu(); 
     }
 
@@ -330,6 +334,8 @@
       const grid = document.getElementById('menuGrid');
       const soldOutText = currentLang === 'ar' ? 'غير متوفر' : 'Unavailable';
 
+      if (!customMeals || !Array.isArray(customMeals)) return;
+
       customMeals.forEach(meal => {
         let existingCard = grid.querySelector(`[data-id="${meal.id}"]`);
         if (!existingCard) {
@@ -340,11 +346,11 @@
           card.setAttribute('data-soldout-text', soldOutText);
 
           card.innerHTML = `
-            <div class="img-wrapper"><img src="${meal.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" alt="${meal.title}"></div>
+            <div class="img-wrapper"><img src="${meal.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" alt="${meal.title || ''}"></div>
             <div class="card-info">
-              <div class="card-title" data-ar="${meal.title}" data-en="${meal.title}">${meal.title}</div>
-              <div class="card-desc" data-ar="${meal.desc || ''}" data-en="${meal.desc || ''}">${meal.desc || ''}</div>
-              <div class="card-price">${meal.price}</div>
+              <div class="card-title" data-ar="${meal.title_ar || meal.title || ''}" data-en="${meal.title_en || meal.title || ''}">${currentLang === 'ar' ? (meal.title_ar || meal.title || '') : (meal.title_en || meal.title || '')}</div>
+              <div class="card-desc" data-ar="${meal.desc_ar || meal.desc || ''}" data-en="${meal.desc_en || meal.desc || ''}">${currentLang === 'ar' ? (meal.desc_ar || meal.desc || '') : (meal.desc_en || meal.desc || '')}</div>
+              <div class="card-price">${meal.price || ''}</div>
             </div>
           `;
           grid.appendChild(card);
@@ -352,35 +358,59 @@
       });
     }
 
-    // دالة الأقسام الجديدة بالكامل: تحذف القديم وتعتمد فقط على ما يتم إضافته في قاعدة البيانات
+    // دالة الأقسام التي لا تعرض أي شيء مسبقاً وتعتمد كلياً على قاعدة البيانات
+    function renderCategoriesForCurrentLang() {
+      const cacheKey = `cache_cats_${currentLang}_${MENU_FILE_NAME}`;
+      const cachedCats = localStorage.getItem(cacheKey);
+      if (cachedCats) {
+        try {
+          renderCategoriesUI(JSON.parse(cachedCats));
+        } catch(e) {
+          renderCategoriesUI([]);
+        }
+      } else {
+        renderCategoriesUI([]);
+      }
+    }
+
     function renderCategoriesUI(savedCats) {
       let catsMap = new Map();
       
-      // إضافة زر "الكل" افتراضياً ليعرض كافة الوجبات المضافة
-      catsMap.set('all', { id: 'all', ar: 'الكل', en: 'All' });
+      // لا يتم إضافة أي زر افتراضي (مثل زر الكل) هنا، لتكون الأقسام خالية تماماً وتعتمد على إضافتك
 
       if (savedCats) {
         let catsArray = Array.isArray(savedCats) ? savedCats : Object.values(savedCats);
         
         catsArray.forEach(c => {
           let catId = typeof c === 'string' ? c.toLowerCase().trim() : (c.id || c.name || '').toLowerCase().trim();
-          let catName = typeof c === 'string' ? c : (c.ar || c.name || c.id || '');
+          let catName = typeof c === 'string' ? c : (c.name || c.id || '');
           if (catId && !catsMap.has(catId)) {
-            catsMap.set(catId, { id: catId, ar: catName, en: catName });
+            catsMap.set(catId, { id: catId, name: catName });
           }
         });
       }
 
       const barContainer = document.getElementById('categoriesBarContainer');
-      const currentActiveCat = activeCategory;
       barContainer.innerHTML = '';
 
+      let firstCatId = '';
+      let index = 0;
+
       catsMap.forEach((catObj, catId) => {
-        const isActive = currentActiveCat === catId ? 'active' : '';
-        const displayName = currentLang === 'ar' ? catObj.ar : (catObj.en || catObj.ar);
+        if (index === 0) firstCatId = catId;
+        index++;
+      });
+
+      // إذا لم يكن هناك قسم نشط حالياً أو لم يعد موجوداً، نختار أول قسم متاح تلقائياً
+      if ((!activeCategory || !catsMap.has(activeCategory)) && firstCatId) {
+        activeCategory = firstCatId;
+      }
+
+      catsMap.forEach((catObj, catId) => {
+        const isActive = (activeCategory === catId) ? 'active' : '';
         barContainer.innerHTML += `
-          <button class="cat-btn ${isActive}" onclick="filterCategory('${catId}', this)" data-cat="${catId}" data-ar="${catObj.ar}" data-en="${catObj.en || catObj.ar}">
-            ${displayName}
+          <button class="cat-btn ${isActive}" onclick="filterCategory('${catId}', this)" data-cat="${catId}">
+            ${catObj.name}
           </button>
         `;
       });
@@ -417,11 +447,10 @@
       filterMenu();
     }
 
-    let activeCategory = 'all';
     function filterCategory(cat, btn) {
       activeCategory = cat;
       document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      if (btn) btn.classList.add('active');
       filterMenu();
     }
 
@@ -434,7 +463,8 @@
         const titleText = card.querySelector('.card-title').innerText.toLowerCase();
         const descText = card.querySelector('.card-desc') ? card.querySelector('.card-desc').innerText.toLowerCase() : '';
 
-        const matchesCategory = (activeCategory === 'all' || itemCategory === activeCategory);
+        // إذا لم يتم تحديد قسم نشط بعد، يتم عرض الكل أو لا شيء حسب الرغبة، هنا يعرض المطابق للقسم النشط أو يفتح الكل إن وجد
+        const matchesCategory = (!activeCategory || itemCategory === activeCategory);
         const matchesSearch = titleText.includes(searchQuery) || descText.includes(searchQuery);
 
         const targetDisplay = (matchesCategory && matchesSearch) ? 'block' : 'none';
@@ -455,12 +485,7 @@
         try { appendMealsToGrid(JSON.parse(cachedMeals)); } catch(e){}
       }
 
-      const cachedCats = localStorage.getItem(`cache_cats_${MENU_FILE_NAME}`);
-      if (cachedCats) {
-        try { renderCategoriesUI(JSON.parse(cachedCats)); } catch(e){}
-      } else {
-        renderCategoriesUI([]); // لعرض زر الكل فقط في حال لم تكن هناك أقسام مخزنة
-      }
+      renderCategoriesForCurrentLang();
 
       const cachedStatus = localStorage.getItem(`cache_status_${MENU_FILE_NAME}`);
       if (cachedStatus) {
@@ -523,10 +548,16 @@
           updateLandingUI(landingData);
         }
 
-        const catRes = await fetch(`${API_BASE_URL}custom_categories_${MENU_FILE_NAME}.json?nocache=` + Date.now());
-        const savedCats = await catRes.json();
-        localStorage.setItem(`cache_cats_${MENU_FILE_NAME}`, JSON.stringify(savedCats || []));
-        renderCategoriesUI(savedCats);
+        // جلب أقسام العربي وأقسام الإنجليزي بكل استقلالية
+        const catArRes = await fetch(`${API_BASE_URL}custom_categories_ar_${MENU_FILE_NAME}.json?nocache=` + Date.now());
+        const savedCatsAr = await catArRes.json();
+        localStorage.setItem(`cache_cats_ar_${MENU_FILE_NAME}`, JSON.stringify(savedCatsAr || []));
+
+        const catEnRes = await fetch(`${API_BASE_URL}custom_categories_en_${MENU_FILE_NAME}.json?nocache=` + Date.now());
+        const savedCatsEn = await catEnRes.json();
+        localStorage.setItem(`cache_cats_en_${MENU_FILE_NAME}`, JSON.stringify(savedCatsEn || []));
+
+        renderCategoriesForCurrentLang();
 
         const mealsRes = await fetch(`${API_BASE_URL}custom_meals_${MENU_FILE_NAME}.json?nocache=` + Date.now());
         const customMeals = await mealsRes.json();
