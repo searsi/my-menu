@@ -85,7 +85,6 @@
     .btn-en { background: var(--search-bg); color: var(--accent); border: 2px solid var(--accent) !important; }
     .menu-btn:hover { transform: translateY(-2px); opacity: 0.92; }
 
-    /* زر اللوكيشن الجديد أسفل أزرار اللغة */
     .location-btn {
       display: flex;
       align-items: center;
@@ -106,7 +105,6 @@
     }
     .location-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
 
-    /* قسم مواقع التواصل الاجتماعي (فيسبوك، انستا، تيك توك) أسفل اللوكيشن */
     .social-section {
       border-top: 1px solid var(--border);
       padding-top: 16px;
@@ -143,7 +141,6 @@
       transform: scale(1.1); 
     }
 
-    /* واجهة المنيو الفعلية (مخفية حتى يتم اختيار اللغة) */
     #mainMenuView { display: none; }
 
     header { 
@@ -206,7 +203,6 @@
 </head>
 <body class="light-mode">
 
-  <!-- شاشة انتهاء الاشتراك -->
   <div id="expiredOverlay">
     <div class="expired-card">
       <div class="expired-icon">⚠️</div>
@@ -216,7 +212,6 @@
     </div>
   </div>
 
-  <!-- 1. واجهة الترحيب الجديدة -->
   <div id="welcomeView">
     <div class="welcome-card">
       <img id="resLogoImg" src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500" alt="Logo" class="restaurant-logo">
@@ -226,12 +221,10 @@
       <button onclick="selectLanguage('ar')" class="menu-btn btn-ar">📋 المنيو العربي (Arabic Menu)</button>
       <button onclick="selectLanguage('en')" class="menu-btn btn-en">📋 English Menu (المنيو الإنجليزي)</button>
 
-      <!-- زر اللوكيشن الجديد -->
       <a href="#" id="locationLink" class="location-btn" target="_blank" style="display: none;">
         <i class="fas fa-map-marker-alt" style="color: #ff4757;"></i> موقعنا على الخريطة (Location)
       </a>
 
-      <!-- قسم السوشيال ميديا الجديد (انستا، فيس، تيك توك) -->
       <div class="social-section" id="socialSection" style="display: none;">
         <div class="social-title">تابعنا على منصات التواصل</div>
         <div class="social-links" id="socialLinksContainer"></div>
@@ -239,7 +232,6 @@
     </div>
   </div>
 
-  <!-- 2. واجهة المنيو الفعلية -->
   <div id="mainMenuView">
     <header>
       <div class="brand" id="brandText">مطعم ومنشأة بغداد</div>
@@ -364,55 +356,100 @@
       });
     }
 
-    // جلب بيانات الواجهة الترحيبية (اللوكيشن، السوشيال ميديا، الشعار) من فايربيس
-    async function loadLandingData() {
-      try {
-        const res = await fetch(`${API_BASE_URL}landing_${MENU_FILE_NAME}.json?nocache=` + Date.now());
-        const data = await res.json();
+    // منع تكرار إضافة الوجبات إذا كانت موجودة مسبقاً لمنع الوميض
+    function appendMealsToGrid(customMeals) {
+      const grid = document.getElementById('menuGrid');
+      const soldOutText = currentLang === 'ar' ? 'غير متوفر' : 'Unavailable';
 
-        if (data) {
-          if (data.name) {
-            document.getElementById('resTitle').innerText = data.name;
-            document.getElementById('pageTitle').innerText = data.name;
-            document.getElementById('brandText').innerText = data.name;
-          }
-          if (data.desc) {
-            document.getElementById('resDesc').innerText = data.desc;
-          }
-          if (data.logo) {
-            document.getElementById('resLogoImg').src = data.logo;
-          }
-          
-          // زر اللوكيشن
-          const locBtn = document.getElementById('locationLink');
-          if (data.locationUrl) {
-            locBtn.href = data.locationUrl;
-            locBtn.style.display = 'flex';
-          } else {
-            locBtn.style.display = 'none';
-          }
+      customMeals.forEach(meal => {
+        let existingCard = grid.querySelector(`[data-id="${meal.id}"]`);
+        if (!existingCard) {
+          const card = document.createElement('div');
+          card.className = 'card custom-added-meal';
+          card.setAttribute('data-category', meal.category ? meal.category.toLowerCase().trim() : 'other');
+          card.setAttribute('data-id', meal.id);
+          card.setAttribute('data-soldout-text', soldOutText);
 
-          // روابط السوشيال ميديا (فيسبوك، انستغرام، تيك توك)
-          if (data.socials && Array.isArray(data.socials) && data.socials.length > 0) {
-            const container = document.getElementById('socialLinksContainer');
-            container.innerHTML = '';
-            data.socials.forEach(s => {
-              if (s.url) {
-                container.innerHTML += `
-                  <a href="${s.url}" target="_blank" class="social-icon" title="${s.platform || 'Social'}">
-                    <i class="${s.icon || 'fas fa-globe'}"></i>
-                  </a>
-                `;
-              }
-            });
-            if (container.children.length > 0) {
-              document.getElementById('socialSection').style.display = 'block';
-            }
+          card.innerHTML = `
+            <div class="img-wrapper"><img src="${meal.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" alt="${meal.title}"></div>
+            <div class="card-info">
+              <div class="card-title" data-ar="${meal.title}" data-en="${meal.title}">${meal.title}</div>
+              <div class="card-desc" data-ar="${meal.desc || ''}" data-en="${meal.desc || ''}">${meal.desc || ''}</div>
+              <div class="card-price">${meal.price}</div>
+            </div>
+          `;
+          grid.appendChild(card);
+        }
+      });
+    }
+
+    function renderCategoriesUI(savedCats) {
+      const defaultCategories = [
+        { id: 'all', ar: 'الكل', en: 'All' },
+        { id: 'burgers', ar: 'البرجر', en: 'Burgers' },
+        { id: 'pizza', ar: 'البيتزا', en: 'Pizza' },
+        { id: 'shawarma', ar: 'الشاورما والصاج', en: 'Shawarma & Saj' },
+        { id: 'drinks', ar: 'المشروبات', en: 'Drinks' },
+        { id: 'sweets', ar: 'الحلويات', en: 'Sweets' }
+      ];
+
+      let catsMap = new Map();
+      defaultCategories.forEach(c => catsMap.set(c.id, c));
+
+      if (Array.isArray(savedCats)) {
+        savedCats.forEach(c => {
+          if (!catsMap.has(c)) {
+            catsMap.set(c, { id: c, ar: c, en: c });
+          }
+        });
+      }
+
+      const barContainer = document.getElementById('categoriesBarContainer');
+      const currentActiveCat = activeCategory;
+      barContainer.innerHTML = '';
+
+      catsMap.forEach((catObj, catId) => {
+        const isActive = currentActiveCat === catId ? 'active' : '';
+        barContainer.innerHTML += `
+          <button class="cat-btn ${isActive}" onclick="filterCategory('${catId}', this)" data-cat="${catId}" data-ar="${catObj.ar}" data-en="${catObj.en}">
+            ${currentLang === 'ar' ? catObj.ar : catObj.en}
+          </button>
+        `;
+      });
+    }
+
+    // تطبيق حالة النفاذ بصمت تام ودون المساس بهيكل الوجبة لمنع الرمش نهائياً
+    function applyStatuses(menuStatus = {}, deletedBaseMeals = [], deletedMeals = []) {
+      document.querySelectorAll('.card').forEach((card) => {
+        let itemId = card.getAttribute('data-id');
+        if (!itemId) return;
+
+        // التحقق من الحذف
+        if ((Array.isArray(deletedMeals) && deletedMeals.includes(itemId)) || 
+            (Array.isArray(deletedBaseMeals) && deletedBaseMeals.includes(itemId))) {
+          if (card.style.display !== 'none') {
+            card.style.display = 'none';
+            card.classList.add('is-deleted-marker');
+          }
+          return;
+        } else {
+          if (card.classList.contains('is-deleted-marker')) {
+            card.classList.remove('is-deleted-marker');
           }
         }
-      } catch (e) {
-        console.log("Error loading landing data:", e);
-      }
+
+        // التحديث الصامت لحالة النفاذ (Sold Out) دون إعادة بناء الكارت
+        if (menuStatus[itemId] === 'soldout') {
+          if (!card.classList.contains('sold-out')) {
+            card.classList.add('sold-out');
+          }
+        } else {
+          if (card.classList.contains('sold-out')) {
+            card.classList.remove('sold-out');
+          }
+        }
+      });
+      filterMenu();
     }
 
     let activeCategory = 'all';
@@ -426,6 +463,8 @@
     function filterMenu() {
       const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
       document.querySelectorAll('.card').forEach(card => {
+        if (card.classList.contains('is-deleted-marker')) return;
+
         const itemCategory = card.getAttribute('data-category');
         const titleText = card.querySelector('.card-title').innerText.toLowerCase();
         const descText = card.querySelector('.card-desc') ? card.querySelector('.card-desc').innerText.toLowerCase() : '';
@@ -433,163 +472,138 @@
         const matchesCategory = (activeCategory === 'all' || itemCategory === activeCategory);
         const matchesSearch = titleText.includes(searchQuery) || descText.includes(searchQuery);
 
-        if (card.classList.contains('is-deleted-marker') || (card.style.display === 'none' && card.dataset.forceHide)) {
-          return;
-        }
-
-        if (matchesCategory && matchesSearch) {
-          if (!card.classList.contains('is-deleted-marker')) {
-            card.style.display = 'block';
-          }
-        } else {
-          card.style.display = 'none';
+        const targetDisplay = (matchesCategory && matchesSearch) ? 'block' : 'none';
+        if (card.style.display !== targetDisplay) {
+          card.style.display = targetDisplay;
         }
       });
     }
 
-    async function fetchCustomCategories() {
-      try {
-        const res = await fetch(`${API_BASE_URL}custom_categories_${MENU_FILE_NAME}.json?nocache=` + Date.now());
-        const savedCats = await res.json();
-        
-        const defaultCategories = [
-          { id: 'all', ar: 'الكل', en: 'All' },
-          { id: 'burgers', ar: 'البرجر', en: 'Burgers' },
-          { id: 'pizza', ar: 'البيتزا', en: 'Pizza' },
-          { id: 'shawarma', ar: 'الشاورما والصاج', en: 'Shawarma & Saj' },
-          { id: 'drinks', ar: 'المشروبات', en: 'Drinks' },
-          { id: 'sweets', ar: 'الحلويات', en: 'Sweets' }
-        ];
+    function renderCachedData() {
+      const cachedLanding = localStorage.getItem(`cache_landing_${MENU_FILE_NAME}`);
+      if (cachedLanding) {
+        try { updateLandingUI(JSON.parse(cachedLanding)); } catch(e){}
+      }
 
-        let catsMap = new Map();
-        defaultCategories.forEach(c => catsMap.set(c.id, c));
+      const cachedMeals = localStorage.getItem(`cache_meals_${MENU_FILE_NAME}`);
+      if (cachedMeals) {
+        try { appendMealsToGrid(JSON.parse(cachedMeals)); } catch(e){}
+      }
 
-        if (Array.isArray(savedCats)) {
-          savedCats.forEach(c => {
-            if (!catsMap.has(c)) {
-              catsMap.set(c, { id: c, ar: c, en: c });
-            }
-          });
-        }
+      const cachedCats = localStorage.getItem(`cache_cats_${MENU_FILE_NAME}`);
+      if (cachedCats) {
+        try { renderCategoriesUI(JSON.parse(cachedCats)); } catch(e){}
+      }
 
-        const barContainer = document.getElementById('categoriesBarContainer');
-        barContainer.innerHTML = '';
-
-        catsMap.forEach((catObj, catId) => {
-          const isActive = activeCategory === catId ? 'active' : '';
-          barContainer.innerHTML += `
-            <button class="cat-btn ${isActive}" onclick="filterCategory('${catId}', this)" data-cat="${catId}" data-ar="${catObj.ar}" data-en="${catObj.en}">
-              ${currentLang === 'ar' ? catObj.ar : catObj.en}
-            </button>
-          `;
-        });
-      } catch (e) {
-        console.error("Error fetching categories:", e);
+      const cachedStatus = localStorage.getItem(`cache_status_${MENU_FILE_NAME}`);
+      if (cachedStatus) {
+        try {
+          const parsed = JSON.parse(cachedStatus);
+          applyStatuses(parsed.menuStatus, parsed.deletedBase, parsed.deletedCustom);
+        } catch(e){}
       }
     }
 
-    async function fetchCustomMeals() {
-      try {
-        const res = await fetch(`${API_BASE_URL}custom_meals_${MENU_FILE_NAME}.json?nocache=` + Date.now());
-        const customMeals = await res.json();
-        
-        if (customMeals && Array.isArray(customMeals)) {
-          const grid = document.getElementById('menuGrid');
-          document.querySelectorAll('.card.custom-added-meal').forEach(el => el.remove());
-          const soldOutText = currentLang === 'ar' ? 'غير متوفر' : 'Unavailable';
+    function updateLandingUI(data) {
+      if (data.name) {
+        document.getElementById('resTitle').innerText = data.name;
+        document.getElementById('pageTitle').innerText = data.name;
+        document.getElementById('brandText').innerText = data.name;
+      }
+      if (data.desc) document.getElementById('resDesc').innerText = data.desc;
+      if (data.logo) document.getElementById('resLogoImg').src = data.logo;
+      
+      const locBtn = document.getElementById('locationLink');
+      if (data.locationUrl) {
+        locBtn.href = data.locationUrl;
+        locBtn.style.display = 'flex';
+      } else {
+        locBtn.style.display = 'none';
+      }
 
-          customMeals.forEach(meal => {
-            const card = document.createElement('div');
-            card.className = 'card custom-added-meal';
-            card.setAttribute('data-category', meal.category ? meal.category.toLowerCase().trim() : 'other');
-            card.setAttribute('data-id', meal.id);
-            card.setAttribute('data-soldout-text', soldOutText);
-
-            card.innerHTML = `
-              <div class="img-wrapper"><img src="${meal.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" alt="${meal.title}"></div>
-              <div class="card-info">
-                <div class="card-title" data-ar="${meal.title}" data-en="${meal.title}">${meal.title}</div>
-                <div class="card-desc" data-ar="${meal.desc || ''}" data-en="${meal.desc || ''}">${meal.desc || ''}</div>
-                <div class="card-price">${meal.price}</div>
-              </div>
+      if (data.socials && Array.isArray(data.socials) && data.socials.length > 0) {
+        const container = document.getElementById('socialLinksContainer');
+        container.innerHTML = '';
+        data.socials.forEach(s => {
+          if (s.url) {
+            container.innerHTML += `
+              <a href="${s.url}" target="_blank" class="social-icon" title="${s.platform || 'Social'}">
+                <i class="${s.icon || 'fas fa-globe'}"></i>
+              </a>
             `;
-            grid.appendChild(card);
-          });
-          applyItemStatusesAndDeletions();
-          filterMenu();
+          }
+        });
+        if (container.children.length > 0) {
+          document.getElementById('socialSection').style.display = 'block';
         }
-      } catch (e) {
-        console.error("Error fetching custom meals:", e);
       }
     }
 
-    async function checkSubscription() {
+    let isSyncing = false;
+
+    async function backgroundSync() {
+      if (isSyncing) return;
+      isSyncing = true;
       try {
-        const res = await fetch(`${API_BASE_URL}status_${MENU_FILE_NAME}.json?nocache=` + Date.now());
-        const status = await res.json();
-        const overlay = document.getElementById('expiredOverlay');
-        if (status === 'expired') {
-          overlay.style.display = 'flex';
-        } else {
-          overlay.style.display = 'none';
+        const subRes = await fetch(`${API_BASE_URL}status_${MENU_FILE_NAME}.json?nocache=` + Date.now());
+        const status = await subRes.json();
+        document.getElementById('expiredOverlay').style.display = (status === 'expired') ? 'flex' : 'none';
+
+        const landingRes = await fetch(`${API_BASE_URL}landing_${MENU_FILE_NAME}.json?nocache=` + Date.now());
+        const landingData = await landingRes.json();
+        if (landingData) {
+          localStorage.setItem(`cache_landing_${MENU_FILE_NAME}`, JSON.stringify(landingData));
+          updateLandingUI(landingData);
         }
-      } catch(e) { console.error("Subscription check error:", e); }
-    }
 
-    async function applyItemStatusesAndDeletions() {
-      try {
-        const statusRes = await fetch(`${API_BASE_URL}items_${MENU_FILE_NAME}.json?nocache=` + Date.now());
+        const catRes = await fetch(`${API_BASE_URL}custom_categories_${MENU_FILE_NAME}.json?nocache=` + Date.now());
+        const savedCats = await catRes.json();
+        if (savedCats) {
+          localStorage.setItem(`cache_cats_${MENU_FILE_NAME}`, JSON.stringify(savedCats));
+          renderCategoriesUI(savedCats);
+        }
+
+        const mealsRes = await fetch(`${API_BASE_URL}custom_meals_${MENU_FILE_NAME}.json?nocache=` + Date.now());
+        const customMeals = await mealsRes.json();
+        if (customMeals && Array.isArray(customMeals)) {
+          localStorage.setItem(`cache_meals_${MENU_FILE_NAME}`, JSON.stringify(customMeals));
+          appendMealsToGrid(customMeals);
+        }
+
+        const [statusRes, delBaseRes, delRes] = await Promise.all([
+          fetch(`${API_BASE_URL}items_${MENU_FILE_NAME}.json?nocache=` + Date.now()),
+          fetch(`${API_BASE_URL}deleted_base_meals_${MENU_FILE_NAME}.json?nocache=` + Date.now()),
+          fetch(`${API_BASE_URL}deleted_meals_${MENU_FILE_NAME}.json?nocache=` + Date.now())
+        ]);
+
         const menuStatus = await statusRes.json() || {};
+        const deletedBaseMeals = await delBaseRes.json() || [];
+        const deletedMeals = await delRes.json() || [];
 
-        const deletedBaseRes = await fetch(`${API_BASE_URL}deleted_base_meals_${MENU_FILE_NAME}.json?nocache=` + Date.now());
-        const deletedBaseMeals = await deletedBaseRes.json() || [];
+        const statusPayload = { menuStatus, deletedBase: deletedBaseMeals, deletedCustom: deletedMeals };
+        localStorage.setItem(`cache_status_${MENU_FILE_NAME}`, JSON.stringify(statusPayload));
+        
+        applyStatuses(menuStatus, deletedBaseMeals, deletedMeals);
 
-        const deletedRes = await fetch(`${API_BASE_URL}deleted_meals_${MENU_FILE_NAME}.json?nocache=` + Date.now());
-        const deletedMeals = await deletedRes.json() || [];
-
-        document.querySelectorAll('.card').forEach((card) => {
-          let itemId = card.getAttribute('data-id');
-          if (!itemId) return;
-
-          if ((Array.isArray(deletedMeals) && deletedMeals.includes(itemId)) || 
-              (Array.isArray(deletedBaseMeals) && deletedBaseMeals.includes(itemId))) {
-            card.style.display = 'none';
-            card.classList.add('is-deleted-marker');
-            return;
-          } else {
-            if (card.classList.contains('is-deleted-marker')) {
-              card.classList.remove('is-deleted-marker');
-            }
-          }
-
-          if (menuStatus[itemId] === 'soldout') {
-            if (!card.classList.contains('sold-out')) {
-              card.classList.add('sold-out');
-            }
-          } else {
-            if (card.classList.contains('sold-out')) {
-              card.classList.remove('sold-out');
-            }
-          }
-        });
-        filterMenu();
-      } catch(e) { console.error("Fetch status error:", e); }
+      } catch (e) {
+        console.log("Background sync network error:", e);
+      } finally {
+        isSyncing = false;
+      }
     }
 
-    document.addEventListener('DOMContentLoaded', async () => {
+    document.addEventListener('DOMContentLoaded', () => {
       applySavedTheme();
       updateSoldOutBadges();
-      await loadLandingData();
-      await checkSubscription();
-      await fetchCustomCategories();
-      await fetchCustomMeals(); 
-      await applyItemStatusesAndDeletions();
+      
+      // 1. عرض البيانات المخزنة محلياً فوراً للسرعة القصوى
+      renderCachedData();
 
-      setInterval(async () => {
-        checkSubscription();
-        await fetchCustomCategories();
-        await applyItemStatusesAndDeletions();
-      }, 3000);
+      // 2. تحديث صامت في الخلفية بدون أي تأثير على العناصر الظاهرة
+      backgroundSync();
+
+      // 3. التحديث كل 10 ثوانٍ لضمان الاستقرار التام وعدم حصول وميض
+      setInterval(backgroundSync, 10000);
     });
   </script>
 </body>
