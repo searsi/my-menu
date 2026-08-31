@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>لوحة إدارة الاشتراكات والوجبات</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root { 
       --bg: #f4f6f9; 
@@ -18,214 +19,237 @@
       --warning: #f39c12; 
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 15px; }
-    #loginScreen { display: flex; justify-content: center; align-items: center; min-height: 85vh; }
-    .login-card { background: var(--card-bg); border: 1px solid var(--border); padding: 25px 20px; border-radius: 20px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-    .login-card h2 { color: var(--accent); margin-bottom: 20px; font-weight: 800; }
-    .input-group { margin-bottom: 15px; text-align: right; }
-    .input-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
-    .input-group input, .input-group select { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); background: #fdfdfd; color: #2d3748; font-size: 0.95rem; outline: none; }
-    .input-group input:focus, .input-group select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(212, 138, 0, 0.1); }
-    .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #f39c12, #d4af37); border: none; border-radius: 12px; color: #fff; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(243, 156, 18, 0.3); }
-    .btn:hover { opacity: 0.95; }
-    #dashboardScreen { display: none; max-width: 1100px; margin: 0 auto; }
-    .header-dash { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
-    .header-dash h1 { color: var(--accent); font-size: 1.2rem; }
-    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-    .stat-card { background: var(--card-bg); border: 1px solid var(--border); padding: 14px 8px; border-radius: 14px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-    .stat-card h3 { font-size: 0.75rem; color: var(--text-muted); }
-    .stat-card p { font-size: 1.2rem; font-weight: 800; color: var(--accent); margin-top: 4px; }
-    .section-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
-    .section-title { font-size: 1rem; font-weight: 700; margin-bottom: 15px; color: var(--text); display: flex; justify-content: space-between; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    @media(max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
-    .table-responsive { width: 100%; overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; text-align: right; white-space: nowrap; }
-    th, td { padding: 12px 10px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
-    th { color: var(--accent); background: #f8fafc; }
-    .status-badge { padding: 4px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; }
+    body { background-color: var(--bg); color: var(--text); padding: 10px; padding-bottom: 90px; }
+
+    /* شاشة تسجيل الدخول */
+    #loginScreen { display: flex; justify-content: center; align-items: center; min-height: 85vh; padding: 15px; }
+    .login-card { background: var(--card-bg); border: 1px solid var(--border); padding: 30px 20px; border-radius: 24px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+    .login-card h2 { color: var(--accent); margin-bottom: 25px; font-weight: 800; font-size: 1.3rem; }
+    
+    .input-group { margin-bottom: 16px; text-align: right; }
+    .input-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+    .input-group input, .input-group select { width: 100%; padding: 14px; border-radius: 14px; border: 1px solid var(--border); background: #fdfdfd; color: #2d3748; font-size: 1rem; outline: none; transition: 0.3s; }
+    .input-group input:focus, .input-group select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(212, 138, 0, 0.15); background: #fff; }
+    
+    .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #f39c12, #d4af37); border: none; border-radius: 14px; color: #fff; font-weight: 700; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3); transition: 0.3s; }
+    .btn:active { transform: scale(0.98); }
+
+    /* لوحة التحكم الرئيسية */
+    #dashboardScreen { display: none; max-width: 700px; margin: 0 auto; }
+    .header-dash { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: var(--card-bg); padding: 12px 16px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+    .header-dash h1 { color: var(--accent); font-size: 1.05rem; font-weight: 800; }
+    .logout-btn { background: rgba(231, 76, 60, 0.1); border: 1px solid var(--danger); padding: 8px 12px; border-radius: 10px; color: var(--danger); font-weight: 700; cursor: pointer; font-size: 0.8rem; }
+
+    /* تبويبات التنقل العلوية لتسهيل التصفح بالموبايل */
+    .nav-tabs { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+    .nav-tabs::-webkit-scrollbar { display: none; }
+    .tab-btn { flex: 1; padding: 12px 10px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; color: var(--text-muted); font-weight: 700; font-size: 0.85rem; cursor: pointer; white-space: nowrap; text-align: center; transition: 0.3s; }
+    .tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 4px 12px rgba(212, 138, 0, 0.3); }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); padding: 12px 6px; border-radius: 14px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+    .stat-card h3 { font-size: 0.7rem; color: var(--text-muted); }
+    .stat-card p { font-size: 1.1rem; font-weight: 800; color: var(--accent); margin-top: 4px; }
+
+    .section-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 16px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+    .section-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 15px; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
+    .form-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    @media(min-width: 500px) { .form-grid { grid-template-columns: 1fr 1fr; } }
+
+    /* تصميم بطاقات المطاعم للجوال بدلاً من الجداول المعقدة */
+    .restaurant-card-item { background: #f8fafc; border: 1px solid var(--border); border-radius: 14px; padding: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .restaurant-info-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
+    .restaurant-actions { display: flex; gap: 6px; margin-top: 4px; }
+
+    .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; }
     .status-active { background: rgba(39, 174, 96, 0.15); color: var(--success); }
     .status-expired { background: rgba(231, 76, 60, 0.15); color: var(--danger); }
-    .days-badge { padding: 4px 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; }
-    .days-good { color: var(--success); }
-    .days-warning { color: var(--warning); }
-    .days-ended { color: var(--danger); }
-    .action-btn { background: #edf2f7; border: 1px solid var(--border); padding: 6px 10px; border-radius: 8px; color: var(--text); cursor: pointer; font-size: 0.75rem; margin-left: 4px; }
+    .days-badge { padding: 3px 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; }
+    .days-good { color: var(--success); background: rgba(39, 174, 96, 0.1); }
+    .days-warning { color: var(--warning); background: rgba(243, 156, 18, 0.1); }
+    .days-ended { color: var(--danger); background: rgba(231, 76, 60, 0.1); }
+
+    .action-btn { background: #edf2f7; border: 1px solid var(--border); padding: 8px 12px; border-radius: 10px; color: var(--text); cursor: pointer; font-size: 0.75rem; font-weight: 700; flex: 1; text-align: center; }
     .action-btn:hover { background: #e2e8f0; }
-    .btn-toggle-sub { border-radius: 8px; padding: 6px 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer; border: none; }
+    
+    .btn-toggle-sub { border-radius: 10px; padding: 8px 12px; font-size: 0.75rem; font-weight: 700; cursor: pointer; border: none; flex: 1; }
     .btn-sub-active { background: rgba(39, 174, 96, 0.15); color: var(--success); border: 1px solid var(--success); }
     .btn-sub-expired { background: rgba(231, 76, 60, 0.15); color: var(--danger); border: 1px solid var(--danger); }
     .sync-indicator { font-size: 0.75rem; color: var(--success); font-weight: 600; }
-    .logout-btn { background: var(--danger); border: none; padding: 8px 14px; border-radius: 10px; color: #fff; font-weight: 700; cursor: pointer; }
     
-    .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); background: #f8fafc; margin-bottom: 8px; border-radius: 10px; }
-    .toggle-item-btn { padding: 6px 12px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-size: 0.75rem; }
+    .item-row { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-bottom: 1px solid var(--border); background: #f8fafc; margin-bottom: 10px; border-radius: 12px; }
+    @media(min-width: 450px) { .item-row { flex-direction: row; justify-content: space-between; align-items: center; } }
+    
+    .toggle-item-btn { padding: 8px 12px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; font-size: 0.75rem; }
     .btn-available { background: rgba(39, 174, 96, 0.15); color: var(--success); border: 1px solid var(--success); }
     .btn-soldout { background: rgba(231, 76, 60, 0.15); color: var(--danger); border: 1px solid var(--danger); }
-    .btn-delete { background: var(--danger); color: #fff; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.75rem; margin-right: 5px; }
+    .btn-delete { background: var(--danger); color: #fff; border: none; padding: 8px 12px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.75rem; }
 
-    .subscription-control-box {
-      display: flex; gap: 10px; align-items: center; margin-bottom: 15px; background: #f8fafc; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); flex-wrap: wrap;
-    }
+    .subscription-control-box { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid var(--border); }
+    @media(min-width: 450px) { .subscription-control-box { flex-direction: row; align-items: center; justify-content: space-between; } }
     
-    .dropdown-toggle-btn {
-      width: 100%;
-      background: #f8fafc;
-      color: var(--accent);
-      border: 1px solid var(--border);
-      padding: 12px;
-      border-radius: 10px;
-      font-weight: 700;
-      text-align: right;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-      transition: 0.3s;
-    }
+    .dropdown-toggle-btn { width: 100%; background: #f8fafc; color: var(--accent); border: 1px solid var(--border); padding: 14px; border-radius: 12px; font-weight: 700; text-align: right; cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; transition: 0.3s; font-size: 0.9rem; }
     .dropdown-toggle-btn:hover { background: #edf2f7; }
     .badge-type { font-size: 0.65rem; padding: 2px 6px; border-radius: 6px; margin-right: 4px; background: rgba(212, 138, 0, 0.1); color: var(--accent); }
     
-    .cat-manage-box { background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 15px; }
-    .cat-chip { display: inline-flex; align-items: center; background: #fff; border: 1px solid var(--border); padding: 5px 10px; border-radius: 8px; margin: 4px; font-size: 0.8rem; font-weight: 600; }
-    .cat-chip button { background: none; border: none; color: var(--danger); margin-right: 6px; cursor: pointer; font-weight: bold; }
+    .cat-manage-box { background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; }
+    .cat-chip { display: inline-flex; align-items: center; background: #fff; border: 1px solid var(--border); padding: 6px 10px; border-radius: 10px; margin: 4px; font-size: 0.8rem; font-weight: 600; }
+    .cat-chip button { background: none; border: none; color: var(--danger); margin-right: 6px; cursor: pointer; font-weight: bold; font-size: 1rem; }
   </style>
 </head>
 <body>
 
+  <!-- شاشة تسجيل الدخول -->
   <div id="loginScreen">
     <div class="login-card">
       <h2>تسجيل الدخول للإدارة</h2>
       <div class="input-group"><label>اسم المستخدم</label><input type="text" id="username"></div>
       <div class="input-group"><label>كلمة المرور</label><input type="password" id="password"></div>
       <button class="btn" onclick="login()">دخول</button>
-      <p id="loginError" style="color: var(--danger); font-size: 0.8rem; margin-top: 10px; display: none;"></p>
+      <p id="loginError" style="color: var(--danger); font-size: 0.8rem; margin-top: 12px; display: none;"></p>
     </div>
   </div>
 
+  <!-- لوحة التحكم -->
   <div id="dashboardScreen">
     <div class="header-dash">
-      <h1>لوحة إدارة الاشتراكات والوجبات</h1>
-      <button class="logout-btn" onclick="logout()">خروج</button>
+      <h1>لوحة التحكم الرئيسية</h1>
+      <button class="logout-btn" onclick="logout()">خروج <i class="fas fa-sign-out-alt"></i></button>
     </div>
 
-    <div class="stats-grid">
-      <div class="stat-card"><h3>المطاعم</h3><p id="totalCount">0</p></div>
-      <div class="stat-card"><h3>النشطة</h3><p id="activeCount" style="color: var(--success);">0</p></div>
-      <div class="stat-card"><h3>المبيعات</h3><p id="totalRevenue">0 $</p></div>
+    <!-- أزرار التنقل السريع (Tabs) لتجنب الطول المبالغ فيه للصفحة بالموبايل -->
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('tab-stats', this)"><i class="fas fa-home"></i> الرئيسية</button>
+      <button class="tab-btn" onclick="switchTab('tab-add-res', this)"><i class="fas fa-plus-circle"></i> مطعم جديد</button>
+      <button class="tab-btn" onclick="switchTab('tab-manage-menu', this)"><i class="fas fa-utensils"></i> إدارة المنيو</button>
+      <button class="tab-btn" onclick="switchTab('tab-list-res', this)"><i class="fas fa-list"></i> المطاعم</button>
     </div>
 
-    <!-- قسم تسجيل مطعم -->
-    <div class="section-box">
-      <div class="section-title">➕ تسجيل مطعم جديد</div>
-      <div class="form-grid">
-        <div class="input-group"><label>اسم المطعم</label><input type="text" id="resName"></div>
-        <div class="input-group"><label>رقم الهاتف</label><input type="tel" id="resPhone"></div>
-        <div class="input-group"><label>اسم ملف المنيو (مثلاً index)</label><input type="text" id="resFile"></div>
-        <div class="input-group"><label>تاريخ البدء</label><input type="date" id="startDate"></div>
-        <div class="input-group"><label>تاريخ الانتهاء</label><input type="date" id="endDate"></div>
-        <div class="input-group"><label>المبلغ ($)</label><input type="number" id="salePrice"></div>
+    <!-- 1. تبويب الإحصائيات العامة -->
+    <div id="tab-stats" class="tab-content active">
+      <div class="stats-grid">
+        <div class="stat-card"><h3>المطاعم</h3><p id="totalCount">0</p></div>
+        <div class="stat-card"><h3>النشطة</h3><p id="activeCount" style="color: var(--success);">0</p></div>
+        <div class="stat-card"><h3>المبيعات</h3><p id="totalRevenue">0 $</p></div>
       </div>
-      <button class="btn" id="saveBtn" onclick="addSubscription()">حفظ المطعم</button>
+      <div class="section-box" style="text-align: center; padding: 25px;">
+        <h3 style="font-size: 1rem; margin-bottom: 8px; color: var(--accent);">مرحباً بك في لوحة الإدارة المعدلة</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">استخدم الأزرار بالأعلى للتنقل بين الأقسام بسهولة تامة وبدون تعقيد على شاشة هاتفك.</p>
+      </div>
     </div>
 
-    <!-- قسم التحكم بالمنيو والوجبات -->
-    <div class="section-box">
-      <div class="section-title">🍔 إدارة الوجبات والأقسام وتفاصيل المطعم للمنيو</div>
-      <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-        <input type="text" id="targetFile" placeholder="أدخل اسم الملف مثل: index" style="flex:1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #fff; color:#2d3748;">
-        <button class="btn" style="width: auto; padding: 10px 20px;" onclick="fetchMenuData()">جلب البيانات</button>
+    <!-- 2. تبويب تسجيل مطعم جديد -->
+    <div id="tab-add-res" class="tab-content">
+      <div class="section-box">
+        <div class="section-title">➕ تسجيل مطعم جديد</div>
+        <div class="form-grid">
+          <div class="input-group"><label>اسم المطعم</label><input type="text" id="resName"></div>
+          <div class="input-group"><label>رقم الهاتف</label><input type="tel" id="resPhone"></div>
+          <div class="input-group"><label>اسم ملف المنيو (مثلاً index)</label><input type="text" id="resFile"></div>
+          <div class="input-group"><label>تاريخ البدء</label><input type="date" id="startDate"></div>
+          <div class="input-group"><label>تاريخ الانتهاء</label><input type="date" id="endDate"></div>
+          <div class="input-group"><label>المبلغ ($)</label><input type="number" id="salePrice"></div>
+        </div>
+        <button class="btn" id="saveBtn" style="margin-top: 10px;" onclick="addSubscription()">حفظ المطعم 💾</button>
       </div>
+    </div>
 
-      <div id="loadedMenuContainer" style="display: none;">
-        
-        <!-- لوحة حالة اشتراك المنيو -->
-        <div class="subscription-control-box" id="subControlPanel">
-          <span style="font-size:0.85rem; font-weight:700;">حالة اشتراك هذا المنيو:</span>
-          <span id="currentFileStatus" class="status-badge">جاري الفحص...</span>
-          <button class="btn-toggle-sub btn-sub-active" onclick="changeSubscriptionStatus('active')">تفعيل</button>
-          <button class="btn-toggle-sub btn-sub-expired" onclick="changeSubscriptionStatus('expired')">إيقاف (Expired)</button>
+    <!-- 3. تبويب إدارة الوجبات والأقسام للمنيو -->
+    <div id="tab-manage-menu" class="tab-content">
+      <div class="section-box">
+        <div class="section-title">🍔 إدارة المنيو والوجبات والأقسام</div>
+        <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+          <input type="text" id="targetFile" placeholder="اسم ملف المنيو (مثل: index)" style="flex:1; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: #fff; color:#2d3748; font-size: 0.9rem;">
+          <button class="btn" style="width: auto; padding: 12px 16px; font-size: 0.85rem;" onclick="fetchMenuData()">جلب</button>
         </div>
 
-        <!-- ⚙️ قسم تعديل بيانات المطعم (اسم، صورة، ومواقع التواصل) -->
-        <button class="dropdown-toggle-btn" onclick="toggleRestaurantSettings()">
-          <span>⚙️ تخصيص اسم، صورة ورابط مواقع تواصل المطعم</span>
-          <span id="resSettingsIcon">🔽</span>
-        </button>
-        <div id="resSettingsSection" class="cat-manage-box" style="display: none;">
-          <div class="form-grid">
-            <div class="input-group"><label>تعديل اسم المطعم</label><input type="text" id="editResName"></div>
-            <div class="input-group"><label>رابط صورة الشعار/الغلاف (URL)</label><input type="text" id="editResImage" placeholder="https://..."></div>
-            <div class="input-group"><label>رابط الفيسبوك</label><input type="text" id="socialFacebook" placeholder="https://facebook.com/..."></div>
-            <div class="input-group"><label>رابط الانستغرام</label><input type="text" id="socialInstagram" placeholder="https://instagram.com/..."></div>
-            <div class="input-group"><label>رابط الواتساب / رقم الاتصال</label><input type="text" id="socialWhatsapp" placeholder="https://wa.me/..."></div>
-            <div class="input-group"><label>رابط التليجرام</label><input type="text" id="socialTelegram" placeholder="https://t.me/..."></div>
-          </div>
-          <button class="btn" style="margin-top: 10px; background: var(--success);" onclick="saveRestaurantDetails()">حفظ إعدادات المطعم 💾</button>
-        </div>
-
-        <!-- 📂 ميزة إدارة الأقسام (إضافة وحذف الأقسام) -->
-        <button class="dropdown-toggle-btn" onclick="toggleCategoryManager()">
-          <span>📁 إدارة أقسام المنيو (إضافة أو حذف قسم)</span>
-          <span id="catManagerIcon">🔽</span>
-        </button>
-        <div id="catManagerSection" class="cat-manage-box" style="display: none;">
-          <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-            <input type="text" id="newCategoryGlobal" placeholder="اسم القسم الجديد (مثل: مشروبات باردة، وجبات سريعة)" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #fff;">
-            <button class="btn" style="width: auto; padding: 10px 16px; background: var(--success);" onclick="addNewCategoryGlobal()">إضافة قسم ➕</button>
-          </div>
-          <div id="categoriesChipsList" style="display: flex; flex-wrap: wrap; gap: 5px;"></div>
-        </div>
-
-        <!-- زر إضافة وجبة جديدة -->
-        <button class="dropdown-toggle-btn" onclick="toggleAddForm()">
-          <span>➕ إضافة وجبة جديدة</span>
-          <span id="dropdownIcon">🔽</span>
-        </button>
-
-        <div id="addMealSection" style="display: none; background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border);">
-          <div class="form-grid">
-            <div class="input-group"><label>اسم الوجبة</label><input type="text" id="mealTitle"></div>
-            <div class="input-group"><label>السعر (مثال: 7,000 د.ع)</label><input type="text" id="mealPrice"></div>
-            <div class="input-group"><label>الوصف / المكونات</label><input type="text" id="mealDesc"></div>
-            <div class="input-group"><label>رابط الصورة (URL)</label><input type="text" id="mealImg" placeholder="https://..."></div>
-            <div class="input-group" style="grid-column: span 2;">
-              <label>القسم (اختر من الأقسام المتاحة)</label>
-              <select id="mealCategory" style="width: 100%;"></select>
+        <div id="loadedMenuContainer" style="display: none;">
+          
+          <!-- لوحة حالة اشتراك المنيو -->
+          <div class="subscription-control-box" id="subControlPanel">
+            <span style="font-size:0.85rem; font-weight:700;">حالة اشتراك هذا المنيو:</span>
+            <span id="currentFileStatus" class="status-badge" style="text-align:center;">جاري الفحص...</span>
+            <div style="display: flex; gap: 5px; width: 100%;">
+              <button class="btn-toggle-sub btn-sub-active" onclick="changeSubscriptionStatus('active')">تفعيل</button>
+              <button class="btn-toggle-sub btn-sub-expired" onclick="changeSubscriptionStatus('expired')">إيقاف (Expired)</button>
             </div>
           </div>
-          <button class="btn" style="margin-top: 10px; background: var(--success);" onclick="addNewMeal()">حفظ وإضافة الوجبة 🚀</button>
+
+          <!-- ⚙️ تعديل بيانات المطعم -->
+          <button class="dropdown-toggle-btn" onclick="toggleRestaurantSettings()">
+            <span>⚙️ تعديل اسم، صورة وروابط التواصل</span>
+            <span id="resSettingsIcon">🔽</span>
+          </button>
+          <div id="resSettingsSection" class="cat-manage-box" style="display: none;">
+            <div class="form-grid">
+              <div class="input-group"><label>تعديل اسم المطعم</label><input type="text" id="editResName"></div>
+              <div class="input-group"><label>رابط الشعار/الغلاف (URL)</label><input type="text" id="editResImage" placeholder="https://..."></div>
+              <div class="input-group"><label>رابط الفيسبوك</label><input type="text" id="socialFacebook" placeholder="https://facebook.com/..."></div>
+              <div class="input-group"><label>رابط الانستغرام</label><input type="text" id="socialInstagram" placeholder="https://instagram.com/..."></div>
+              <div class="input-group"><label>رابط الواتساب</label><input type="text" id="socialWhatsapp" placeholder="https://wa.me/..."></div>
+              <div class="input-group"><label>رابط التليجرام</label><input type="text" id="socialTelegram" placeholder="https://t.me/..."></div>
+            </div>
+            <button class="btn" style="margin-top: 10px; background: var(--success);" onclick="saveRestaurantDetails()">حفظ الإعدادات 💾</button>
+          </div>
+
+          <!-- 📂 إدارة الأقسام -->
+          <button class="dropdown-toggle-btn" onclick="toggleCategoryManager()">
+            <span>📁 إدارة أقسام المنيو</span>
+            <span id="catManagerIcon">🔽</span>
+          </button>
+          <div id="catManagerSection" class="cat-manage-box" style="display: none;">
+            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+              <input type="text" id="newCategoryGlobal" placeholder="اسم القسم الجديد..." style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: #fff; font-size: 0.9rem;">
+              <button class="btn" style="width: auto; padding: 12px 14px; background: var(--success); font-size: 0.85rem;" onclick="addNewCategoryGlobal()">إضافة ➕</button>
+            </div>
+            <div id="categoriesChipsList" style="display: flex; flex-wrap: wrap; gap: 5px;"></div>
+          </div>
+
+          <!-- إضافة وجبة جديدة -->
+          <button class="dropdown-toggle-btn" onclick="toggleAddForm()">
+            <span>➕ إضافة وجبة جديدة</span>
+            <span id="dropdownIcon">🔽</span>
+          </button>
+          <div id="addMealSection" style="display: none; background: #fff; padding: 14px; border-radius: 14px; margin-bottom: 15px; border: 1px solid var(--border);">
+            <div class="form-grid">
+              <div class="input-group"><label>اسم الوجبة</label><input type="text" id="mealTitle"></div>
+              <div class="input-group"><label>السعر (مثال: 7,000 د.ع)</label><input type="text" id="mealPrice"></div>
+              <div class="input-group"><label>الوصف / المكونات</label><input type="text" id="mealDesc"></div>
+              <div class="input-group"><label>رابط الصورة (URL)</label><input type="text" id="mealImg" placeholder="https://..."></div>
+              <div class="input-group" style="grid-column: 1 / -1;">
+                <label>القسم</label>
+                <select id="mealCategory" style="width: 100%;"></select>
+              </div>
+            </div>
+            <button class="btn" style="margin-top: 10px; background: var(--success);" onclick="addNewMeal()">حفظ وإضافة الوجبة 🚀</button>
+          </div>
+
+          <!-- قائمة الوجبات الحالية -->
+          <button class="dropdown-toggle-btn" onclick="toggleMealsList()">
+            <span>📋 قائمة الوجبات الحالية والتحكم بها</span>
+            <span id="mealsListIcon">🔽</span>
+          </button>
+          <div id="menuItemsContainer" style="display: none; max-height: 400px; overflow-y: auto; background: #fff; padding: 8px; border-radius: 14px; border: 1px solid var(--border);"></div>
+
         </div>
-
-        <!-- قائمة الوجبات الحالية -->
-        <button class="dropdown-toggle-btn" onclick="toggleMealsList()">
-          <span>📋 قائمة الوجبات الحالية والتحكم بها (نفدت / متوفرة / حذف)</span>
-          <span id="mealsListIcon">🔽</span>
-        </button>
-
-        <div id="menuItemsContainer" style="display: none; max-height: 450px; overflow-y: auto; background: #fff; padding: 10px; border-radius: 12px; border: 1px solid var(--border);"></div>
-
       </div>
     </div>
 
-    <!-- جدول المطاعم العام -->
-    <div class="section-box">
-      <div class="section-title">
-        <span>📋 قائمة المطاعم والحالة</span>
-        <span class="sync-indicator" id="syncStatus">🔄 جاري المزامنة...</span>
-      </div>
-      <div class="table-responsive">
-        <table>
-          <thead>
-            <tr>
-              <th>المطعم</th><th>الهاتف</th><th>الملف</th><th>الانتهاء</th><th>المتبقي</th><th>المبلغ</th><th>الحالة</th><th>التحكم</th>
-            </tr>
-          </thead>
-          <tbody id="restaurantsTable"></tbody>
-        </table>
+    <!-- 4. تبويب قائمة المطاعم -->
+    <div id="tab-list-res" class="tab-content">
+      <div class="section-box">
+        <div class="section-title">
+          <span>📋 قائمة المطاعم والحالة</span>
+          <span class="sync-indicator" id="syncStatus">🔄 متصل</span>
+        </div>
+        <!-- تم تحويل الجدول القديم إلى بطاقات عمودية ملائمة للموبايل تماماً -->
+        <div id="restaurantsCardsContainer"></div>
       </div>
     </div>
+
   </div>
 
   <script>
@@ -238,6 +262,14 @@
     let allMeals = [];
     let menuStatus = {};
     let currentCategories = [];
+
+    // نظام التنقل بين التبويبات بالموبايل
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
+    }
 
     async function login() {
       const uInput = document.getElementById('username').value.trim();
@@ -337,9 +369,9 @@
           subscriptions = Array.isArray(data.subscriptions) ? data.subscriptions : [];
           renderData();
         }
-        document.getElementById('syncStatus').innerText = "⚡ متصل بـ Firebase";
+        document.getElementById('syncStatus').innerText = "⚡ متصل";
       } catch (err) {
-        document.getElementById('syncStatus').innerText = "❌ خطأ في الاتصال";
+        document.getElementById('syncStatus').innerText = "❌ خطأ";
       }
     }
 
@@ -384,7 +416,6 @@
         const res = await fetch(`${API_BASE_URL}restaurant_settings_${fileName}.json?nocache=` + Date.now());
         const data = await res.json() || {};
         
-        // جلب الاسم من القائمة الأساسية إذا لم يتوفر بالتفاصيل
         const sub = subscriptions.find(s => s.file.replace('.html', '') === fileName);
         document.getElementById('editResName').value = data.name || (sub ? sub.name : '');
         document.getElementById('editResImage').value = data.image || '';
@@ -411,14 +442,12 @@
 
       const settingsData = { name, image, facebook, instagram, whatsapp, telegram };
 
-      // حفظ الإعدادات في Firebase
       await fetch(`${API_BASE_URL}restaurant_settings_${fileName}.json`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settingsData)
       });
 
-      // تحديث الاسم أيضاً في مصفوفة الاشتراكات الرئيسية إن وجد
       const sub = subscriptions.find(s => s.file.replace('.html', '') === fileName);
       if (sub && name) {
         sub.name = name;
@@ -430,7 +459,7 @@
         fetchCloudData();
       }
 
-      alert("تم حفظ تفاصيل المطعم وروابط التواصل بنجاح!");
+      alert("تم حفظ تفاصيل المطعم بنجاح!");
     }
 
     async function loadCategoriesData(fileName) {
@@ -474,7 +503,7 @@
         chipsList.innerHTML += `
           <div class="cat-chip">
             <span>${cat}</span>
-            <button onclick="deleteCategory('${fileName}', '${cat}')" title="حذف القسم">×</button>
+            <button onclick="deleteCategory('${fileName}', '${cat}')" title="حذف">×</button>
           </div>
         `;
       });
@@ -629,7 +658,7 @@
       container.innerHTML = '';
 
       if (allMeals.length === 0) {
-        container.innerHTML = `<p style="color:var(--text-muted); font-size:0.85rem;">لم يتم العثور على وجبات لهذا المنيو.</p>`;
+        container.innerHTML = `<p style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:15px;">لم يتم العثور على وجبات لهذا المنيو.</p>`;
         return;
       }
 
@@ -643,7 +672,7 @@
               <strong>${meal.title}</strong> ${typeBadge} <small style="color:var(--accent);">[${meal.category || 'عام'}]</small>
               <br><small style="color:var(--text-muted);">${meal.price || ''} ${meal.desc ? '- ' + meal.desc : ''}</small>
             </div>
-            <div style="display:flex; align-items:center;">
+            <div style="display:flex; gap:6px;">
               <button class="toggle-item-btn ${isSoldOut ? 'btn-soldout' : 'btn-available'}" onclick="toggleItemState('${fileName}', '${meal.id}')">
                 ${isSoldOut ? '🚫 نفدت' : '✅ متوفرة'}
               </button>
@@ -680,28 +709,14 @@
           statusBadge.className = 'status-badge status-active';
         }
       } catch(e) {
-        statusBadge.innerText = 'غير معروف';
+        statusBadge.innerText = 'مفعل (Active)';
+        statusBadge.className = 'status-badge status-active';
       }
     }
 
-    async function changeSubscriptionStatus(status, subId = null) {
+    async function changeSubscriptionStatus(status) {
       let fileName = document.getElementById('targetFile').value.trim().replace('.html', '');
-
-      if (subId) {
-        const sub = subscriptions.find(s => s.id === subId);
-        if (sub) {
-          sub.status = status;
-          fileName = sub.file.replace('.html', '');
-          
-          await fetch(API_BASE_URL + "data.json", {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ subscriptions })
-          });
-        }
-      }
-
-      if (!fileName) return;
+      if (!fileName) { alert("حدد اسم الملف أولاً!"); return; }
 
       await fetch(`${API_BASE_URL}status_${fileName}.json`, {
         method: 'PUT',
@@ -710,81 +725,152 @@
       });
 
       checkSingleSubStatus(fileName);
-      fetchCloudData();
-    }
-
-    function calculateDaysLeft(endDateStr) {
-      if (!endDateStr) return { text: '-', class: '' };
-      const today = new Date(); today.setHours(0,0,0,0);
-      const end = new Date(endDateStr); end.setHours(0,0,0,0);
-      const diffDays = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
-      if (diffDays < 0) return { text: 'منتهي', class: 'days-ended' };
-      if (diffDays === 0) return { text: 'ينتهي اليوم', class: 'days-warning' };
-      if (diffDays <= 5) return { text: `${diffDays} يوم`, class: 'days-warning' };
-      return { text: `${diffDays} يوم`, class: 'days-good' };
+      alert(status === 'expired' ? "تم إيقاف المنيو بنجاح!" : "تم تفعيل المنيو بنجاح!");
     }
 
     async function addSubscription() {
       const name = document.getElementById('resName').value.trim();
       const phone = document.getElementById('resPhone').value.trim();
-      const file = document.getElementById('resFile').value.trim();
-      const start = document.getElementById('startDate').value;
-      const end = document.getElementById('endDate').value;
+      const file = document.getElementById('resFile').value.trim().replace('.html', '');
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
       const price = parseFloat(document.getElementById('salePrice').value) || 0;
 
-      if (!name || !file || !start || !end) { alert("يرجى ملء البيانات الأساسية!"); return; }
+      if (!name || !file || !endDate) {
+        alert("يرجى إدخال اسم المطعم، اسم الملف، وتاريخ الانتهاء على الأقل!");
+        return;
+      }
 
-      const newItem = { id: Date.now(), name, phone, file, start, end, price, status: 'active' };
-      subscriptions.push(newItem);
+      const newSub = { name, phone, file: file + ".html", startDate, endDate, price };
+      subscriptions.push(newSub);
 
-      const cleanFileName = file.replace('.html', '');
-      await fetch(`${API_BASE_URL}status_${cleanFileName}.json`, {
-        method: 'PUT',
-        body: JSON.stringify('active')
-      });
+      try {
+        await fetch(API_BASE_URL + "data.json", {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subscriptions })
+        });
 
-      await fetch(API_BASE_URL + "data.json", {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subscriptions })
-      });
+        alert("تم حفظ المطعم الجديد بنجاح!");
+        document.getElementById('resName').value = '';
+        document.getElementById('resPhone').value = '';
+        document.getElementById('resFile').value = '';
+        document.getElementById('startDate').value = '';
+        document.getElementById('endDate').value = '';
+        document.getElementById('salePrice').value = '';
+        fetchCloudData();
+      } catch (err) {
+        alert("حدث خطأ أثناء الحفظ!");
+      }
+    }
 
-      fetchCloudData();
+    async function toggleSubStatus(index) {
+      const sub = subscriptions[index];
+      const fileName = sub.file.replace('.html', '');
+      
+      try {
+        const res = await fetch(`${API_BASE_URL}status_${fileName}.json?nocache=` + Date.now());
+        const currentStatus = await res.json();
+        const newStatus = (currentStatus === 'expired') ? 'active' : 'expired';
+
+        await fetch(`${API_BASE_URL}status_${fileName}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newStatus)
+        });
+
+        fetchCloudData();
+      } catch(e) {
+        alert("تعذر تغيير الحالة!");
+      }
+    }
+
+    async function deleteSubscription(index) {
+      if (!confirm("هل أنت متأكد من حذف هذا المطعم من القائمة؟")) return;
+      subscriptions.splice(index, 1);
+      
+      try {
+        await fetch(API_BASE_URL + "data.json", {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subscriptions })
+        });
+        fetchCloudData();
+      } catch(e) {
+        alert("حدث خطأ أثناء الحذف!");
+      }
     }
 
     function renderData() {
-      const tableBody = document.getElementById('restaurantsTable');
-      tableBody.innerHTML = '';
-      let activeCnt = 0; let totalRev = 0;
+      const totalCountEl = document.getElementById('totalCount');
+      const activeCountEl = document.getElementById('activeCount');
+      const totalRevenueEl = document.getElementById('totalRevenue');
+      const container = document.getElementById('restaurantsCardsContainer');
 
-      subscriptions.forEach(sub => {
-        if (sub.status === 'active') activeCnt++;
-        totalRev += parseFloat(sub.price) || 0;
-        const daysInfo = calculateDaysLeft(sub.end);
-        const isActive = sub.status === 'active';
+      totalCountEl.innerText = subscriptions.length;
+      
+      let totalRev = 0;
+      subscriptions.forEach(s => totalRev += (parseFloat(s.price) || 0));
+      totalRevenueEl.innerText = totalRev + " $";
 
-        tableBody.innerHTML += `
-          <tr>
-            <td><strong>${sub.name}</strong></td>
-            <td>${sub.phone || '-'}</td>
-            <td><code>${sub.file}</code></td>
-            <td>${sub.end}</td>
-            <td><span class="days-badge ${daysInfo.class}">${daysInfo.text}</span></td>
-            <td>${sub.price}$</td>
-            <td><span class="status-badge ${isActive ? 'status-active' : 'status-expired'}">${isActive ? 'مفعل' : 'متوقف'}</span></td>
-            <td>
-              <button class="btn-toggle-sub ${isActive ? 'btn-sub-expired' : 'btn-sub-active'}" 
-                      onclick="changeSubscriptionStatus('${isActive ? 'expired' : 'active'}', ${sub.id})">
-                ${isActive ? 'إيقاف 🛑' : 'تفعيل ⚡'}
-              </button>
-              <button class="action-btn" onclick="document.getElementById('targetFile').value='${sub.file.replace('.html','')}'; fetchMenuData();">إدارة الوجبات</button>
-            </td>
-          </tr>`;
+      container.innerHTML = '';
+      if (subscriptions.length === 0) {
+        container.innerHTML = `<p style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:15px;">لا توجد مطاعم مسجلة حالياً.</p>`;
+        activeCountEl.innerText = 0;
+        return;
+      }
+
+      let activeCount = 0;
+      const today = new Date();
+
+      subscriptions.forEach((sub, index) => {
+        const end = new Date(sub.endDate);
+        const diffTime = end - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        let daysClass = "days-good";
+        let daysText = `${diffDays} يوم متبقي`;
+        if (diffDays <= 0) {
+          daysClass = "days-ended";
+          daysText = "منتهي";
+        } else if (diffDays <= 5) {
+          daysClass = "days-warning";
+          daysText = `قريب الانتهاء (${diffDays})`;
+        } else {
+          activeCount++;
+        }
+
+        container.innerHTML += `
+          <div class="restaurant-card-item">
+            <div class="restaurant-info-row">
+              <strong>${sub.name}</strong>
+              <span style="font-size:0.75rem; color:var(--text-muted);">${sub.phone || 'بدون هاتف'}</span>
+            </div>
+            <div class="restaurant-info-row">
+              <span style="font-size:0.75rem; background:#edf2f7; padding:2px 6px; border-radius:6px;">ملف: ${sub.file}</span>
+              <span class="days-badge ${daysClass}">${daysText}</span>
+            </div>
+            <div class="restaurant-info-row">
+              <span style="font-size:0.8rem; font-weight:700; color:var(--accent);">${sub.price || 0} $</span>
+              <span style="font-size:0.75rem; color:var(--text-muted);">ينتهي في: ${sub.endDate}</span>
+            </div>
+            <div class="restaurant-actions">
+              <button class="action-btn" onclick="quickLoadMenu('${sub.file}')"><i class="fas fa-edit"></i> إدارة المنيو</button>
+              <button class="action-btn" style="color:var(--danger);" onclick="deleteSubscription(${index})"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+        `;
       });
 
-      document.getElementById('totalCount').innerText = subscriptions.length;
-      document.getElementById('activeCount').innerText = activeCnt;
-      document.getElementById('totalRevenue').innerText = totalRev + ' $';
+      activeCountEl.innerText = activeCount;
+    }
+
+    // ميزة إضافية لتسهيل الانتقال السريع لإدارة المنيو بضغطة زر من قائمة المطاعم
+    function quickLoadMenu(fileName) {
+      const cleanName = fileName.replace('.html', '');
+      document.getElementById('targetFile').value = cleanName;
+      switchTab('tab-manage-menu', document.querySelectorAll('.tab-btn')[2]);
+      fetchMenuData();
     }
   </script>
 </body>
