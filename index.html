@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Iraqi Food & Cafe Menu</title>
+  <title id="pageTitle">Iraqi Food & Cafe Menu</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
     :root {
@@ -21,7 +22,6 @@
       --danger: #ff4757;
     }
 
-    /* Dark Mode Theme */
     body.dark-mode {
       --bg: #0f0f12;
       --header-bg: #18181c;
@@ -35,7 +35,116 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; transition: background 0.3s, color 0.3s; }
-    body { background-color: var(--bg); color: var(--text); padding-bottom: 80px; }
+    body { background-color: var(--bg); color: var(--text); padding-bottom: 80px; min-height: 100vh; }
+
+    /* الواجهة الترحيبية */
+    #welcomeView {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .welcome-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 30px 20px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .restaurant-logo {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--accent);
+      margin: 0 auto 15px auto;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+    }
+    .welcome-card h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 5px; color: var(--text); }
+    .restaurant-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; }
+    
+    .menu-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      margin-bottom: 12px;
+      transition: 0.3s;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+    }
+    .btn-ar { background: var(--accent-gradient); color: #fff; }
+    .btn-en { background: var(--search-bg); color: var(--accent); border: 2px solid var(--accent) !important; }
+    .menu-btn:hover { transform: translateY(-2px); opacity: 0.92; }
+
+    /* زر اللوكيشن الجديد أسفل أزرار اللغة */
+    .location-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 13px;
+      border-radius: 14px;
+      background: var(--search-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      margin-top: 15px;
+      margin-bottom: 18px;
+      transition: 0.3s;
+    }
+    .location-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+
+    /* قسم مواقع التواصل الاجتماعي (فيسبوك، انستا، تيك توك) أسفل اللوكيشن */
+    .social-section {
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+      margin-top: 5px;
+    }
+    .social-title {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .social-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--search-bg);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--accent);
+      font-size: 1.2rem;
+      text-decoration: none;
+      transition: 0.3s;
+      border: 1px solid var(--border);
+    }
+    .social-icon:hover { 
+      background: var(--accent); 
+      color: #fff; 
+      transform: scale(1.1); 
+    }
+
+    /* واجهة المنيو الفعلية (مخفية حتى يتم اختيار اللغة) */
+    #mainMenuView { display: none; }
 
     header { 
       background: var(--header-bg); 
@@ -44,91 +153,30 @@
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid var(--border); 
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      position: sticky; top: 0; z-index: 100;
       box-shadow: var(--shadow);
     }
-    .brand { 
-      font-size: 1.4rem; 
-      font-weight: 800; 
-      background: var(--accent-gradient); 
-      -webkit-background-clip: text; 
-      -webkit-text-fill-color: transparent; 
-    }
-
+    .brand { font-size: 1.4rem; font-weight: 800; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .header-controls { display: flex; gap: 10px; align-items: center; }
-    .control-btn {
-      background: var(--search-bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 6px 12px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 0.85rem;
-    }
+    .control-btn { background: var(--search-bg); border: 1px solid var(--border); color: var(--text); padding: 6px 12px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.85rem; }
+    .back-welcome-btn { background: var(--search-bg); border: 1px solid var(--border); color: var(--text); padding: 6px 12px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 5px; }
 
     .container { padding: 15px; max-width: 850px; margin: 0 auto; }
-
-    /* حقل البحث */
-    .search-box {
-      margin-bottom: 15px;
-      position: relative;
-    }
+    .search-box { margin-bottom: 15px; position: relative; }
     .search-input {
-      width: 100%;
-      padding: 12px 16px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background-color: var(--card-bg);
-      color: var(--text);
-      font-size: 0.95rem;
-      outline: none;
-      box-shadow: var(--shadow);
+      width: 100%; padding: 12px 16px; border-radius: 12px;
+      border: 1px solid var(--border); background-color: var(--card-bg);
+      color: var(--text); font-size: 0.95rem; outline: none; box-shadow: var(--shadow);
     }
-    .search-input::placeholder {
-      color: var(--text-muted);
-    }
+    .search-input::placeholder { color: var(--text-muted); }
 
-    /* Categories Horizontal Scroll */
-    .categories-bar {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      padding-bottom: 10px;
-      margin-bottom: 15px;
-      scrollbar-width: none;
-    }
+    .categories-bar { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }
     .categories-bar::-webkit-scrollbar { display: none; }
-    .cat-btn {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      padding: 8px 16px;
-      border-radius: 20px;
-      white-space: nowrap;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 0.85rem;
-    }
-    .cat-btn.active {
-      background: var(--accent-gradient);
-      color: #fff;
-      border: none;
-    }
+    .cat-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 16px; border-radius: 20px; white-space: nowrap; cursor: pointer; font-weight: 700; font-size: 0.85rem; }
+    .cat-btn.active { background: var(--accent-gradient); color: #fff; border: none; }
 
     .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-    
-    .card { 
-      position: relative;
-      background: var(--card-bg); 
-      border-radius: 18px; 
-      overflow: hidden; 
-      border: 1px solid var(--border); 
-      box-shadow: var(--shadow); 
-      transition: all 0.3s ease;
-    }
+    .card { position: relative; background: var(--card-bg); border-radius: 18px; overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow); transition: all 0.3s ease; }
     .img-wrapper { width: 100%; height: 130px; background: #e2e8f0; }
     .card img { width: 100%; height: 100%; object-fit: cover; }
     .card-info { padding: 12px; }
@@ -136,215 +184,119 @@
     .card-desc { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; line-height: 1.3; }
     .card-price { color: var(--accent); font-weight: 800; font-size: 1rem; }
 
-    /* تنسيقات الوجبة غير المتوفرة */
-    .card.sold-out {
-      opacity: 0.5;
-      filter: grayscale(85%);
-      pointer-events: none;
-    }
-
+    .card.sold-out { opacity: 0.5; filter: grayscale(85%); pointer-events: none; }
     .card.sold-out::after {
       content: attr(data-soldout-text);
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: var(--danger);
-      color: #ffffff;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 800;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      filter: none !important;
-      opacity: 1 !important;
-      z-index: 10;
-      white-space: nowrap;
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background-color: var(--danger); color: #ffffff; padding: 6px 14px;
+      border-radius: 20px; font-size: 0.8rem; font-weight: 800; z-index: 10; white-space: nowrap;
     }
 
-    /* شاشة إيقاف الخدمة عند انتهاء الاشتراك */
     #expiredOverlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(15, 15, 18, 0.96);
-      backdrop-filter: blur(10px);
-      z-index: 99999;
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 25px;
-      color: #ffffff;
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(15, 15, 18, 0.96); backdrop-filter: blur(10px);
+      z-index: 99999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 25px; color: #ffffff;
     }
-
-    .expired-card {
-      background: #1c1c21;
-      border: 1px solid rgba(255, 71, 87, 0.4);
-      border-radius: 24px;
-      padding: 35px 25px;
-      max-width: 420px;
-      width: 90%;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-      animation: popIn 0.4s ease-out;
-    }
-
-    @keyframes popIn {
-      from { transform: scale(0.85); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
+    .expired-card { background: #1c1c21; border: 1px solid rgba(255, 71, 87, 0.4); border-radius: 24px; padding: 35px 25px; max-width: 420px; width: 90%; }
     .expired-icon { font-size: 3.5rem; margin-bottom: 15px; }
     .expired-title { font-size: 1.4rem; font-weight: 800; color: #ff4757; margin-bottom: 10px; }
     .expired-msg { font-size: 0.95rem; color: #a5a5ab; line-height: 1.6; margin-bottom: 20px; }
-    .expired-badge {
-      display: inline-block;
-      background: rgba(255, 71, 87, 0.15);
-      color: #ff4757;
-      border: 1px solid rgba(255, 71, 87, 0.3);
-      padding: 8px 16px;
-      border-radius: 50px;
-      font-size: 0.85rem;
-      font-weight: 700;
-    }
+    .expired-badge { display: inline-block; background: rgba(255, 71, 87, 0.15); color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.3); padding: 8px 16px; border-radius: 50px; font-size: 0.85rem; font-weight: 700; }
   </style>
 </head>
 <body class="light-mode">
 
-  <!-- شاشة التنبيه عند توقف الخدمة -->
+  <!-- شاشة انتهاء الاشتراك -->
   <div id="expiredOverlay">
     <div class="expired-card">
       <div class="expired-icon">⚠️</div>
       <div class="expired-title">المنيو خارج الخدمة مؤقتاً</div>
-      <div class="expired-msg">
-        عذراً، هذه الخدمة متوقفة حالياً.<br>
-        يرجى مراجعة إدارة المطعم أو المزود لإعادة التفعيل.
-      </div>
+      <div class="expired-msg">عذراً، هذه الخدمة متوقفة حالياً. يرجى مراجعة إدارة المطعم لإعادة التفعيل.</div>
       <div class="expired-badge">حالة الاشتراك: منتهي / Expired</div>
     </div>
   </div>
 
-  <header>
-    <div class="brand" id="brandText">مطعم ومنشأة بغداد</div>
-    <div class="header-controls">
-      <button class="control-btn" id="langBtn" onclick="toggleLanguage()">English</button>
-      <button class="control-btn" onclick="toggleTheme()">🌙 / ☀️</button>
+  <!-- 1. واجهة الترحيب الجديدة -->
+  <div id="welcomeView">
+    <div class="welcome-card">
+      <img id="resLogoImg" src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500" alt="Logo" class="restaurant-logo">
+      <h1 id="resTitle">مطعم ومنشأة بغداد</h1>
+      <p class="restaurant-desc" id="resDesc">أهلاً بك، اختر لغة القائمة للمتابعة</p>
+
+      <button onclick="selectLanguage('ar')" class="menu-btn btn-ar">📋 المنيو العربي (Arabic Menu)</button>
+      <button onclick="selectLanguage('en')" class="menu-btn btn-en">📋 English Menu (المنيو الإنجليزي)</button>
+
+      <!-- زر اللوكيشن الجديد -->
+      <a href="#" id="locationLink" class="location-btn" target="_blank" style="display: none;">
+        <i class="fas fa-map-marker-alt" style="color: #ff4757;"></i> موقعنا على الخريطة (Location)
+      </a>
+
+      <!-- قسم السوشيال ميديا الجديد (انستا، فيس، تيك توك) -->
+      <div class="social-section" id="socialSection" style="display: none;">
+        <div class="social-title">تابعنا على منصات التواصل</div>
+        <div class="social-links" id="socialLinksContainer"></div>
+      </div>
     </div>
-  </header>
+  </div>
 
-  <div class="container">
-    <!-- حقل البحث -->
-    <div class="search-box">
-      <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن وجبة..." oninput="filterMenu()">
-    </div>
+  <!-- 2. واجهة المنيو الفعلية -->
+  <div id="mainMenuView">
+    <header>
+      <div class="brand" id="brandText">مطعم ومنشأة بغداد</div>
+      <div class="header-controls">
+        <button class="back-welcome-btn" onclick="returnToWelcome()"><i class="fas fa-home"></i> الرئيسية</button>
+        <button class="control-btn" id="langBtn" onclick="toggleLanguage()">English</button>
+        <button class="control-btn" onclick="toggleTheme()">🌙 / ☀️</button>
+      </div>
+    </header>
 
-    <!-- شريط الأقسام (الديناميكي) -->
-    <div class="categories-bar" id="categoriesBarContainer">
-      <button class="cat-btn active" onclick="filterCategory('all', this)" data-cat="all">الكل</button>
-      <button class="cat-btn" onclick="filterCategory('burgers', this)" data-cat="burgers">البرجر</button>
-      <button class="cat-btn" onclick="filterCategory('pizza', this)" data-cat="pizza">البيتزا</button>
-      <button class="cat-btn" onclick="filterCategory('shawarma', this)" data-cat="shawarma">الشاورما والصاج</button>
-      <button class="cat-btn" onclick="filterCategory('drinks', this)" data-cat="drinks">المشروبات</button>
-      <button class="cat-btn" onclick="filterCategory('sweets', this)" data-cat="sweets">الحلويات</button>
-    </div>
-
-    <!-- شبكة عرض الوجبات كاملة -->
-    <div class="grid" id="menuGrid">
-      
-      <!-- Burgers -->
-      <div class="card" data-category="burgers" data-id="item_burger_classic" data-soldout-text="غير متوفر">
-        <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500" alt="برجر"></div>
-        <div class="card-info">
-          <div class="card-title" data-ar="برجر كلاسيك" data-en="Classic Burger">برجر كلاسيك</div>
-          <div class="card-desc" data-ar="شريحة لحم بقر مع الجبن والصوص الخاص" data-en="Beef patty with cheese and special sauce">شريحة لحم بقر مع الجبن والصوص الخاص</div>
-          <div class="card-price">7,000 د.ع</div>
-        </div>
+    <div class="container">
+      <div class="search-box">
+        <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن وجبة..." oninput="filterMenu()">
       </div>
 
-      <div class="card" data-category="burgers" data-id="item_burger_zinger" data-soldout-text="غير متوفر">
-        <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=500" alt="زنجر"></div>
-        <div class="card-info">
-          <div class="card-title" data-ar="برجر زنجر دجاج" data-en="Zinger Burger">برجر زنجر دجاج</div>
-          <div class="card-desc" data-ar="صدر دجاج مقرمش مع الخس والصوص الحار" data-en="Crispy chicken breast with lettuce and spicy sauce">صدر دجاج مقرمش مع الخس والصوص الحار</div>
-          <div class="card-price">6,500 د.ع</div>
-        </div>
+      <div class="categories-bar" id="categoriesBarContainer">
+        <button class="cat-btn active" onclick="filterCategory('all', this)" data-cat="all">الكل</button>
+        <button class="cat-btn" onclick="filterCategory('burgers', this)" data-cat="burgers">البرجر</button>
+        <button class="cat-btn" onclick="filterCategory('pizza', this)" data-cat="pizza">البيتزا</button>
+        <button class="cat-btn" onclick="filterCategory('shawarma', this)" data-cat="shawarma">الشاورما والصاج</button>
+        <button class="cat-btn" onclick="filterCategory('drinks', this)" data-cat="drinks">المشروبات</button>
+        <button class="cat-btn" onclick="filterCategory('sweets', this)" data-cat="sweets">الحلويات</button>
       </div>
 
-      <!-- Pizza -->
-      <div class="card" data-category="pizza" data-id="item_pizza_pepperoni" data-soldout-text="غير متوفر">
-        <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500" alt="بيتزا"></div>
-        <div class="card-info">
-          <div class="card-title" data-ar="بيتزا ببروني" data-en="Pepperoni Pizza">بيتزا ببروني</div>
-          <div class="card-desc" data-ar="جبنة موزاريلا مع شرائح الببروني الفاخرة" data-en="Mozzarella cheese with premium pepperoni">جبنة موزاريلا مع شرائح الببروني الفاخرة</div>
-          <div class="card-price">10,000 د.ع</div>
+      <div class="grid" id="menuGrid">
+        <div class="card" data-category="burgers" data-id="item_burger_classic" data-soldout-text="غير متوفر">
+          <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500" alt="برجر"></div>
+          <div class="card-info">
+            <div class="card-title" data-ar="برجر كلاسيك" data-en="Classic Burger">برجر كلاسيك</div>
+            <div class="card-desc" data-ar="شريحة لحم بقر مع الجبن والصوص الخاص" data-en="Beef patty with cheese and special sauce">شريحة لحم بقر مع الجبن والصوص الخاص</div>
+            <div class="card-price">7,000 د.ع</div>
+          </div>
+        </div>
+        <div class="card" data-category="burgers" data-id="item_burger_zinger" data-soldout-text="غير متوفر">
+          <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=500" alt="زنجر"></div>
+          <div class="card-info">
+            <div class="card-title" data-ar="برجر زنجر دجاج" data-en="Zinger Burger">برجر زنجر دجاج</div>
+            <div class="card-desc" data-ar="صدر دجاج مقرمش مع الخس والصوص الحار" data-en="Crispy chicken breast with lettuce and spicy sauce">صدر دجاج مقرمش مع الخس والصوص الحار</div>
+            <div class="card-price">6,500 د.ع</div>
+          </div>
+        </div>
+        <div class="card" data-category="pizza" data-id="item_pizza_pepperoni" data-soldout-text="غير متوفر">
+          <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500" alt="بيتزا"></div>
+          <div class="card-info">
+            <div class="card-title" data-ar="بيتزا ببروني" data-en="Pepperoni Pizza">بيتزا ببروني</div>
+            <div class="card-desc" data-ar="جبنة موزاريلا مع شرائح الببروني الفاخرة" data-en="Mozzarella cheese with premium pepperoni">جبنة موزاريلا مع شرائح الببروني الفاخرة</div>
+            <div class="card-price">10,000 د.ع</div>
+          </div>
         </div>
       </div>
-
-      <div class="card" data-category="pizza" data-id="item_pizza_veggie" data-soldout-text="غير متوفر">
-        <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500" alt="بيتزا خضار"></div>
-        <div class="card-info">
-          <div class="card-title" data-ar="بيتزا خضار" data-en="Veggie Pizza">بيتزا خضار</div>
-          <div class="card-desc" data-ar="فلفل، زيتون، فطر مع صلصة الطماطم والموزاريلا" data-en="Peppers, olives, mushrooms with tomato sauce & mozzarella">فلفل، زيتون، فطر مع صلصة الطماطم والموزاريلا</div>
-          <div class="card-price">8,500 د.ع</div>
-        </div>
-      </div>
-
-      <!-- Shawarma & Saj -->
-      <div class="card" data-category="shawarma" data-id="item_shawarma_plate" data-soldout-text="غير متوفر">
-        <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=500" alt="شاورما"></div>
-        <div class="card-info">
-          <div class="card-title" data-ar="وجبة شاورما عربي" data-en="Shawarma Meal">وجبة شاورما عربي</div>
-          <div class="card-desc" data-ar="تقطيع صاج مع الثومية والبطاطا والطرشي" data-en="Saj wrap with garlic sauce, fries and pickles">تقطيع صاج مع الثومية والبطاطا والطرشي</div>
-          <div class="card-price">8,000 د.ع</div>
-        </div>
-      </div>
-
-      <div class="card" data-category="shawarma" data-id="item_saj_chicken" data-soldout-text="غير متوفر">
-        <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500" alt="صاج دجاج"></div>
-        <div class="card-info">
-          <div class="card-title" data-ar="لفة صاج دجاج" data-en="Chicken Saj Wrap">لفة صاج دجاج</div>
-          <div class="card-desc" data-ar="دجاج محمر بالخبز الصاج مع الصلصة الخاصة" data-en="Roasted chicken in saj bread with special sauce">دجاج محمر بالخبز الصاج مع الصلصة الخاصة</div>
-          <div class="card-price">4,000 د.ع</div>
-        </div>
-      </div>
-
-      <!-- Drinks -->
-      <div class="card" data-category="drinks" data-id="item_cola" data-soldout-text="غير متوفر">
-        <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500" alt="مشروب"></div>
-        <div class="card-info">
-          <div class="card-title" data-ar="كوكاكولا بارد" data-en="Cold Coca-Cola">كوكاكولا بارد</div>
-          <div class="card-desc" data-ar="مشروب غازي منعش 330 مل" data-en="Refreshing soft drink 330ml">مشروب غازي منعش 330 مل</div>
-          <div class="card-price">1,000 د.ع</div>
-        </div>
-      </div>
-
-      <div class="card" data-category="drinks" data-id="item_orange_juice" data-soldout-text="غير متوفر">
-        <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1613478223719-2ab802602423?w=500" alt="عصير برتقال"></div>
-        <div class="card-info">
-          <div class="card-title" data-ar="عصير برتقال طبيعي" data-en="Fresh Orange Juice">عصير برتقال طبيعي</div>
-          <div class="card-desc" data-ar="معصور طازج بدون إضافة سكر" data-en="Freshly squeezed with no added sugar">معصور طازج بدون إضافة سكر</div>
-          <div class="card-price">3,500 د.ع</div>
-        </div>
-      </div>
-
-      <!-- Sweets -->
-      <div class="card" data-category="sweets" data-id="item_waffle" data-soldout-text="غير متوفر">
-        <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1562376552-0d160a2f238d?w=500" alt="وافل"></div>
-        <div class="card-info">
-          <div class="card-title" data-ar="وافل بالنوتيلا" data-en="Nutella Waffle">وافل بالنوتيلا</div>
-          <div class="card-desc" data-ar="وافل مقرمش مغطى بشوكولاتة النوتيلا والفواكه" data-en="Crispy waffle topped with Nutella and fruits">وافل مقرمش مغطى بشوكولاتة النوتيلا والفواكه</div>
-          <div class="card-price">5,000 د.ع</div>
-        </div>
-      </div>
-
     </div>
   </div>
 
   <script>
-    // 1. الثيمات وحفظ التفضيل
+    const API_BASE_URL = "https://admin-e3293-default-rtdb.firebaseio.com/";
+    const MENU_FILE_NAME = window.location.pathname.split('/').pop().replace('.html', '') || "index"; 
+
     function applySavedTheme() {
       const savedTheme = localStorage.getItem('menu_theme') || 'light';
       if (savedTheme === 'dark') {
@@ -366,11 +318,28 @@
       }
     }
 
-    // 2. تحويل اللغات
     let currentLang = 'ar';
+    function selectLanguage(lang) {
+      currentLang = lang;
+      document.getElementById('welcomeView').style.display = 'none';
+      document.getElementById('mainMenuView').style.display = 'block';
+      
+      document.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.setAttribute('lang', currentLang);
+      document.getElementById('langBtn').innerText = currentLang === 'ar' ? 'English' : 'عربي';
+      document.getElementById('searchInput').placeholder = currentLang === 'ar' ? 'ابحث عن وجبة...' : 'Search for a meal...';
+
+      document.querySelectorAll('[data-ar]').forEach(el => {
+        el.innerText = el.getAttribute(`data-${currentLang}`);
+      });
+      updateSoldOutBadges();
+      filterMenu();
+    }
+
     function toggleLanguage() {
       currentLang = currentLang === 'ar' ? 'en' : 'ar';
       document.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.setAttribute('lang', currentLang);
       document.getElementById('langBtn').innerText = currentLang === 'ar' ? 'English' : 'عربي';
       document.getElementById('searchInput').placeholder = currentLang === 'ar' ? 'ابحث عن وجبة...' : 'Search for a meal...';
 
@@ -381,6 +350,13 @@
       filterMenu(); 
     }
 
+    function returnToWelcome() {
+      document.getElementById('mainMenuView').style.display = 'none';
+      document.getElementById('welcomeView').style.display = 'flex';
+      document.dir = 'rtl';
+      document.documentElement.setAttribute('lang', 'ar');
+    }
+
     function updateSoldOutBadges() {
       const text = currentLang === 'ar' ? 'غير متوفر' : 'Unavailable';
       document.querySelectorAll('.card').forEach(card => {
@@ -388,7 +364,57 @@
       });
     }
 
-    // 3. التصفية والبحث
+    // جلب بيانات الواجهة الترحيبية (اللوكيشن، السوشيال ميديا، الشعار) من فايربيس
+    async function loadLandingData() {
+      try {
+        const res = await fetch(`${API_BASE_URL}landing_${MENU_FILE_NAME}.json?nocache=` + Date.now());
+        const data = await res.json();
+
+        if (data) {
+          if (data.name) {
+            document.getElementById('resTitle').innerText = data.name;
+            document.getElementById('pageTitle').innerText = data.name;
+            document.getElementById('brandText').innerText = data.name;
+          }
+          if (data.desc) {
+            document.getElementById('resDesc').innerText = data.desc;
+          }
+          if (data.logo) {
+            document.getElementById('resLogoImg').src = data.logo;
+          }
+          
+          // زر اللوكيشن
+          const locBtn = document.getElementById('locationLink');
+          if (data.locationUrl) {
+            locBtn.href = data.locationUrl;
+            locBtn.style.display = 'flex';
+          } else {
+            locBtn.style.display = 'none';
+          }
+
+          // روابط السوشيال ميديا (فيسبوك، انستغرام، تيك توك)
+          if (data.socials && Array.isArray(data.socials) && data.socials.length > 0) {
+            const container = document.getElementById('socialLinksContainer');
+            container.innerHTML = '';
+            data.socials.forEach(s => {
+              if (s.url) {
+                container.innerHTML += `
+                  <a href="${s.url}" target="_blank" class="social-icon" title="${s.platform || 'Social'}">
+                    <i class="${s.icon || 'fas fa-globe'}"></i>
+                  </a>
+                `;
+              }
+            });
+            if (container.children.length > 0) {
+              document.getElementById('socialSection').style.display = 'block';
+            }
+          }
+        }
+      } catch (e) {
+        console.log("Error loading landing data:", e);
+      }
+    }
+
     let activeCategory = 'all';
     function filterCategory(cat, btn) {
       activeCategory = cat;
@@ -407,8 +433,7 @@
         const matchesCategory = (activeCategory === 'all' || itemCategory === activeCategory);
         const matchesSearch = titleText.includes(searchQuery) || descText.includes(searchQuery);
 
-        // إذا كانت الوجبة محذوفة مسبقاً، أبقِها مخفية بغض النظر عن البحث والتصنيف
-        if (card.classList.contains('is-deleted-marker') || card.style.display === 'none' && card.dataset.forceHide) {
+        if (card.classList.contains('is-deleted-marker') || (card.style.display === 'none' && card.dataset.forceHide)) {
           return;
         }
 
@@ -422,11 +447,6 @@
       });
     }
 
-    // ⚡ 4. Firebase: جلب الأقسام، الوجبات الإضافية، المحذوفات، فحص الاشتراك، وحالات التوفر ⚡
-    const API_BASE_URL = "https://admin-e3293-default-rtdb.firebaseio.com/";
-    const MENU_FILE_NAME = window.location.pathname.split('/').pop().replace('.html', '') || "index"; 
-
-    // جلب الأقسام الديناميكية المضافة وتحديث الشريط العلوي
     async function fetchCustomCategories() {
       try {
         const res = await fetch(`${API_BASE_URL}custom_categories_${MENU_FILE_NAME}.json?nocache=` + Date.now());
@@ -468,7 +488,6 @@
       }
     }
 
-    // جلب الوجبات المضافة حديثاً
     async function fetchCustomMeals() {
       try {
         const res = await fetch(`${API_BASE_URL}custom_meals_${MENU_FILE_NAME}.json?nocache=` + Date.now());
@@ -476,9 +495,7 @@
         
         if (customMeals && Array.isArray(customMeals)) {
           const grid = document.getElementById('menuGrid');
-          
           document.querySelectorAll('.card.custom-added-meal').forEach(el => el.remove());
-
           const soldOutText = currentLang === 'ar' ? 'غير متوفر' : 'Unavailable';
 
           customMeals.forEach(meal => {
@@ -498,7 +515,6 @@
             `;
             grid.appendChild(card);
           });
-          
           applyItemStatusesAndDeletions();
           filterMenu();
         }
@@ -507,13 +523,11 @@
       }
     }
 
-    // فحص الاشتراك
     async function checkSubscription() {
       try {
         const res = await fetch(`${API_BASE_URL}status_${MENU_FILE_NAME}.json?nocache=` + Date.now());
         const status = await res.json();
         const overlay = document.getElementById('expiredOverlay');
-
         if (status === 'expired') {
           overlay.style.display = 'flex';
         } else {
@@ -522,14 +536,11 @@
       } catch(e) { console.error("Subscription check error:", e); }
     }
 
-    // تطبيق حالة توفر الوجبات وحذف الوجبات الأساسية والمضافة
     async function applyItemStatusesAndDeletions() {
       try {
-        // 1. جلب حالات التوفر (نفاد الكمية)
         const statusRes = await fetch(`${API_BASE_URL}items_${MENU_FILE_NAME}.json?nocache=` + Date.now());
         const menuStatus = await statusRes.json() || {};
 
-        // 2. جلب قائمة الوجبات المحذوفة (العامة والمخصصة)
         const deletedBaseRes = await fetch(`${API_BASE_URL}deleted_base_meals_${MENU_FILE_NAME}.json?nocache=` + Date.now());
         const deletedBaseMeals = await deletedBaseRes.json() || [];
 
@@ -540,11 +551,10 @@
           let itemId = card.getAttribute('data-id');
           if (!itemId) return;
 
-          // فحص الحذف سواء كانت أساسية أو مضافة وإخفاؤها تماماً
           if ((Array.isArray(deletedMeals) && deletedMeals.includes(itemId)) || 
               (Array.isArray(deletedBaseMeals) && deletedBaseMeals.includes(itemId))) {
             card.style.display = 'none';
-            card.classList.add('is-deleted-marker'); // علامة إضافية لتأكيد الحذف
+            card.classList.add('is-deleted-marker');
             return;
           } else {
             if (card.classList.contains('is-deleted-marker')) {
@@ -552,7 +562,6 @@
             }
           }
 
-          // فحص نفاد الكمية (Sold Out)
           if (menuStatus[itemId] === 'soldout') {
             if (!card.classList.contains('sold-out')) {
               card.classList.add('sold-out');
@@ -570,12 +579,12 @@
     document.addEventListener('DOMContentLoaded', async () => {
       applySavedTheme();
       updateSoldOutBadges();
+      await loadLandingData();
       await checkSubscription();
       await fetchCustomCategories();
       await fetchCustomMeals(); 
       await applyItemStatusesAndDeletions();
 
-      // مزامنة لحظية لكل شيء كل 3 ثوانٍ
       setInterval(async () => {
         checkSubscription();
         await fetchCustomCategories();
