@@ -49,17 +49,18 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
-    .stat-card { background: var(--card-bg); border: 1px solid var(--border); padding: 12px 6px; border-radius: 14px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-    .stat-card h3 { font-size: 0.7rem; color: var(--text-muted); }
-    .stat-card p { font-size: 1.1rem; font-weight: 800; color: var(--accent); margin-top: 4px; }
+    /* تم تعديل الإحصائيات لتقتصر على أعداد المطاعم والحالة فقط بدون أموال */
+    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--border); padding: 15px 10px; border-radius: 14px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+    .stat-card h3 { font-size: 0.8rem; color: var(--text-muted); }
+    .stat-card p { font-size: 1.3rem; font-weight: 800; color: var(--accent); margin-top: 4px; }
 
     .section-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 16px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
     .section-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 15px; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
     .form-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
     @media(min-width: 500px) { .form-grid { grid-template-columns: 1fr 1fr; } }
 
-    /* تصميم بطاقات المطاعم للجوال بدلاً من الجداول المعقدة */
+    /* تصميم بطاقات المطاعم للجوال */
     .restaurant-card-item { background: #f8fafc; border: 1px solid var(--border); border-radius: 14px; padding: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
     .restaurant-info-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
     .restaurant-actions { display: flex; gap: 6px; margin-top: 4px; }
@@ -116,11 +117,11 @@
   <!-- لوحة التحكم -->
   <div id="dashboardScreen">
     <div class="header-dash">
-      <h1>لوحة التحكم الرئيسية</h1>
+      <h1>لوحة الإدارة والمتابعة</h1>
       <button class="logout-btn" onclick="logout()">خروج <i class="fas fa-sign-out-alt"></i></button>
     </div>
 
-    <!-- أزرار التنقل السريع (Tabs) لتجنب الطول المبالغ فيه للصفحة بالموبايل -->
+    <!-- أزرار التنقل السريع (Tabs) -->
     <div class="nav-tabs">
       <button class="tab-btn active" onclick="switchTab('tab-stats', this)"><i class="fas fa-home"></i> الرئيسية</button>
       <button class="tab-btn" onclick="switchTab('tab-add-res', this)"><i class="fas fa-plus-circle"></i> مطعم جديد</button>
@@ -128,16 +129,15 @@
       <button class="tab-btn" onclick="switchTab('tab-list-res', this)"><i class="fas fa-list"></i> المطاعم</button>
     </div>
 
-    <!-- 1. تبويب الإحصائيات العامة -->
+    <!-- 1. تبويب الإحصائيات العامة (بدون أموال) -->
     <div id="tab-stats" class="tab-content active">
       <div class="stats-grid">
-        <div class="stat-card"><h3>المطاعم</h3><p id="totalCount">0</p></div>
-        <div class="stat-card"><h3>النشطة</h3><p id="activeCount" style="color: var(--success);">0</p></div>
-        <div class="stat-card"><h3>المبيعات</h3><p id="totalRevenue">0 $</p></div>
+        <div class="stat-card"><h3>إجمالي المطاعم</h3><p id="totalCount">0</p></div>
+        <div class="stat-card"><h3>المطاعم النشطة</h3><p id="activeCount" style="color: var(--success);">0</p></div>
       </div>
       <div class="section-box" style="text-align: center; padding: 25px;">
-        <h3 style="font-size: 1rem; margin-bottom: 8px; color: var(--accent);">مرحباً بك في لوحة الإدارة المعدلة</h3>
-        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">استخدم الأزرار بالأعلى للتنقل بين الأقسام بسهولة تامة وبدون تعقيد على شاشة هاتفك.</p>
+        <h3 style="font-size: 1rem; margin-bottom: 8px; color: var(--accent);">مرحباً بك في لوحة الإدارة</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">لوحة مخصصة لإدارة وتحديث المنيوهات ومتابعة فترات الاشتراكات بكل مرونة وسهولة.</p>
       </div>
     </div>
 
@@ -150,8 +150,7 @@
           <div class="input-group"><label>رقم الهاتف</label><input type="tel" id="resPhone"></div>
           <div class="input-group"><label>اسم ملف المنيو (مثلاً index)</label><input type="text" id="resFile"></div>
           <div class="input-group"><label>تاريخ البدء</label><input type="date" id="startDate"></div>
-          <div class="input-group"><label>تاريخ الانتهاء</label><input type="date" id="endDate"></div>
-          <div class="input-group"><label>المبلغ ($)</label><input type="number" id="salePrice"></div>
+          <div class="input-group" style="grid-column: 1 / -1;"><label>تاريخ الانتهاء</label><input type="date" id="endDate"></div>
         </div>
         <button class="btn" id="saveBtn" style="margin-top: 10px;" onclick="addSubscription()">حفظ المطعم 💾</button>
       </div>
@@ -216,7 +215,7 @@
           <div id="addMealSection" style="display: none; background: #fff; padding: 14px; border-radius: 14px; margin-bottom: 15px; border: 1px solid var(--border);">
             <div class="form-grid">
               <div class="input-group"><label>اسم الوجبة</label><input type="text" id="mealTitle"></div>
-              <div class="input-group"><label>السعر (مثال: 7,000 د.ع)</label><input type="text" id="mealPrice"></div>
+              <div class="input-group"><label>السعر (اختياري للعرض)</label><input type="text" id="mealPrice"></div>
               <div class="input-group"><label>الوصف / المكونات</label><input type="text" id="mealDesc"></div>
               <div class="input-group"><label>رابط الصورة (URL)</label><input type="text" id="mealImg" placeholder="https://..."></div>
               <div class="input-group" style="grid-column: 1 / -1;">
@@ -245,7 +244,6 @@
           <span>📋 قائمة المطاعم والحالة</span>
           <span class="sync-indicator" id="syncStatus">🔄 متصل</span>
         </div>
-        <!-- تم تحويل الجدول القديم إلى بطاقات عمودية ملائمة للموبايل تماماً -->
         <div id="restaurantsCardsContainer"></div>
       </div>
     </div>
@@ -263,7 +261,6 @@
     let menuStatus = {};
     let currentCategories = [];
 
-    // نظام التنقل بين التبويبات بالموبايل
     function switchTab(tabId, btn) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -597,15 +594,15 @@
       const img = document.getElementById('mealImg').value.trim();
       const category = document.getElementById('mealCategory').value;
 
-      if (!title || !price || !category) {
-        alert("يرجى ملء اسم الوجبة، السعر، واختيار القسم!");
+      if (!title || !category) {
+        alert("يرجى ملء اسم الوجبة واختيار القسم على الأقل!");
         return;
       }
 
       const newMeal = {
         id: "custom_" + Date.now(),
         title,
-        price,
+        price: price || "",
         desc: desc || "",
         img: img || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500",
         category
@@ -734,14 +731,14 @@
       const file = document.getElementById('resFile').value.trim().replace('.html', '');
       const startDate = document.getElementById('startDate').value;
       const endDate = document.getElementById('endDate').value;
-      const price = parseFloat(document.getElementById('salePrice').value) || 0;
 
       if (!name || !file || !endDate) {
         alert("يرجى إدخال اسم المطعم، اسم الملف، وتاريخ الانتهاء على الأقل!");
         return;
       }
 
-      const newSub = { name, phone, file: file + ".html", startDate, endDate, price };
+      // تم تثبيت القيمة على 0 لعدم الحاجة للمحاسبة مع الحفاظ على هيكل البيانات متوافقاً تماماً
+      const newSub = { name, phone, file: file + ".html", startDate, endDate, price: 0 };
       subscriptions.push(newSub);
 
       try {
@@ -757,7 +754,6 @@
         document.getElementById('resFile').value = '';
         document.getElementById('startDate').value = '';
         document.getElementById('endDate').value = '';
-        document.getElementById('salePrice').value = '';
         fetchCloudData();
       } catch (err) {
         alert("حدث خطأ أثناء الحفظ!");
@@ -804,14 +800,9 @@
     function renderData() {
       const totalCountEl = document.getElementById('totalCount');
       const activeCountEl = document.getElementById('activeCount');
-      const totalRevenueEl = document.getElementById('totalRevenue');
       const container = document.getElementById('restaurantsCardsContainer');
 
       totalCountEl.innerText = subscriptions.length;
-      
-      let totalRev = 0;
-      subscriptions.forEach(s => totalRev += (parseFloat(s.price) || 0));
-      totalRevenueEl.innerText = totalRev + " $";
 
       container.innerHTML = '';
       if (subscriptions.length === 0) {
@@ -851,7 +842,6 @@
               <span class="days-badge ${daysClass}">${daysText}</span>
             </div>
             <div class="restaurant-info-row">
-              <span style="font-size:0.8rem; font-weight:700; color:var(--accent);">${sub.price || 0} $</span>
               <span style="font-size:0.75rem; color:var(--text-muted);">ينتهي في: ${sub.endDate}</span>
             </div>
             <div class="restaurant-actions">
@@ -865,7 +855,6 @@
       activeCountEl.innerText = activeCount;
     }
 
-    // ميزة إضافية لتسهيل الانتقال السريع لإدارة المنيو بضغطة زر من قائمة المطاعم
     function quickLoadMenu(fileName) {
       const cleanName = fileName.replace('.html', '');
       document.getElementById('targetFile').value = cleanName;
