@@ -247,36 +247,11 @@
         <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن وجبة..." oninput="filterMenu()">
       </div>
 
-      <div class="categories-bar" id="categoriesBarContainer">
-        <button class="cat-btn active" onclick="filterCategory('all', this)" data-cat="all">الكل</button>
-      </div>
+      <!-- شريط الأقسام (فارغ تماماً بالبداية وسيتم ملؤه حصراً بما تضيفه أنت من لوحة التحكم) -->
+      <div class="categories-bar" id="categoriesBarContainer"></div>
 
-      <div class="grid" id="menuGrid">
-        <div class="card" data-category="burgers" data-id="item_burger_classic" data-soldout-text="غير متوفر">
-          <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500" alt="برجر"></div>
-          <div class="card-info">
-            <div class="card-title" data-ar="برجر كلاسيك" data-en="Classic Burger">برجر كلاسيك</div>
-            <div class="card-desc" data-ar="شريحة لحم بقر مع الجبن والصوص الخاص" data-en="Beef patty with cheese and special sauce">شريحة لحم بقر مع الجبن والصوص الخاص</div>
-            <div class="card-price">7,000 د.ع</div>
-          </div>
-        </div>
-        <div class="card" data-category="burgers" data-id="item_burger_zinger" data-soldout-text="غير متوفر">
-          <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=500" alt="زنجر"></div>
-          <div class="card-info">
-            <div class="card-title" data-ar="برجر زنجر دجاج" data-en="Zinger Burger">برجر زنجر دجاج</div>
-            <div class="card-desc" data-ar="صدر دجاج مقرمش مع الخس والصوص الحار" data-en="Crispy chicken breast with lettuce and spicy sauce">صدر دجاج مقرمش مع الخس والصوص الحار</div>
-            <div class="card-price">6,500 د.ع</div>
-          </div>
-        </div>
-        <div class="card" data-category="pizza" data-id="item_pizza_pepperoni" data-soldout-text="غير متوفر">
-          <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500" alt="بيتزا"></div>
-          <div class="card-info">
-            <div class="card-title" data-ar="بيتزا ببروني" data-en="Pepperoni Pizza">بيتزا ببروني</div>
-            <div class="card-desc" data-ar="جبنة موزاريلا مع شرائح الببروني الفاخرة" data-en="Mozzarella cheese with premium pepperoni">جبنة موزاريلا مع شرائح الببروني الفاخرة</div>
-            <div class="card-price">10,000 د.ع</div>
-          </div>
-        </div>
-      </div>
+      <!-- شبكة الوجبات (فارغة تماماً بالبداية وتستقبل وجباتك المضافة فقط) -->
+      <div class="grid" id="menuGrid"></div>
     </div>
   </div>
 
@@ -377,22 +352,14 @@
       });
     }
 
-    // دالة محسنة ومحدثة لتعرض كافة الأقسام الديناميكية والافتراضية بشكل صحيح ومتوافق 100%
+    // دالة الأقسام الجديدة بالكامل: تحذف القديم وتعتمد فقط على ما يتم إضافته في قاعدة البيانات
     function renderCategoriesUI(savedCats) {
-      const defaultCategories = [
-        { id: 'all', ar: 'الكل', en: 'All' },
-        { id: 'burgers', ar: 'البرجر', en: 'Burgers' },
-        { id: 'pizza', ar: 'البيتزا', en: 'Pizza' },
-        { id: 'shawarma', ar: 'الشاورما والصاج', en: 'Shawarma & Saj' },
-        { id: 'drinks', ar: 'المشروبات', en: 'Drinks' },
-        { id: 'sweets', ar: 'الحلويات', en: 'Sweets' }
-      ];
-
       let catsMap = new Map();
-      defaultCategories.forEach(c => catsMap.set(c.id, c));
+      
+      // إضافة زر "الكل" افتراضياً ليعرض كافة الوجبات المضافة
+      catsMap.set('all', { id: 'all', ar: 'الكل', en: 'All' });
 
       if (savedCats) {
-        // التحقق مما إذا كانت الأقسام مصفوفة أو كائن قادم من قاعدة البيانات
         let catsArray = Array.isArray(savedCats) ? savedCats : Object.values(savedCats);
         
         catsArray.forEach(c => {
@@ -491,6 +458,8 @@
       const cachedCats = localStorage.getItem(`cache_cats_${MENU_FILE_NAME}`);
       if (cachedCats) {
         try { renderCategoriesUI(JSON.parse(cachedCats)); } catch(e){}
+      } else {
+        renderCategoriesUI([]); // لعرض زر الكل فقط في حال لم تكن هناك أقسام مخزنة
       }
 
       const cachedStatus = localStorage.getItem(`cache_status_${MENU_FILE_NAME}`);
@@ -556,10 +525,8 @@
 
         const catRes = await fetch(`${API_BASE_URL}custom_categories_${MENU_FILE_NAME}.json?nocache=` + Date.now());
         const savedCats = await catRes.json();
-        if (savedCats) {
-          localStorage.setItem(`cache_cats_${MENU_FILE_NAME}`, JSON.stringify(savedCats));
-          renderCategoriesUI(savedCats);
-        }
+        localStorage.setItem(`cache_cats_${MENU_FILE_NAME}`, JSON.stringify(savedCats || []));
+        renderCategoriesUI(savedCats);
 
         const mealsRes = await fetch(`${API_BASE_URL}custom_meals_${MENU_FILE_NAME}.json?nocache=` + Date.now());
         const customMeals = await mealsRes.json();
