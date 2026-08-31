@@ -249,11 +249,6 @@
 
       <div class="categories-bar" id="categoriesBarContainer">
         <button class="cat-btn active" onclick="filterCategory('all', this)" data-cat="all">الكل</button>
-        <button class="cat-btn" onclick="filterCategory('burgers', this)" data-cat="burgers">البرجر</button>
-        <button class="cat-btn" onclick="filterCategory('pizza', this)" data-cat="pizza">البيتزا</button>
-        <button class="cat-btn" onclick="filterCategory('shawarma', this)" data-cat="shawarma">الشاورما والصاج</button>
-        <button class="cat-btn" onclick="filterCategory('drinks', this)" data-cat="drinks">المشروبات</button>
-        <button class="cat-btn" onclick="filterCategory('sweets', this)" data-cat="sweets">الحلويات</button>
       </div>
 
       <div class="grid" id="menuGrid">
@@ -356,7 +351,6 @@
       });
     }
 
-    // منع تكرار إضافة الوجبات إذا كانت موجودة مسبقاً لمنع الوميض
     function appendMealsToGrid(customMeals) {
       const grid = document.getElementById('menuGrid');
       const soldOutText = currentLang === 'ar' ? 'غير متوفر' : 'Unavailable';
@@ -383,6 +377,7 @@
       });
     }
 
+    // دالة محسنة ومحدثة لتعرض كافة الأقسام الديناميكية والافتراضية بشكل صحيح ومتوافق 100%
     function renderCategoriesUI(savedCats) {
       const defaultCategories = [
         { id: 'all', ar: 'الكل', en: 'All' },
@@ -396,10 +391,15 @@
       let catsMap = new Map();
       defaultCategories.forEach(c => catsMap.set(c.id, c));
 
-      if (Array.isArray(savedCats)) {
-        savedCats.forEach(c => {
-          if (!catsMap.has(c)) {
-            catsMap.set(c, { id: c, ar: c, en: c });
+      if (savedCats) {
+        // التحقق مما إذا كانت الأقسام مصفوفة أو كائن قادم من قاعدة البيانات
+        let catsArray = Array.isArray(savedCats) ? savedCats : Object.values(savedCats);
+        
+        catsArray.forEach(c => {
+          let catId = typeof c === 'string' ? c.toLowerCase().trim() : (c.id || c.name || '').toLowerCase().trim();
+          let catName = typeof c === 'string' ? c : (c.ar || c.name || c.id || '');
+          if (catId && !catsMap.has(catId)) {
+            catsMap.set(catId, { id: catId, ar: catName, en: catName });
           }
         });
       }
@@ -410,21 +410,20 @@
 
       catsMap.forEach((catObj, catId) => {
         const isActive = currentActiveCat === catId ? 'active' : '';
+        const displayName = currentLang === 'ar' ? catObj.ar : (catObj.en || catObj.ar);
         barContainer.innerHTML += `
-          <button class="cat-btn ${isActive}" onclick="filterCategory('${catId}', this)" data-cat="${catId}" data-ar="${catObj.ar}" data-en="${catObj.en}">
-            ${currentLang === 'ar' ? catObj.ar : catObj.en}
+          <button class="cat-btn ${isActive}" onclick="filterCategory('${catId}', this)" data-cat="${catId}" data-ar="${catObj.ar}" data-en="${catObj.en || catObj.ar}">
+            ${displayName}
           </button>
         `;
       });
     }
 
-    // تطبيق حالة النفاذ بصمت تام ودون المساس بهيكل الوجبة لمنع الرمش نهائياً
     function applyStatuses(menuStatus = {}, deletedBaseMeals = [], deletedMeals = []) {
       document.querySelectorAll('.card').forEach((card) => {
         let itemId = card.getAttribute('data-id');
         if (!itemId) return;
 
-        // التحقق من الحذف
         if ((Array.isArray(deletedMeals) && deletedMeals.includes(itemId)) || 
             (Array.isArray(deletedBaseMeals) && deletedBaseMeals.includes(itemId))) {
           if (card.style.display !== 'none') {
@@ -438,7 +437,6 @@
           }
         }
 
-        // التحديث الصامت لحالة النفاذ (Sold Out) دون إعادة بناء الكارت
         if (menuStatus[itemId] === 'soldout') {
           if (!card.classList.contains('sold-out')) {
             card.classList.add('sold-out');
@@ -596,13 +594,8 @@
       applySavedTheme();
       updateSoldOutBadges();
       
-      // 1. عرض البيانات المخزنة محلياً فوراً للسرعة القصوى
       renderCachedData();
-
-      // 2. تحديث صامت في الخلفية بدون أي تأثير على العناصر الظاهرة
       backgroundSync();
-
-      // 3. التحديث كل 10 ثوانٍ لضمان الاستقرار التام وعدم حصول وميض
       setInterval(backgroundSync, 10000);
     });
   </script>
