@@ -132,7 +132,7 @@
 
     <!-- قسم التحكم بالمنيو والوجبات -->
     <div class="section-box">
-      <div class="section-title">🍔 إدارة الوجبات والأقسام للمنيو</div>
+      <div class="section-title">🍔 إدارة الوجبات والأقسام وتفاصيل المطعم للمنيو</div>
       <div style="display: flex; gap: 10px; margin-bottom: 15px;">
         <input type="text" id="targetFile" placeholder="أدخل اسم الملف مثل: index" style="flex:1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #fff; color:#2d3748;">
         <button class="btn" style="width: auto; padding: 10px 20px;" onclick="fetchMenuData()">جلب البيانات</button>
@@ -146,6 +146,23 @@
           <span id="currentFileStatus" class="status-badge">جاري الفحص...</span>
           <button class="btn-toggle-sub btn-sub-active" onclick="changeSubscriptionStatus('active')">تفعيل</button>
           <button class="btn-toggle-sub btn-sub-expired" onclick="changeSubscriptionStatus('expired')">إيقاف (Expired)</button>
+        </div>
+
+        <!-- ⚙️ قسم تعديل بيانات المطعم (اسم، صورة، ومواقع التواصل) -->
+        <button class="dropdown-toggle-btn" onclick="toggleRestaurantSettings()">
+          <span>⚙️ تخصيص اسم، صورة ورابط مواقع تواصل المطعم</span>
+          <span id="resSettingsIcon">🔽</span>
+        </button>
+        <div id="resSettingsSection" class="cat-manage-box" style="display: none;">
+          <div class="form-grid">
+            <div class="input-group"><label>تعديل اسم المطعم</label><input type="text" id="editResName"></div>
+            <div class="input-group"><label>رابط صورة الشعار/الغلاف (URL)</label><input type="text" id="editResImage" placeholder="https://..."></div>
+            <div class="input-group"><label>رابط الفيسبوك</label><input type="text" id="socialFacebook" placeholder="https://facebook.com/..."></div>
+            <div class="input-group"><label>رابط الانستغرام</label><input type="text" id="socialInstagram" placeholder="https://instagram.com/..."></div>
+            <div class="input-group"><label>رابط الواتساب / رقم الاتصال</label><input type="text" id="socialWhatsapp" placeholder="https://wa.me/..."></div>
+            <div class="input-group"><label>رابط التليجرام</label><input type="text" id="socialTelegram" placeholder="https://t.me/..."></div>
+          </div>
+          <button class="btn" style="margin-top: 10px; background: var(--success);" onclick="saveRestaurantDetails()">حفظ إعدادات المطعم 💾</button>
         </div>
 
         <!-- 📂 ميزة إدارة الأقسام (إضافة وحذف الأقسام) -->
@@ -238,7 +255,7 @@
         const adminData = await res.json();
 
         if (!adminData) {
-          errEl.innerText = "لم يتم العثور على بيانات المشرف في قاعدة البيانات. يجدر بك إضافتها في فايربيس تحت مسار admin";
+          errEl.innerText = "لم يتم العثور على بيانات المشرف في قاعدة البيانات.";
           errEl.style.display = 'block';
           return;
         }
@@ -300,6 +317,18 @@
       }
     }
 
+    function toggleRestaurantSettings() {
+      const section = document.getElementById('resSettingsSection');
+      const icon = document.getElementById('resSettingsIcon');
+      if (section.style.display === 'none' || section.style.display === '') {
+        section.style.display = 'block';
+        icon.innerText = '🔼';
+      } else {
+        section.style.display = 'none';
+        icon.innerText = '🔽';
+      }
+    }
+
     async function fetchCloudData() {
       try {
         const res = await fetch(API_BASE_URL + "data.json?nocache=" + Date.now());
@@ -321,6 +350,7 @@
       document.getElementById('loadedMenuContainer').style.display = 'block';
       checkSingleSubStatus(fileName);
       await loadCategoriesData(fileName);
+      await loadRestaurantSettings(fileName);
 
       try {
         const customRes = await fetch(`${API_BASE_URL}custom_meals_${fileName}.json?nocache=` + Date.now());
@@ -347,6 +377,60 @@
       } catch(e) {
         alert("تعذر جلب بيانات الوجبات!");
       }
+    }
+
+    async function loadRestaurantSettings(fileName) {
+      try {
+        const res = await fetch(`${API_BASE_URL}restaurant_settings_${fileName}.json?nocache=` + Date.now());
+        const data = await res.json() || {};
+        
+        // جلب الاسم من القائمة الأساسية إذا لم يتوفر بالتفاصيل
+        const sub = subscriptions.find(s => s.file.replace('.html', '') === fileName);
+        document.getElementById('editResName').value = data.name || (sub ? sub.name : '');
+        document.getElementById('editResImage').value = data.image || '';
+        document.getElementById('socialFacebook').value = data.facebook || '';
+        document.getElementById('socialInstagram').value = data.instagram || '';
+        document.getElementById('socialWhatsapp').value = data.whatsapp || '';
+        document.getElementById('socialTelegram').value = data.telegram || '';
+      } catch(e) {
+        document.getElementById('editResName').value = '';
+        document.getElementById('editResImage').value = '';
+      }
+    }
+
+    async function saveRestaurantDetails() {
+      let fileName = document.getElementById('targetFile').value.trim().replace('.html', '');
+      if (!fileName) return;
+
+      const name = document.getElementById('editResName').value.trim();
+      const image = document.getElementById('editResImage').value.trim();
+      const facebook = document.getElementById('socialFacebook').value.trim();
+      const instagram = document.getElementById('socialInstagram').value.trim();
+      const whatsapp = document.getElementById('socialWhatsapp').value.trim();
+      const telegram = document.getElementById('socialTelegram').value.trim();
+
+      const settingsData = { name, image, facebook, instagram, whatsapp, telegram };
+
+      // حفظ الإعدادات في Firebase
+      await fetch(`${API_BASE_URL}restaurant_settings_${fileName}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settingsData)
+      });
+
+      // تحديث الاسم أيضاً في مصفوفة الاشتراكات الرئيسية إن وجد
+      const sub = subscriptions.find(s => s.file.replace('.html', '') === fileName);
+      if (sub && name) {
+        sub.name = name;
+        await fetch(API_BASE_URL + "data.json", {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subscriptions })
+        });
+        fetchCloudData();
+      }
+
+      alert("تم حفظ تفاصيل المطعم وروابط التواصل بنجاح!");
     }
 
     async function loadCategoriesData(fileName) {
@@ -700,7 +784,7 @@
 
       document.getElementById('totalCount').innerText = subscriptions.length;
       document.getElementById('activeCount').innerText = activeCnt;
-      document.getElementById('totalRevenue').innerText = totalRev + " $";
+      document.getElementById('totalRevenue').innerText = totalRev + ' $';
     }
   </script>
 </body>
