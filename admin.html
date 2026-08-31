@@ -100,7 +100,7 @@
       <div class="input-group"><label>اسم المستخدم</label><input type="text" id="username"></div>
       <div class="input-group"><label>كلمة المرور</label><input type="password" id="password"></div>
       <button class="btn" onclick="login()">دخول</button>
-      <p id="loginError" style="color: var(--danger); font-size: 0.8rem; margin-top: 10px; display: none;">اسم المستخدم أو كلمة المرور غير صحيحة!</p>
+      <p id="loginError" style="color: var(--danger); font-size: 0.8rem; margin-top: 10px; display: none;"></p>
     </div>
   </div>
 
@@ -212,26 +212,50 @@
   </div>
 
   <script>
-    const ADMIN_USER = "searsi";
-    const ADMIN_PASS = "Aa112233";
     const API_BASE_URL = "https://admin-e3293-default-rtdb.firebaseio.com/";
 
     let subscriptions = [];
     let customMeals = [];
     let baseMeals = [];
-    let deletedBaseMeals = []; // قائمة الوجبات الأساسية المحذوفة
+    let deletedBaseMeals = [];
     let allMeals = [];
     let menuStatus = {};
     let currentCategories = [];
 
-    function login() {
-      if (document.getElementById('username').value === ADMIN_USER && document.getElementById('password').value === ADMIN_PASS) {
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('dashboardScreen').style.display = 'block';
-        fetchCloudData();
-        setInterval(fetchCloudData, 3000);
-      } else {
-        document.getElementById('loginError').style.display = 'block';
+    async function login() {
+      const uInput = document.getElementById('username').value.trim();
+      const pInput = document.getElementById('password').value.trim();
+      const errEl = document.getElementById('loginError');
+
+      if (!uInput || !pInput) {
+        errEl.innerText = "يرجى إدخال اسم المستخدم وكلمة المرور!";
+        errEl.style.display = 'block';
+        return;
+      }
+
+      try {
+        const res = await fetch(API_BASE_URL + "admin.json");
+        const adminData = await res.json();
+
+        if (!adminData) {
+          errEl.innerText = "لم يتم العثور على بيانات المشرف في قاعدة البيانات. يجدر بك إضافتها في فايربيس تحت مسار admin";
+          errEl.style.display = 'block';
+          return;
+        }
+
+        if (uInput === adminData.username && pInput === adminData.password) {
+          errEl.style.display = 'none';
+          document.getElementById('loginScreen').style.display = 'none';
+          document.getElementById('dashboardScreen').style.display = 'block';
+          fetchCloudData();
+          setInterval(fetchCloudData, 3000);
+        } else {
+          errEl.innerText = "اسم المستخدم أو كلمة المرور غير صحيحة!";
+          errEl.style.display = 'block';
+        }
+      } catch (err) {
+        errEl.innerText = "تعذر الاتصال بقاعدة البيانات للتحقق من الدخول!";
+        errEl.style.display = 'block';
       }
     }
 
@@ -302,7 +326,6 @@
         const customRes = await fetch(`${API_BASE_URL}custom_meals_${fileName}.json?nocache=` + Date.now());
         customMeals = await customRes.json() || [];
 
-        // جلب الوجبات الأساسية المحذوفة إن وجدت
         const delBaseRes = await fetch(`${API_BASE_URL}deleted_base_meals_${fileName}.json?nocache=` + Date.now());
         deletedBaseMeals = await delBaseRes.json() || [];
 
@@ -326,7 +349,6 @@
       }
     }
 
-    // جلب وإدارة الأقسام المخصصة والافتراضية
     async function loadCategoriesData(fileName) {
       const defaultCategories = ["burgers", "pizza", "shawarma", "drinks", "sweets", "test"];
       let allCatsSet = new Set(defaultCategories);
@@ -338,7 +360,6 @@
           savedCats.forEach(c => allCatsSet.add(c));
         }
 
-        // إضافة أقسام الوجبات الحالية للضمان
         allMeals.forEach(m => { if (m.category) allCatsSet.add(m.category); });
 
         currentCategories = Array.from(allCatsSet);
@@ -448,7 +469,6 @@
 
     function combineAndRenderMeals(fileName) {
       const formattedCustom = customMeals.map(m => ({ ...m, isCustom: true }));
-      // استبعاد الوجبات الأساسية التي تم حذفها مسبقاً
       const filteredBase = baseMeals.filter(m => !deletedBaseMeals.includes(m.id));
       const formattedBase = filteredBase.map(m => ({ ...m, isCustom: false }));
 
