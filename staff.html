@@ -5,12 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>لوحة صاحب المطعم - إدارة التوفر</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-  
-  <!-- مكتبات Firebase الرسمية للأمان -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
   <style>
     :root {
       --bg: #f4f6f9;
@@ -42,99 +36,112 @@
     .meal-info strong { display: block; font-size: 1rem; }
     .meal-info span { font-size: 0.8rem; color: var(--text-muted); }
 
-    .status-btn { padding: 10px 16px; border-radius: 10px; font-weight: bold; border: none; cursor: pointer; font-size: 0.85rem; }
+    .status-btn { padding: 10px 16px; border-radius: 10px; font-weight: bold; border: none; cursor: pointer; font-size: 0.85rem; transition: 0.2s; }
     .btn-available { background: rgba(39, 174, 96, 0.15); color: var(--success); border: 1px solid var(--success); }
     .btn-soldout { background: rgba(255, 71, 87, 0.15); color: var(--danger); border: 1px solid var(--danger); }
   </style>
 </head>
 <body>
 
-  <!-- شاشة الدخول الحقيقية بالبريد والباسورد -->
+  <!-- شاشة تسجيل الدخول المطابقة لنفس يوزرات قاعدة البيانات -->
   <div id="loginBox">
-    <h2>تسجيل دخول صاحب المطعم 🔒</h2>
+    <h2>تسجيل دخول صاحب المطعم 🔑</h2>
     <div class="input-group">
-      <label>البريد الإلكتروني</label>
-      <input type="email" id="emailInput" placeholder="restaurant1@menu.com">
+      <label>اسم المستخدم</label>
+      <input type="text" id="userInput" placeholder="أدخل اسم المستخدم">
     </div>
     <div class="input-group">
       <label>كلمة المرور</label>
-      <input type="password" id="passInput" placeholder="******">
+      <input type="password" id="passInput" placeholder="أدخل كلمة المرور">
     </div>
     <div class="input-group">
-      <label>اسم المنيو المخصص لك</label>
-      <input type="text" id="menuNameInput" placeholder="restaurant1">
+      <label>اسم المنيو</label>
+      <input type="text" id="menuNameInput" placeholder="مثال: restaurant1">
     </div>
-    <button class="btn-login" onclick="login()">دخول آمن 🚀</button>
-    <p id="errMsg" style="color:var(--danger); font-size:0.8rem; margin-top:10px; display:none;"></p>
+    <button class="btn-login" onclick="login()">دخول 🚀</button>
+    <p id="errMsg" style="color:var(--danger); font-size:0.85rem; margin-top:10px; display:none;"></p>
   </div>
 
-  <!-- الواجهة المؤمّنة -->
+  <!-- الواجهة الرئيسية -->
   <div id="mainApp">
     <div class="header">
       <div>
         <h3>منيو: <span id="displayMenuName"></span></h3>
         <small style="color:var(--text-muted)">التحكم بالتوفر فقط</small>
       </div>
-      <button class="btn-logout" onclick="logout()">خروج 🔐</button>
+      <button class="btn-logout" onclick="logout()">خروج 🔄</button>
     </div>
 
     <div id="mealsList"></div>
   </div>
 
   <script>
-    // إعدادات مشروعك في Firebase (من Project Settings في Firebase)
-    const firebaseConfig = {
-      databaseURL: "https://admin-e3293-default-rtdb.firebaseio.com/"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
-
+    const API_BASE_URL = "https://admin-e3293-default-rtdb.firebaseio.com/";
     let CURRENT_MENU = "";
     let mealsData = [];
     let itemsStatus = {};
 
     async function login() {
-      const email = document.getElementById('emailInput').value.trim();
-      const pass = document.getElementById('passInput').value.trim();
-      const menu = document.getElementById('menuNameInput').value.trim().toLowerCase();
+      const usernameInput = document.getElementById('userInput').value.trim();
+      const passwordInput = document.getElementById('passInput').value.trim();
+      const menuInput = document.getElementById('menuNameInput').value.trim().toLowerCase();
       const err = document.getElementById('errMsg');
 
-      if (!email || !pass || !menu) {
-        err.innerText = "يرجى ملء جميع الحقول!";
+      if (!usernameInput || !passwordInput || !menuInput) {
+        err.innerText = "يرجى كتابة جميع البيانات!";
         err.style.display = 'block';
         return;
       }
 
       try {
-        // تسجيل الدخول الآمن عن طريق Firebase Auth
-        await auth.signInWithEmailAndPassword(email, pass);
-        CURRENT_MENU = menu;
-        document.getElementById('displayMenuName').innerText = CURRENT_MENU;
+        // 1. جلب حسابات الأدمن الموجودة في مجلد admin بقاعدة البيانات
+        const res = await fetch(`${API_BASE_URL}admin.json?nocache=${Date.now()}`);
+        const adminUsers = await res.json();
 
-        document.getElementById('loginBox').style.display = 'none';
-        document.getElementById('mainApp').style.display = 'block';
+        let isValidUser = false;
 
-        loadData();
+        // 2. مطابقة اسم المستخدم وكلمة المرور مع الحسابات (user1, user2...)
+        if (adminUsers) {
+          Object.keys(adminUsers).forEach(key => {
+            const u = adminUsers[key];
+            if (u && u.username === usernameInput && u.password === passwordInput) {
+              isValidUser = true;
+            }
+          });
+        }
+
+        if (isValidUser) {
+          CURRENT_MENU = menuInput;
+          document.getElementById('displayMenuName').innerText = CURRENT_MENU;
+
+          document.getElementById('loginBox').style.display = 'none';
+          document.getElementById('mainApp').style.display = 'block';
+
+          loadMenuData();
+        } else {
+          err.innerText = "اسم المستخدم أو كلمة المرور غير صحيحة!";
+          err.style.display = 'block';
+        }
       } catch (e) {
-        err.innerText = "خطأ في البريد أو كلمة المرور!";
+        err.innerText = "حدث خطأ أثناء الاتصال بقاعدة البيانات!";
         err.style.display = 'block';
       }
     }
 
-    function loadData() {
-      // 1. الاستماع الحي لوجبات المطعم
-      db.ref(`custom_meals_${CURRENT_MENU}`).on('value', snapshot => {
-        mealsData = snapshot.val() || [];
-        renderMeals();
-      });
+    async function loadMenuData() {
+      try {
+        const [mealsRes, statusRes] = await Promise.all([
+          fetch(`${API_BASE_URL}custom_meals_${CURRENT_MENU}.json?nocache=${Date.now()}`),
+          fetch(`${API_BASE_URL}items_${CURRENT_MENU}.json?nocache=${Date.now()}`)
+        ]);
 
-      // 2. الاستماع الحي لحالة الوجبات
-      db.ref(`items_${CURRENT_MENU}`).on('value', snapshot => {
-        itemsStatus = snapshot.val() || {};
+        mealsData = await mealsRes.json() || [];
+        itemsStatus = await statusRes.json() || {};
+
         renderMeals();
-      });
+      } catch (e) {
+        alert("تعذر جلب البيانات، تأكد من اسم المنيو!");
+      }
     }
 
     function renderMeals() {
@@ -163,18 +170,27 @@
       });
     }
 
-    function toggleStatus(mealId) {
-      const newStatus = itemsStatus[mealId] === 'soldout' ? null : 'soldout';
-      
-      // التعديل يُقبل من Firebase فقط لأن المستخدم مسجل دخول رسمياً
-      db.ref(`items_${CURRENT_MENU}/${mealId}`).set(newStatus);
+    async function toggleStatus(mealId) {
+      if (itemsStatus[mealId] === 'soldout') {
+        delete itemsStatus[mealId];
+      } else {
+        itemsStatus[mealId] = 'soldout';
+      }
+
+      await fetch(`${API_BASE_URL}items_${CURRENT_MENU}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(itemsStatus)
+      });
+
+      renderMeals();
     }
 
     function logout() {
-      auth.signOut().then(() => {
-        document.getElementById('loginBox').style.display = 'block';
-        document.getElementById('mainApp').style.display = 'none';
-      });
+      document.getElementById('loginBox').style.display = 'block';
+      document.getElementById('mainApp').style.display = 'none';
+      document.getElementById('userInput').value = '';
+      document.getElementById('passInput').value = '';
     }
   </script>
 </body>
