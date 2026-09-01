@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة صاحب المطعم - إدارة التوفر</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- مكتبات Firebase الرسمية للأمان -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --accent: #d4af37;
+      --text: #2f3640;
+      --text-muted: #718093;
+      --success: #27ae60;
+      --danger: #ff4757;
+      --border: rgba(0, 0, 0, 0.08);
+      --shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 15px; max-width: 600px; margin: 0 auto; }
+
+    #loginBox { background: var(--card); padding: 25px 20px; border-radius: 16px; margin-top: 40px; box-shadow: var(--shadow); border: 1px solid var(--border); text-align: center; }
+    #loginBox h2 { color: var(--accent); margin-bottom: 15px; font-size: 1.2rem; }
+    .input-group { margin-bottom: 12px; text-align: right; }
+    .input-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; }
+    .input-group input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); outline: none; font-size: 1rem; }
+    .btn-login { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+
+    #mainApp { display: none; }
+    .header { display: flex; justify-content: space-between; align-items: center; background: var(--card); padding: 15px; border-radius: 14px; margin-bottom: 15px; box-shadow: var(--shadow); }
+    .header h3 { font-size: 1.1rem; color: var(--accent); }
+    .btn-logout { background: rgba(255, 71, 87, 0.1); color: var(--danger); border: 1px solid var(--danger); padding: 6px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+    .meal-card { background: var(--card); border: 1px solid var(--border); padding: 12px 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); }
+    .meal-info strong { display: block; font-size: 1rem; }
+    .meal-info span { font-size: 0.8rem; color: var(--text-muted); }
+
+    .status-btn { padding: 10px 16px; border-radius: 10px; font-weight: bold; border: none; cursor: pointer; font-size: 0.85rem; }
+    .btn-available { background: rgba(39, 174, 96, 0.15); color: var(--success); border: 1px solid var(--success); }
+    .btn-soldout { background: rgba(255, 71, 87, 0.15); color: var(--danger); border: 1px solid var(--danger); }
+  </style>
+</head>
+<body>
+
+  <!-- شاشة الدخول الحقيقية بالبريد والباسورد -->
+  <div id="loginBox">
+    <h2>تسجيل دخول صاحب المطعم 🔒</h2>
+    <div class="input-group">
+      <label>البريد الإلكتروني</label>
+      <input type="email" id="emailInput" placeholder="restaurant1@menu.com">
+    </div>
+    <div class="input-group">
+      <label>كلمة المرور</label>
+      <input type="password" id="passInput" placeholder="******">
+    </div>
+    <div class="input-group">
+      <label>اسم المنيو المخصص لك</label>
+      <input type="text" id="menuNameInput" placeholder="restaurant1">
+    </div>
+    <button class="btn-login" onclick="login()">دخول آمن 🚀</button>
+    <p id="errMsg" style="color:var(--danger); font-size:0.8rem; margin-top:10px; display:none;"></p>
+  </div>
+
+  <!-- الواجهة المؤمّنة -->
+  <div id="mainApp">
+    <div class="header">
+      <div>
+        <h3>منيو: <span id="displayMenuName"></span></h3>
+        <small style="color:var(--text-muted)">التحكم بالتوفر فقط</small>
+      </div>
+      <button class="btn-logout" onclick="logout()">خروج 🔐</button>
+    </div>
+
+    <div id="mealsList"></div>
+  </div>
+
+  <script>
+    // إعدادات مشروعك في Firebase (من Project Settings في Firebase)
+    const firebaseConfig = {
+      databaseURL: "https://admin-e3293-default-rtdb.firebaseio.com/"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    let CURRENT_MENU = "";
+    let mealsData = [];
+    let itemsStatus = {};
+
+    async function login() {
+      const email = document.getElementById('emailInput').value.trim();
+      const pass = document.getElementById('passInput').value.trim();
+      const menu = document.getElementById('menuNameInput').value.trim().toLowerCase();
+      const err = document.getElementById('errMsg');
+
+      if (!email || !pass || !menu) {
+        err.innerText = "يرجى ملء جميع الحقول!";
+        err.style.display = 'block';
+        return;
+      }
+
+      try {
+        // تسجيل الدخول الآمن عن طريق Firebase Auth
+        await auth.signInWithEmailAndPassword(email, pass);
+        CURRENT_MENU = menu;
+        document.getElementById('displayMenuName').innerText = CURRENT_MENU;
+
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+
+        loadData();
+      } catch (e) {
+        err.innerText = "خطأ في البريد أو كلمة المرور!";
+        err.style.display = 'block';
+      }
+    }
+
+    function loadData() {
+      // 1. الاستماع الحي لوجبات المطعم
+      db.ref(`custom_meals_${CURRENT_MENU}`).on('value', snapshot => {
+        mealsData = snapshot.val() || [];
+        renderMeals();
+      });
+
+      // 2. الاستماع الحي لحالة الوجبات
+      db.ref(`items_${CURRENT_MENU}`).on('value', snapshot => {
+        itemsStatus = snapshot.val() || {};
+        renderMeals();
+      });
+    }
+
+    function renderMeals() {
+      const container = document.getElementById('mealsList');
+      container.innerHTML = '';
+
+      if (mealsData.length === 0) {
+        container.innerHTML = '<p style="text-align:center; padding:20px; color:var(--text-muted)">لا توجد وجبات مضافة لهذا المنيو.</p>';
+        return;
+      }
+
+      mealsData.forEach(meal => {
+        const isSoldOut = itemsStatus[meal.id] === 'soldout';
+        
+        container.innerHTML += `
+          <div class="meal-card">
+            <div class="meal-info">
+              <strong>${meal.title_ar || meal.title}</strong>
+              <span>السعر: ${meal.price || 'غير محدد'}</span>
+            </div>
+            <button class="status-btn ${isSoldOut ? 'btn-soldout' : 'btn-available'}" onclick="toggleStatus('${meal.id}')">
+              ${isSoldOut ? 'غير متوفر 🔴' : 'متوفر 🟢'}
+            </button>
+          </div>
+        `;
+      });
+    }
+
+    function toggleStatus(mealId) {
+      const newStatus = itemsStatus[mealId] === 'soldout' ? null : 'soldout';
+      
+      // التعديل يُقبل من Firebase فقط لأن المستخدم مسجل دخول رسمياً
+      db.ref(`items_${CURRENT_MENU}/${mealId}`).set(newStatus);
+    }
+
+    function logout() {
+      auth.signOut().then(() => {
+        document.getElementById('loginBox').style.display = 'block';
+        document.getElementById('mainApp').style.display = 'none';
+      });
+    }
+  </script>
+</body>
+</html>
