@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>لوحة صاحب المطعم - إدارة التوفر</title>
+  <title>لوحة صاحب المطعم - إدارة التوفر والأسعار</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -32,11 +32,16 @@
     .header h3 { font-size: 1.1rem; color: var(--accent); }
     .btn-logout { background: rgba(255, 71, 87, 0.1); color: var(--danger); border: 1px solid var(--danger); padding: 6px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-    .meal-card { background: var(--card); border: 1px solid var(--border); padding: 12px 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); }
+    .meal-card { background: var(--card); border: 1px solid var(--border); padding: 15px; border-radius: 12px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow); }
+    .meal-top { display: flex; justify-content: space-between; align-items: center; }
     .meal-info strong { display: block; font-size: 1rem; }
-    .meal-info span { font-size: 0.8rem; color: var(--text-muted); }
+    
+    .price-box { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
+    .price-input { width: 110px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); outline: none; font-size: 0.85rem; font-weight: bold; color: var(--accent); }
+    .btn-save-price { background: var(--accent); color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+    .btn-save-price:active { opacity: 0.8; }
 
-    .status-btn { padding: 10px 16px; border-radius: 10px; font-weight: bold; border: none; cursor: pointer; font-size: 0.85rem; transition: 0.2s; }
+    .status-btn { padding: 8px 14px; border-radius: 10px; font-weight: bold; border: none; cursor: pointer; font-size: 0.85rem; transition: 0.2s; white-space: nowrap; }
     .btn-available { background: rgba(39, 174, 96, 0.15); color: var(--success); border: 1px solid var(--success); }
     .btn-soldout { background: rgba(255, 71, 87, 0.15); color: var(--danger); border: 1px solid var(--danger); }
   </style>
@@ -67,7 +72,7 @@
     <div class="header">
       <div>
         <h3>منيو: <span id="displayMenuName"></span></h3>
-        <small style="color:var(--text-muted)">التحكم بالتوفر فقط</small>
+        <small style="color:var(--text-muted)">التحكم بالتوفر والأسعار</small>
       </div>
       <button class="btn-logout" onclick="logout()">خروج 🔄</button>
     </div>
@@ -94,13 +99,11 @@
       }
 
       try {
-        // 1. جلب حسابات الأدمن الموجودة في مجلد admin بقاعدة البيانات
         const res = await fetch(`${API_BASE_URL}admin.json?nocache=${Date.now()}`);
         const adminUsers = await res.json();
 
         let isValidUser = false;
 
-        // 2. مطابقة اسم المستخدم وكلمة المرور مع الحسابات (user1, user2...)
         if (adminUsers) {
           Object.keys(adminUsers).forEach(key => {
             const u = adminUsers[key];
@@ -153,21 +156,48 @@
         return;
       }
 
-      mealsData.forEach(meal => {
+      mealsData.forEach((meal, index) => {
         const isSoldOut = itemsStatus[meal.id] === 'soldout';
         
         container.innerHTML += `
           <div class="meal-card">
-            <div class="meal-info">
-              <strong>${meal.title_ar || meal.title}</strong>
-              <span>السعر: ${meal.price || 'غير محدد'}</span>
+            <div class="meal-top">
+              <div class="meal-info">
+                <strong>${meal.title_ar || meal.title}</strong>
+              </div>
+              <button class="status-btn ${isSoldOut ? 'btn-soldout' : 'btn-available'}" onclick="toggleStatus('${meal.id}')">
+                ${isSoldOut ? 'غير متوفر 🔴' : 'متوفر 🟢'}
+              </button>
             </div>
-            <button class="status-btn ${isSoldOut ? 'btn-soldout' : 'btn-available'}" onclick="toggleStatus('${meal.id}')">
-              ${isSoldOut ? 'غير متوفر 🔴' : 'متوفر 🟢'}
-            </button>
+            
+            <div class="price-box">
+              <span style="font-size:0.85rem; color:var(--text-muted);">السعر:</span>
+              <input type="text" class="price-input" id="price_input_${index}" value="${meal.price || ''}" placeholder="السعر">
+              <button class="btn-save-price" onclick="updatePrice('${meal.id}', ${index})">حفظ 💾</button>
+            </div>
           </div>
         `;
       });
+    }
+
+    async function updatePrice(mealId, index) {
+      const newPrice = document.getElementById(`price_input_${index}`).value.trim();
+
+      const mealIndex = mealsData.findIndex(m => m.id === mealId);
+      if (mealIndex !== -1) {
+        mealsData[mealIndex].price = newPrice;
+
+        try {
+          await fetch(`${API_BASE_URL}custom_meals_${CURRENT_MENU}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(mealsData)
+          });
+          alert('تم تحديث السعر بنجاح! 🚀');
+        } catch (e) {
+          alert('حدث خطأ أثناء حفظ السعر الجديد!');
+        }
+      }
     }
 
     async function toggleStatus(mealId) {
