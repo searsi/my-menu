@@ -254,7 +254,7 @@
       }
 
       try {
-        // التحقق من بيانات المشرف من قاعدة البيانات (مسار admin)
+        // التحقق من بيانات المشرفين من قاعدة البيانات (مسار admin)
         const res = await fetch(API_BASE_URL + "admin.json?nocache=" + Date.now());
         const adminData = await res.json();
 
@@ -264,7 +264,28 @@
           return;
         }
 
-        if (uInput === adminData.username && pInput === adminData.password) {
+        let isValidUser = false;
+
+        // 1. الفحص إذا كانت البيانات مباشرة داخل admin (الشكل القديم)
+        if (adminData.username && adminData.password) {
+          if (uInput === adminData.username && pInput === adminData.password) {
+            isValidUser = true;
+          }
+        } 
+
+        // 2. الفحص إذا كانت البيانات مسجلة كمجلدات فرعية (user1, user2...)
+        if (!isValidUser && typeof adminData === 'object') {
+          Object.keys(adminData).forEach(key => {
+            const userObj = adminData[key];
+            if (userObj && typeof userObj === 'object') {
+              if (userObj.username === uInput && userObj.password === pInput) {
+                isValidUser = true;
+              }
+            }
+          });
+        }
+
+        if (isValidUser) {
           err.style.display = 'none';
           CURRENT_MENU_NAME = menuName;
 
