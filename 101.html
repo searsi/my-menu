@@ -330,6 +330,7 @@
       });
     }
 
+    /* === التعديل هنا: الدالة تقوم بتحديث بيانات الوجبة إذا كانت موجودة بدلاً من إهمالها === */
     function appendMealsToGrid(customMeals) {
       const grid = document.getElementById('menuGrid');
       const soldOutText = currentLang === 'ar' ? 'غير متوفر' : 'Unavailable';
@@ -338,19 +339,57 @@
 
       customMeals.forEach(meal => {
         let existingCard = grid.querySelector(`[data-id="${meal.id}"]`);
-        if (!existingCard) {
+        
+        const catVal = meal.category ? meal.category.toLowerCase().trim() : 'other';
+        const imgVal = meal.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500';
+        const titleArVal = meal.title_ar || meal.title || '';
+        const titleEnVal = meal.title_en || meal.title || '';
+        const descArVal = meal.desc_ar || meal.desc || '';
+        const descEnVal = meal.desc_en || meal.desc || '';
+        const priceVal = meal.price || '';
+
+        const currentTitleText = currentLang === 'ar' ? titleArVal : titleEnVal;
+        const currentDescText = currentLang === 'ar' ? descArVal : descEnVal;
+
+        if (existingCard) {
+          // تحديث بيانات العناصر للبطاقة الموجودة بدلاً من تجاوزها
+          existingCard.setAttribute('data-category', catVal);
+          
+          const imgEl = existingCard.querySelector('img');
+          if (imgEl && imgEl.src !== imgVal) imgEl.src = imgVal;
+
+          const titleEl = existingCard.querySelector('.card-title');
+          if (titleEl) {
+            titleEl.setAttribute('data-ar', titleArVal);
+            titleEl.setAttribute('data-en', titleEnVal);
+            titleEl.innerText = currentTitleText;
+          }
+
+          const descEl = existingCard.querySelector('.card-desc');
+          if (descEl) {
+            descEl.setAttribute('data-ar', descArVal);
+            descEl.setAttribute('data-en', descEnVal);
+            descEl.innerText = currentDescText;
+          }
+
+          const priceEl = existingCard.querySelector('.card-price');
+          if (priceEl && priceEl.innerText !== priceVal) {
+            priceEl.innerText = priceVal;
+          }
+        } else {
+          // إنشاء البطاقة لأول مرة إذا لم تكن موجودة
           const card = document.createElement('div');
           card.className = 'card custom-added-meal';
-          card.setAttribute('data-category', meal.category ? meal.category.toLowerCase().trim() : 'other');
+          card.setAttribute('data-category', catVal);
           card.setAttribute('data-id', meal.id);
           card.setAttribute('data-soldout-text', soldOutText);
 
           card.innerHTML = `
-            <div class="img-wrapper"><img src="${meal.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}" alt="${meal.title || ''}"></div>
+            <div class="img-wrapper"><img src="${imgVal}" alt="${meal.title || ''}"></div>
             <div class="card-info">
-              <div class="card-title" data-ar="${meal.title_ar || meal.title || ''}" data-en="${meal.title_en || meal.title || ''}">${currentLang === 'ar' ? (meal.title_ar || meal.title || '') : (meal.title_en || meal.title || '')}</div>
-              <div class="card-desc" data-ar="${meal.desc_ar || meal.desc || ''}" data-en="${meal.desc_en || meal.desc || ''}">${currentLang === 'ar' ? (meal.desc_ar || meal.desc || '') : (meal.desc_en || meal.desc || '')}</div>
-              <div class="card-price">${meal.price || ''}</div>
+              <div class="card-title" data-ar="${titleArVal}" data-en="${titleEnVal}">${currentTitleText}</div>
+              <div class="card-desc" data-ar="${descArVal}" data-en="${descEnVal}">${currentDescText}</div>
+              <div class="card-price">${priceVal}</div>
             </div>
           `;
           grid.appendChild(card);
