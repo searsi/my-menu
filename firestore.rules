@@ -1,7 +1,7 @@
 rules_version = '2';
 service cloud.firestore {
  match /databases/{database}/documents {
- function admin(){return request.auth != null && request.auth.uid == 'REPLACE_ADMIN_UID';}
+ function admin(){return request.auth != null && request.auth.uid == 'ZVSSmBj1xvUwGtZ5moI4gtoRnh93';}
  match /menus/{id} {
  allow get: if admin() || resource.data.active == true && resource.data.expiryAt > request.time;
  allow list: if admin();
