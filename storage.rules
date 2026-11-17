@@ -3,8 +3,8 @@ service firebase.storage {
  match /b/{bucket}/o {
  match /menus/{menuId}/{fileId} {
  allow read: if true;
- allow create: if request.auth != null && request.auth.uid == 'REPLACE_ADMIN_UID' && request.resource.size < 5 * 1024 * 1024 && request.resource.contentType.matches('image/.*');
- allow delete: if request.auth != null && request.auth.uid == 'REPLACE_ADMIN_UID';
+ allow create: if request.auth != null && request.auth.uid == 'ZVSSmBj1xvUwGtZ5moI4gtoRnh93' && request.resource.size < 5 * 1024 * 1024 && request.resource.contentType.matches('image/.*');
+ allow delete: if request.auth != null && request.auth.uid == 'ZVSSmBj1xvUwGtZ5moI4gtoRnh93';
  }
  }
 }
