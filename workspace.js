@@ -1,0 +1,11 @@
+export function workspaceView(root,m,{panel,el,btn,tr,visits,imageSource}){
+ root.replaceChildren();if(!m){root.append(el('p','اختر مطعماً أولاً'));return}
+ const head=el('section');head.className='mc2-restaurant-head';if(imageSource(m.logo)){const im=el('img');im.src=imageSource(m.logo);head.append(im)}const text=el('div');text.append(el('h2',tr(m.name,'ar')||'مطعم جديد'),el('p','مساحة عمل المطعم'));head.append(text);root.append(head);
+ const grid=el('div');grid.className='mc2-workspace-grid';for(const [icon,title,desc,dest] of [['▦','الأقسام والوجبات',(m.categories||[]).length+' أقسام','items'],['◈','تصميم المنيو','اختر القالب وخصص الهوية','design'],['▥','الإحصائيات',visits||'الزيارات','analytics'],['▦','رمز QR','الرابط والمشاركة','sharing'],['◉','الاشتراكات','الدفعات والتجديد','billing'],['⚙','الإعدادات','بيانات المطعم والصور','settings']]){const b=btn('',()=>panel(dest));b.append(el('span',icon),el('strong',title),el('small',desc));grid.append(b)}root.append(grid)
+}
+export function wizardChrome(root,box,tab,{el,btn,go,save}){
+ const steps=[['templates','القالب'],['colors','الهوية'],['header','الغلاف'],['categories','الأقسام'],['products','البطاقات'],['settings','النشر']];const i=steps.findIndex(x=>x[0]===tab);const bar=el('nav');bar.className='mc2-steps';steps.forEach(([key,label],j)=>{const b=btn('',()=>go(key));b.append(el('span',String(j+1)),el('small',label));b.classList.toggle('active',i===j);bar.append(b)});root.insertBefore(bar,root.children[1]);if(i<0)return;const foot=el('div');foot.className='mc2-wizard-foot';if(i>0)foot.append(btn('السابق',()=>go(steps[i-1][0])));foot.append(btn(i===steps.length-1?'حفظ ونشر':'التالي ←',i===steps.length-1?save:()=>go(steps[i+1][0])));box.after(foot);
+}
+export function modernMenu(w,{top,hero,nav,searchBox,tabs,content,footer,m,d,lang,L,action,select,draw,search}){
+ w.classList.add('mc2-menu');const brand=document.createElement('img');brand.src='logo.svg';brand.alt='Menu Craft';brand.className='mc2-menu-mark';top.prepend(brand);const intro=w.querySelector('.v19-intro');if(intro)intro.hidden=true;const bar=w.querySelector('.craft-nav-bar');if(bar)bar.classList.add('mc2-bottom-nav');footer.textContent='Powered by Menu Craft';
+}
