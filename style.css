@@ -66,3 +66,27 @@ body:has(#admin:not([hidden]))>header b{font-size:14px}body:has(#admin:not([hidd
 #login .login-art{background:radial-gradient(circle at 85% 10%,#28765a,transparent 60%),#103D30}#login .login-form-wrap #signin{background:#059669}#login .login-form-side{background:#fff}
 @media(max-width:1200px){#admin .workspace{grid-template-columns:195px minmax(0,1fr) 270px}#admin .workspace.v8-global{grid-template-columns:195px minmax(0,1fr)!important}#admin .workspace.v9-collapsed{grid-template-columns:62px minmax(0,1fr) 270px!important}#admin .v8-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:900px){#admin .workspace,#admin .workspace.v8-global,#admin .workspace.v9-collapsed,#admin .workspace.v9-collapsed.v8-global{grid-template-columns:1fr!important;padding:0 10px 10px}#admin .sidebar{position:static;max-height:none;min-height:0;display:flex;flex-wrap:wrap;gap:4px;align-items:center}#admin .sidebar .v8-brand{width:100%;margin:0 0 8px}#admin .sidebar button,#admin .sidebar a,#admin .sidebar select{width:auto;max-width:100%}#admin .sidebar hr,#admin .sidebar>small,#admin .emerald-profile{display:none}#admin .preview-panel{position:static}#admin .emerald-charts{grid-template-columns:1fr}#admin .emerald-restaurant-row{gap:6px;font-size:12px}#admin .editor-top h1{font-size:20px}}
+/* V12 Signature — scoped to public menu and preview */
+.craft-menu[data-template=signature]{--mc-accent:#ea580c;background:var(--v9-background,#fff);padding-bottom:18px;isolation:isolate}
+.craft-menu[data-template=signature] .craft-banner{border-radius:var(--v9-radius,24px);overflow:hidden;position:relative}
+.craft-menu[data-template=signature] .menu-search{border:1px solid var(--mc-line);border-radius:18px;padding:14px 16px;background:var(--mc-card);box-shadow:0 4px 18px #00000008}
+.craft-menu[data-template=signature] .craft-tabs{gap:10px;scrollbar-width:thin}
+.craft-menu .craft-category-icon img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.craft-menu[data-template=signature] .craft-tabs button{border-radius:18px;min-width:76px;padding:9px;background:var(--mc-card)}
+.craft-menu[data-template=signature] .craft-tabs button.selected{background:color-mix(in srgb,var(--mc-accent) 15%,var(--mc-card));border-color:var(--mc-accent)}
+.craft-menu[data-template=signature][data-layout=grid] .craft-grid{padding-top:16px;row-gap:26px}
+.craft-menu[data-template=signature][data-layout=grid] .craft-dish{overflow:visible;position:relative;border:0;background:var(--v9-cardColor,var(--mc-card));box-shadow:0 7px 24px #00000012}
+.craft-menu[data-template=signature][data-layout=grid] .craft-media:not([hidden]){margin:-12px 9px 0;width:calc(100% - 18px);border-radius:var(--v9-radius,24px);overflow:hidden;box-shadow:0 6px 14px #00000012}
+.craft-menu[data-template=signature] .craft-dish-body{padding:12px}
+.craft-menu .craft-dish{position:relative}
+.craft-menu .signature-heart{position:absolute;inset-inline-end:8px;top:8px;z-index:2;width:34px;height:34px;padding:0;border-radius:50%;background:#fff;color:#a33;border:0;box-shadow:0 2px 9px #0002;font-size:22px;line-height:1}
+.craft-menu .signature-heart[aria-pressed=true]{color:#e11d48}
+.craft-menu .signature-slide-controls{position:absolute;bottom:8px;inset-inline-end:10px;display:flex;align-items:center;gap:8px;background:#0009;color:white;border-radius:30px;padding:3px 6px;z-index:3}
+.craft-menu .signature-slide-controls button{border:0;background:transparent;color:white;padding:2px 9px;font-size:22px}
+.craft-menu[data-template=signature] .craft-nav-bar{position:sticky;bottom:0;z-index:8;border-radius:20px;box-shadow:0 -5px 24px #0001;display:flex;justify-content:space-around;gap:2px;padding:8px 4px;background:var(--v9-cardColor,var(--mc-card))}
+.craft-menu[data-template=signature] .craft-nav-bar button{font-size:11px;padding:9px 4px;flex:1;min-width:0}
+.craft-menu[data-motion=true] .craft-add:active,.craft-menu[data-motion=true] .signature-heart:active{transform:scale(.88)}
+.craft-menu[data-motion=true] .craft-add,.craft-menu[data-motion=true] .signature-heart{transition:transform .18s ease}
+@media(prefers-reduced-motion:reduce){.craft-menu[data-motion=true] *{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+.craft-menu [hidden]{display:none!important}
+.visual-art.template[data-variant=signature] .mini-food i{transform:translateY(-5px);border-radius:10px;box-shadow:0 4px 8px #0002}
