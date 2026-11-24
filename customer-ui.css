@@ -1,0 +1,213 @@
+/* ==========================================================
+   MenuCraft IQ — تحسين تصميم صفحة منيو الزبون (3.8.0)
+   تصميم فقط: لا يغيّر أي منطق أو إعدادات أو بيانات.
+   لحذفه والرجوع للشكل القديم: احذف سطر customer-ui.css من index.html
+   ========================================================== */
+
+:root{
+  --mc-ink:#17243f;
+  --mc-soft:#f3f5f9;
+  --mc-edge:#e8ecf2;
+  --mc-ring:rgba(245,106,24,.22);
+}
+.public{-webkit-tap-highlight-color:transparent}
+.public button:focus-visible,
+body:has(.public) #dialog button:focus-visible{outline:3px solid var(--mc-ring);outline-offset:2px}
+
+/* ---------- التصنيفات ---------- */
+.public .categories{gap:10px;padding:6px 2px 20px;scrollbar-width:none}
+.public .categories::-webkit-scrollbar{display:none}
+.public .chip{
+  font-weight:700;font-size:14px;padding:10px 20px;border:1px solid var(--line);
+  background:#fff;color:var(--mc-ink);box-shadow:0 1px 2px rgba(23,36,63,.06);
+  transition:background .2s,color .2s,box-shadow .2s,transform .15s;
+}
+.public .chip:active{transform:scale(.96)}
+.public .chip.selected{
+  background:var(--orange);border-color:var(--orange);color:#fff;
+  box-shadow:0 8px 18px -8px var(--orange);
+}
+.public-header .chip{background:rgba(255,255,255,.95);border-color:transparent;color:var(--mc-ink);padding:8px 16px}
+
+/* ---------- البحث ---------- */
+.public #foodSearch{
+  height:52px;border-radius:16px;border:1px solid var(--mc-edge);background-color:#fff;
+  padding:0 48px 0 16px;font-size:15px;box-shadow:0 2px 10px -4px rgba(23,36,63,.12);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%237c8190' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 16px center;
+  transition:border-color .2s,box-shadow .2s;
+}
+.public #foodSearch:focus{outline:0;border-color:var(--orange);box-shadow:0 0 0 4px var(--mc-ring)}
+
+/* ---------- بطاقة الوجبة ---------- */
+.public .food-grid{gap:18px}
+.public .food{
+  border-radius:22px;border:1px solid rgba(240,223,208,.7);
+  box-shadow:0 8px 24px -14px rgba(23,36,63,.28);
+  transition:transform .25s ease,box-shadow .25s ease;
+}
+@media (hover:hover){
+  .public .food:hover{transform:translateY(-4px);box-shadow:0 18px 34px -16px rgba(23,36,63,.35)}
+  .public .food:hover img{transform:scale(1.05)}
+}
+.public .food img{height:170px;transition:transform .5s ease}
+.public .food .placeholder{height:170px;background:linear-gradient(135deg,#fff1e6,#ffe0cb)}
+.public .food-body{padding:16px 16px 14px}
+.public .food h3{font-size:16px;font-weight:800;line-height:1.5}
+.public .food p{
+  font-size:12.5px;line-height:1.7;margin:4px 0 14px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.public .food-body > .flex{
+  flex-wrap:nowrap;gap:10px;padding-top:13px;border-top:1px dashed var(--line);margin-top:auto;
+}
+.public .food .price{font-size:18px;font-weight:900;color:var(--mc-ink);letter-spacing:.2px}
+
+/* ---------- زر الإضافة ---------- */
+.public .food .btn[data-add]{
+  display:inline-flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap;
+  border-radius:14px;padding:10px 18px;font-size:14px;font-weight:800;color:#fff;
+  background:var(--orange);
+  background:linear-gradient(135deg,var(--orange),color-mix(in srgb,var(--orange) 78%,#000));
+  box-shadow:0 8px 16px -8px var(--orange);
+  transition:transform .15s,box-shadow .2s,filter .2s;
+}
+@media (hover:hover){.public .food .btn[data-add]:not(:disabled):hover{filter:brightness(1.07);box-shadow:0 10px 20px -8px var(--orange)}}
+.public .food .btn[data-add]:not(:disabled):active{transform:scale(.94)}
+.public .food .btn[data-add]:disabled{
+  background:#eceef3;color:#99a0ae;box-shadow:none;opacity:1;cursor:not-allowed;
+}
+
+/* ---------- شريط السلة السفلي ---------- */
+.public .mc-bottom{
+  gap:8px;padding:7px;border-radius:28px;
+  background:rgba(23,36,63,.93);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  box-shadow:0 18px 40px -12px rgba(23,36,63,.6),inset 0 0 0 1px rgba(255,255,255,.08);
+}
+.public .mc-bottom button{
+  min-height:54px;border-radius:21px;font-weight:800;font-size:14.5px;
+  transition:transform .15s,filter .2s,background .2s;
+}
+.public .mc-bottom button:active{transform:scale(.96)}
+.public .mc-bottom #myOrders{background:rgba(255,255,255,.12);color:#fff;padding:10px 18px;white-space:nowrap}
+@media (hover:hover){.public .mc-bottom #myOrders:hover{background:rgba(255,255,255,.2)}}
+.public .mc-bottom #cartButton{
+  min-width:min(52vw,220px);justify-content:space-between;gap:12px;padding:8px 10px 8px 18px;
+  color:#fff;background:var(--orange);
+  background:linear-gradient(135deg,var(--orange),color-mix(in srgb,var(--orange) 78%,#000));
+  box-shadow:0 10px 20px -10px var(--orange);
+  line-height:1.25;
+}
+.public .mc-bottom .mc-cart-icon{font-size:22px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25))}
+.public .mc-bottom .mc-cart-total{font-size:12.5px;font-weight:700;opacity:.92}
+.public .mc-bottom .mc-count{
+  display:inline-grid;place-items:center;min-width:32px;height:32px;padding:0 8px;margin-inline-start:auto;
+  border-radius:16px;background:#fff;color:var(--mc-ink);font-size:14px;font-weight:900;
+}
+
+/* ---------- نافذة السلة والطلبات ---------- */
+body:has(.public) #dialog{background:rgba(23,36,63,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+body:has(.public) #dialog .modal{border-radius:28px;box-shadow:0 30px 60px -20px rgba(0,0,0,.5)}
+body:has(.public) #dialog .modal h2{font-size:23px;font-weight:900;margin:2px 0 4px}
+body:has(.public) #dialog .modal h3{font-size:16px;font-weight:800;margin:18px 0 10px}
+body:has(.public) #dialog #closeModal{
+  background:var(--mc-soft);color:#586176;border-radius:30px;padding:8px 16px;font-weight:700;font-size:13px;
+}
+body:has(.public) #dialog #closeModal:active{transform:scale(.95)}
+
+/* عناصر السلة */
+body:has(.public) #dialog .cartitem{
+  background:#fff;border:1px solid var(--mc-edge);border-radius:20px;padding:14px 16px;margin:12px 0;
+  box-shadow:0 6px 18px -12px rgba(23,36,63,.25);
+}
+body:has(.public) #dialog .cartitem .toolbar{align-items:flex-start;flex-wrap:nowrap}
+body:has(.public) #dialog .cartitem .toolbar b:first-child{font-size:15.5px;font-weight:800;line-height:1.5}
+body:has(.public) #dialog .cartitem .toolbar b:last-child{color:var(--orange);font-weight:900;white-space:nowrap}
+body:has(.public) #dialog .cartitem .flex{margin-top:12px;align-items:center}
+body:has(.public) #dialog .cartitem button{
+  border:0;border-radius:12px;background:var(--mc-soft);color:var(--mc-ink);
+  font-weight:800;min-height:42px;padding:0 16px;transition:transform .15s,background .2s;
+}
+body:has(.public) #dialog .cartitem button:active{transform:scale(.94)}
+
+/* عدّاد الكمية */
+body:has(.public) #dialog .cartitem .flex > div:first-child{
+  display:inline-flex;align-items:center;background:var(--mc-soft);border-radius:30px;padding:4px;
+}
+body:has(.public) #dialog .cartitem .flex > div:first-child b{min-width:38px;text-align:center;font-size:16px;font-weight:900}
+body:has(.public) #dialog .cartitem [data-minus],
+body:has(.public) #dialog .cartitem [data-plus]{
+  width:38px;height:38px;min-width:38px;min-height:38px;padding:0;border-radius:50%;
+  background:#fff;font-size:20px;line-height:1;box-shadow:0 2px 6px rgba(23,36,63,.15);
+}
+body:has(.public) #dialog .cartitem [data-plus]{background:var(--orange);color:#fff;box-shadow:0 6px 12px -6px var(--orange)}
+body:has(.public) #dialog .cartitem [data-remove]{background:#fff0ee;color:#c0392b;padding:0 16px}
+
+/* المجموع */
+body:has(.public) #dialog .listrow{padding:14px 2px;font-size:15px;border-bottom:0}
+body:has(.public) #dialog .listrow b:last-child{font-size:18px;font-weight:900}
+
+/* طريقة الاستلام: أزرار مقسّمة */
+body:has(.public) #dialog .tabs{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:4px;
+  background:var(--mc-soft);padding:4px;border-radius:18px;
+}
+body:has(.public) #dialog .tab{
+  background:transparent;color:#586176;border-radius:14px;padding:13px 10px;font-weight:800;font-size:14.5px;
+  transition:background .2s,color .2s,box-shadow .2s;
+}
+body:has(.public) #dialog .tab.selected{background:var(--mc-ink);color:#fff;box-shadow:0 8px 16px -8px rgba(23,36,63,.7)}
+
+/* الحقول */
+body:has(.public) #checkout label{font-size:13px;font-weight:800;color:#3a4660;margin:16px 0 6px}
+body:has(.public) #checkout input,
+body:has(.public) #checkout textarea{
+  border:1.5px solid var(--mc-edge);border-radius:14px;padding:13px 15px;background:#fbfcfe;font-size:15px;
+  transition:border-color .2s,box-shadow .2s,background .2s;
+}
+body:has(.public) #checkout input:focus,
+body:has(.public) #checkout textarea:focus{
+  outline:0;background:#fff;border-color:var(--orange);box-shadow:0 0 0 4px var(--mc-ring);
+}
+body:has(.public) #checkout textarea{min-height:84px}
+
+/* أزرار الموقع داخل الطلب */
+body:has(.public) #checkout #getLocation{
+  border-radius:14px;padding:12px 18px;font-weight:800;background:#fff3ea;color:#d4540c;border:1.5px solid #ffd9bf;
+}
+body:has(.public) #checkout #clearLocation{
+  border-radius:14px;padding:12px 16px;font-weight:700;background:var(--mc-soft);color:#586176;border:0;
+}
+
+/* زر تأكيد الطلب + شريط الإجمالي */
+body:has(.public) #checkout .mc-checkout-footer{
+  border-top:1px solid var(--mc-edge);box-shadow:0 -12px 18px -14px rgba(23,36,63,.18);
+}
+body:has(.public) #checkout button[type=submit]{
+  height:56px;border-radius:18px;font-size:17px;font-weight:900;color:#fff;
+  background:var(--orange);
+  background:linear-gradient(135deg,var(--orange),color-mix(in srgb,var(--orange) 78%,#000));
+  box-shadow:0 14px 24px -12px var(--orange);
+  transition:transform .15s,filter .2s;
+}
+body:has(.public) #checkout button[type=submit]:not(:disabled):active{transform:scale(.97)}
+body:has(.public) #checkout button[type=submit]:disabled{background:#e4e7ee;color:#98a0ae;box-shadow:none;opacity:1}
+
+/* ---------- الموبايل ---------- */
+@media (max-width:620px){
+  .public .food-grid{gap:12px}
+  .public .food{border-radius:18px}
+  .public .food img,.public .food .placeholder{height:125px}
+  .public .food-body{padding:12px 11px 11px}
+  .public .food-body > .flex{flex-direction:column;align-items:stretch;gap:9px;padding-top:10px}
+  .public .food .price{font-size:16px}
+  .public .food .btn[data-add]{width:100%;padding:11px 10px}
+  .public .mc-bottom #cartButton{min-width:0;flex:1}
+  .public .mc-bottom{width:calc(100% - 24px)}
+  .public .mc-bottom #myOrders{padding:10px 14px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .public *,body:has(.public) #dialog *{transition:none!important}
+}
