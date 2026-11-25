@@ -1,0 +1,374 @@
+/* ==========================================================
+   MenuCraft IQ — تحسين تصميم لوحة الإدارة (admin-ui 1.0)
+   تصميم فقط: لا يغيّر أي منطق أو وظيفة أو بيانات.
+   - كل القواعد مقيّدة بصفحات الإدارة (body:has(.shell)) وصفحة الدخول،
+     فمنيو الزبون لا يتأثر نهائياً.
+   - خلفية فاتحة ثابتة (لا وضع ليلي).
+   - ألوان الهوية: برتقالي #f26a1c · كحلي #13213c · خوخي #f9c6a7 · بيج #fff4e6
+   لحذفه والرجوع للشكل القديم: احذف سطر admin-ui.css من index.html
+   ========================================================== */
+
+body:has(.shell),
+body:has(.login-wrap){
+  --orange:#f26a1c;--navy:#13213c;--line:#ece6de;--muted:#6b7385;--cream:#fff4e6;
+  --a-orange:#f26a1c;--a-orange-dark:#d95a10;--a-navy:#13213c;--a-peach:#f9c6a7;--a-cream:#fff4e6;
+  --a-page:#f7f5f2;--a-card:#fff;--a-edge:#ece6de;--a-edge-2:#e3ddd4;--a-text:#13213c;--a-sub:#6b7385;
+  --a-tint:#fff0e4;--a-ring:rgba(242,106,28,.22);
+  background:var(--a-page);color:var(--a-text);
+}
+html:has(.shell),html:has(.login-wrap){color-scheme:light}
+
+/* ---------- تركيز لوحة المفاتيح ---------- */
+body:has(.shell) :is(button,a,input,select,textarea):focus-visible{outline:3px solid var(--a-ring);outline-offset:2px}
+
+/* ==========================================================
+   القائمة الجانبية
+   ========================================================== */
+body:has(.shell) .sidebar{
+  width:252px;padding:14px 12px 10px;gap:0;background:#fff;
+  box-shadow:none;border-inline-end:1px solid var(--a-edge);
+}
+body:has(.shell) .sidebar .brand{
+  display:block;position:relative;direction:ltr;overflow:hidden;
+  width:156px;aspect-ratio:700/500;margin:2px auto 14px;padding:0;
+  background:var(--a-cream);border-radius:18px;flex:none;
+}
+body:has(.shell) .sidebar .brand img.official-brand{
+  position:absolute;left:-27.14%;top:0;margin-top:-21.43%;
+  width:154.29%;max-width:none;height:auto;border-radius:0;
+}
+body:has(.shell) .nav-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;padding-bottom:6px}
+body:has(.shell) .nav-group{display:block}
+body:has(.shell) .nav-heading{font-size:11.5px;font-weight:700;color:#8a8f9c;padding:14px 12px 6px;letter-spacing:.2px}
+body:has(.shell) .nav{
+  position:relative;display:flex;align-items:center;gap:11px;width:100%;
+  padding:10px 12px;margin:1px 0;border-radius:12px;background:transparent;
+  color:#4a5468;font-weight:600;font-size:14px;text-align:right;line-height:1.4;
+  transition:background .18s,color .18s;
+}
+body:has(.shell) .nav svg{width:20px;height:20px;flex:none}
+body:has(.shell) .nav span{flex:1;text-align:right}
+body:has(.shell) .nav:hover{background:var(--a-page);color:var(--a-navy)}
+body:has(.shell) .nav.active{background:var(--a-tint);color:var(--a-orange);font-weight:800}
+body:has(.shell) .nav.active::before{
+  content:"";position:absolute;inset-inline-start:0;top:9px;bottom:9px;width:3px;
+  border-radius:3px;background:var(--a-orange);
+}
+body:has(.shell) .sidebar footer{margin-top:0;padding:10px 12px 4px;font-size:11px;color:#a0a5b1;text-align:center;border-top:1px solid #f2eee8}
+
+/* قائمة مطوية (زر ☰) + الشاشات المتوسطة */
+body:has(.shell) .shell.sidebar-collapsed .sidebar{width:78px;padding-inline:10px}
+body:has(.shell) .shell.sidebar-collapsed .sidebar .brand{width:50px;aspect-ratio:1;border-radius:14px}
+body:has(.shell) .shell.sidebar-collapsed .sidebar .brand img.official-brand{
+  left:-57px;top:0;margin-top:-26.7px;width:162px;
+}
+body:has(.shell) .shell.sidebar-collapsed .nav-heading{display:none}
+body:has(.shell) .shell.sidebar-collapsed .nav-group + .nav-group{border-top:1px solid #f2eee8;margin-top:6px;padding-top:6px}
+body:has(.shell) .shell.sidebar-collapsed .nav{justify-content:center;padding:11px 0}
+body:has(.shell) .shell.sidebar-collapsed .nav span{display:none}
+body:has(.shell) .shell.sidebar-collapsed .nav.active::before{top:10px;bottom:10px}
+body:has(.shell) .shell.sidebar-collapsed .sidebar footer{display:none}
+
+@media (max-width:900px) and (min-width:621px){
+  body:has(.shell) .sidebar{width:78px;padding-inline:10px}
+  body:has(.shell) .sidebar .brand{width:50px;aspect-ratio:1;border-radius:14px}
+  body:has(.shell) .sidebar .brand img.official-brand{left:-57px;top:0;margin-top:-26.7px;width:162px}
+  body:has(.shell) .nav-heading{display:none}
+  body:has(.shell) .nav-group + .nav-group{border-top:1px solid #f2eee8;margin-top:6px;padding-top:6px}
+  body:has(.shell) .nav{justify-content:center;padding:11px 0}
+  body:has(.shell) .nav span{display:none}
+  body:has(.shell) .sidebar footer{display:none}
+  body:has(.shell) #sidebarToggle{display:none}
+}
+
+/* ==========================================================
+   المساحة الرئيسية وشريط العنوان
+   ========================================================== */
+body:has(.shell) .workspace{padding:22px 28px 40px;max-width:1240px;margin-inline:auto}
+body:has(.shell) .topbar{margin-bottom:18px;gap:14px 16px}
+body:has(.shell) .mc-title{display:flex;align-items:center;gap:12px;min-width:0}
+body:has(.shell) .topbar h1{font-size:24px;font-weight:800;line-height:1.3;color:var(--a-navy)}
+body:has(.shell) .topbar p{margin:2px 0 0;font-size:13px;color:var(--a-sub)}
+body:has(.shell) #sidebarToggle{
+  width:42px;height:42px;padding:0;border-radius:12px;background:#fff;color:var(--a-navy);
+  border:1px solid var(--a-edge-2);font-size:18px;line-height:1;flex:none;
+}
+body:has(.shell) #sidebarToggle:hover{background:var(--a-page)}
+body:has(.shell) .topbar > .flex{gap:8px;justify-content:flex-end}
+
+/* أزرار عامة */
+body:has(.shell) .btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  background:var(--a-orange);color:#fff;border-radius:12px;padding:10px 18px;
+  font-weight:800;font-size:14px;text-decoration:none;line-height:1.4;
+  box-shadow:0 8px 16px -10px rgba(242,106,28,.8);
+  transition:background .18s,transform .12s,box-shadow .18s;
+}
+body:has(.shell) .btn:hover{background:var(--a-orange-dark)}
+body:has(.shell) .btn:active{transform:scale(.97)}
+body:has(.shell) .btn.secondary{background:#fff;color:var(--a-navy);border:1px solid var(--a-edge-2);box-shadow:none}
+body:has(.shell) .btn.secondary:hover{background:#faf7f3}
+body:has(.shell) .btn.danger{background:#fdecea;color:#b3261e;box-shadow:none}
+body:has(.shell) .btn:disabled{opacity:.5;box-shadow:none}
+body:has(.shell) .mini{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:7px 13px;border-radius:10px;background:#f4f1ec;color:var(--a-navy);
+  font-weight:700;font-size:13px;text-decoration:none;line-height:1.4;border:0;
+  transition:background .18s;
+}
+body:has(.shell) .mini:hover{background:#ebe6df}
+body:has(.shell) [data-cat-del],body:has(.shell) [data-item-del],body:has(.shell) [data-zone-delete],body:has(.shell) [data-coupon-del]{background:#fdecea;color:#b3261e}
+body:has(.shell) [data-cat-del]:hover,body:has(.shell) [data-item-del]:hover,body:has(.shell) [data-zone-delete]:hover,body:has(.shell) [data-coupon-del]:hover{background:#fbd9d5}
+
+/* شارة الطلبات الجديدة + زر الصوت + الخروج */
+body:has(.shell) #orderBadge{
+  background:var(--a-tint);color:#b8460a;border:1px solid #fbd9bf;border-radius:20px;
+  padding:7px 14px;font-weight:800;font-size:13px;white-space:nowrap;
+}
+body:has(.shell) #orderBadge:empty{display:none}
+body:has(.shell) #menuSelect{
+  height:42px;border-radius:12px;padding:0 14px;background:#fff;border:1px solid var(--a-edge-2);
+  font-weight:700;color:var(--a-navy);
+}
+body:has(.shell) #orderSound,body:has(.shell) #logout{min-height:42px;padding:0 16px}
+
+/* ==========================================================
+   تنبيه الاشتراك + إشعارات
+   ========================================================== */
+body:has(.shell) #subscriptionAlert .notice{
+  display:flex;align-items:center;gap:10px;margin:0 0 16px;padding:13px 16px;
+  background:#fdeadb;color:#8a3706;border:1px solid var(--a-peach);border-radius:14px;
+  font-weight:700;font-size:14px;
+}
+body:has(.shell) #subscriptionAlert .notice::before{
+  content:"";width:22px;height:22px;flex:none;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d95a10' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4 2.5 20h19z'/%3E%3Cpath d='M12 10v4M12 17.5h.01'/%3E%3C/svg%3E") center/22px no-repeat;
+}
+body:has(.shell) .notice{background:#fdeadb;color:#8a3706;border-radius:14px}
+body:has(.shell) #app > .notice{
+  position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9998;
+  min-width:220px;max-width:calc(100vw - 32px);margin:0;padding:12px 20px;
+  background:var(--a-navy);color:#fff;font-weight:700;text-align:center;
+  box-shadow:0 16px 36px -12px rgba(19,33,60,.55);
+}
+
+/* ==========================================================
+   البطاقات واللوحات
+   ========================================================== */
+body:has(.shell) .panel{
+  background:var(--a-card);border:1px solid var(--a-edge);border-radius:20px;
+  padding:22px;margin-bottom:16px;box-shadow:0 10px 28px -20px rgba(19,33,60,.28);
+}
+body:has(.shell) .panel h2{margin:0 0 14px;font-size:19px;font-weight:800;color:var(--a-navy)}
+body:has(.shell) .panel h3{margin:0;font-size:16px;font-weight:800;color:var(--a-navy)}
+body:has(.shell) .panel .panel{box-shadow:none;background:#fcfaf7;border-radius:16px;padding:16px;margin:14px 0 0}
+body:has(.shell) .panel .toolbar{margin-bottom:6px}
+body:has(.shell) .panel .toolbar h2{margin:0}
+body:has(.shell) .muted{color:var(--a-sub)}
+body:has(.shell) .panel > p.muted{margin:0 0 14px;line-height:1.8}
+body:has(.shell) .row-actions{gap:6px}
+
+/* بطاقات الإحصاء */
+body:has(.shell) .grid{grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+body:has(.shell) .stat{
+  position:relative;display:flex;flex-direction:column;gap:6px;justify-content:center;
+  min-height:96px;padding:18px 20px;background:#fff;border:1px solid var(--a-edge);
+  border-radius:18px;font-weight:700;font-size:13.5px;color:var(--a-sub);
+  box-shadow:0 10px 28px -22px rgba(19,33,60,.3);
+}
+body:has(.shell) .stat strong{font-size:32px;font-weight:800;line-height:1.1;color:var(--a-navy)}
+body:has(.shell) .grid:has(> .stat:nth-child(3):last-child) > .stat{padding-inline-end:84px}
+body:has(.shell) .grid:has(> .stat:nth-child(3):last-child) > .stat::after{
+  content:"";position:absolute;inset-inline-end:18px;top:50%;transform:translateY(-50%);
+  width:46px;height:46px;border-radius:14px;background-repeat:no-repeat;background-position:center;background-size:24px;
+}
+/* 1: المطاعم */
+body:has(.shell) .grid:has(> .stat:nth-child(3):last-child) > .stat:nth-child(1)::after{
+  background-color:var(--a-peach);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2313213c' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l2-6h14l2 6M3 9h18M4 9v12h16V9M9 21v-6h6v6'/%3E%3C/svg%3E");
+}
+/* 2: الطلبات المسجلة */
+body:has(.shell) .grid:has(> .stat:nth-child(3):last-child) > .stat:nth-child(2)::after{
+  background-color:var(--a-navy);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 3h12v18l-3-2-3 2-3-2-3 2z'/%3E%3Cpath d='M9 8h6M9 12h6'/%3E%3C/svg%3E");
+}
+/* 3: الطلبات الجديدة */
+body:has(.shell) .grid:has(> .stat:nth-child(3):last-child) > .stat:nth-child(3){border-color:#fbd9bf}
+body:has(.shell) .grid:has(> .stat:nth-child(3):last-child) > .stat:nth-child(3) strong{color:var(--a-orange)}
+body:has(.shell) .grid:has(> .stat:nth-child(3):last-child) > .stat:nth-child(3)::after{
+  background-color:var(--a-tint);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f26a1c' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 5a2 2 0 1 1 4 0 7 7 0 0 1 4 6v3a4 4 0 0 0 2 3H4a4 4 0 0 0 2-3v-3a7 7 0 0 1 4-6'/%3E%3Cpath d='M9 17v1a3 3 0 0 0 6 0v-1'/%3E%3C/svg%3E");
+}
+
+/* ==========================================================
+   القوائم (الأقسام، الوجبات، الطلبات، المطاعم، الحسابات)
+   ========================================================== */
+body:has(.shell) .listrow{
+  padding:14px 6px;border-bottom:1px solid #f0ebe4;border-radius:12px;
+  transition:background .15s;
+}
+body:has(.shell) .listrow:hover{background:#fcfaf7}
+body:has(.shell) .listrow > div:first-child{min-width:0;flex:1}
+body:has(.shell) .listrow b{font-weight:800;color:var(--a-navy);font-size:15px}
+body:has(.shell) .listrow small{display:block;color:var(--a-sub);margin-top:3px;font-size:12.5px;line-height:1.7}
+body:has(.shell) .badge{
+  display:inline-block;margin-top:8px;padding:4px 12px;border-radius:20px;
+  background:var(--a-tint);color:#b8460a;font-weight:800;font-size:12px;
+}
+body:has(.shell) .listrow .btn{margin-top:8px;padding:8px 14px;font-size:13px;background:var(--a-tint);color:#b8460a;box-shadow:none}
+body:has(.shell) .listrow .btn:hover{background:#ffe3cf}
+body:has(.shell) .cartitem{
+  background:#fff;border:1px solid var(--a-edge);border-radius:14px;padding:14px;margin:10px 0;
+}
+body:has(.shell) .cartitem button{background:#fdecea;color:#b3261e;border-radius:10px;padding:8px 14px;font-weight:700}
+body:has(.shell) .cartitem .btn,body:has(.shell) .cartitem #applyCoupon{background:var(--a-orange);color:#fff}
+
+/* ==========================================================
+   النماذج
+   ========================================================== */
+body:has(.shell) label{font-size:13px;font-weight:800;color:#3a4660;margin:14px 0 6px}
+body:has(.shell) input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=color]):not([type=hidden]),
+body:has(.shell) select{
+  height:46px;padding:0 14px;border:1.5px solid var(--a-edge-2);border-radius:12px;
+  background:#fffdfb;color:var(--a-navy);font-size:15px;
+  transition:border-color .18s,box-shadow .18s,background .18s;
+}
+body:has(.shell) textarea{
+  padding:12px 14px;border:1.5px solid var(--a-edge-2);border-radius:12px;background:#fffdfb;
+  color:var(--a-navy);font-size:15px;min-height:96px;transition:border-color .18s,box-shadow .18s;
+}
+body:has(.shell) input:focus,body:has(.shell) select:focus,body:has(.shell) textarea:focus{
+  outline:0;background:#fff;border-color:var(--a-orange);box-shadow:0 0 0 4px var(--a-ring);
+}
+body:has(.shell) input[type=color]{height:46px;padding:4px;border:1.5px solid var(--a-edge-2);border-radius:12px;background:#fff;cursor:pointer}
+body:has(.shell) input[readonly]{background:#f7f5f2;color:#4a5468}
+body:has(.shell) input[type=checkbox]{width:18px!important;height:18px;margin:0 0 -3px 8px;accent-color:var(--a-orange)}
+body:has(.shell) .form-grid{gap:0 18px}
+body:has(.shell) .flex{gap:10px}
+body:has(.shell) form.panel > button[type=submit],body:has(.shell) form.panel > .btn{margin-top:18px;min-height:48px;padding-inline:28px}
+
+body:has(.shell) #addDeliveryZone{background:#fff;color:var(--a-navy);border:1.5px dashed var(--a-edge-2);border-radius:12px;padding:10px 18px;font-weight:700;margin-top:8px}
+body:has(.shell) #addDeliveryZone:hover{background:var(--a-tint);border-color:var(--a-orange);color:#b8460a}
+
+/* رفع الشعار */
+body:has(.shell) .logo-settings small{display:block;margin-top:8px;color:var(--a-sub);font-size:12px}
+body:has(.shell) .logo-controls{
+  display:flex;align-items:center;gap:16px;padding:14px;
+  border:1.5px dashed var(--a-edge-2);border-radius:16px;background:#fffdfb;
+}
+body:has(.shell) #logoPreview{
+  width:76px;height:76px;flex:none;border-radius:18px;object-fit:cover;
+  background:var(--a-cream);border:1px solid var(--a-edge);
+}
+body:has(.shell) .logo-upload{display:inline-flex;align-items:center;margin:0 0 8px;cursor:pointer}
+body:has(.shell) .logo-upload input[type=file]{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* معاينة الهوية في محرر التصميم */
+body:has(.shell) .preview{background:var(--a-cream);border:1px solid var(--a-peach);border-radius:18px;padding:20px}
+body:has(.shell) .preview h3{margin-bottom:10px}
+body:has(.shell) .preview .brand img.official-brand{width:150px;border-radius:14px}
+
+/* ==========================================================
+   النوافذ المنبثقة (إضافة/تعديل قسم، وجبة، خصم...)
+   ========================================================== */
+body:has(.shell) .overlay{background:rgba(19,33,60,.5);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+body:has(.shell) #dialog .modal{
+  background:#fff;border-radius:24px;padding:20px 22px 24px;
+  box-shadow:0 30px 60px -22px rgba(19,33,60,.55);
+}
+body:has(.shell) #dialog .modal h2{font-size:21px;font-weight:800;margin:0 0 6px;color:var(--a-navy)}
+body:has(.shell) #dialog .modal > .toolbar{margin-bottom:0}
+body:has(.shell) #dialog #closeModal{background:#f4f1ec;color:#4a5468;border-radius:30px;padding:8px 16px;font-weight:700}
+body:has(.shell) #dialog #closeModal:hover{background:#ebe6df}
+body:has(.shell) #dialog form .btn{width:100%;min-height:48px;margin-top:16px}
+
+/* ==========================================================
+   صفحة تسجيل الدخول
+   ========================================================== */
+body:has(.login-wrap) .login-wrap{min-height:100vh;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+body:has(.login-wrap) .login-card{
+  background:#fff;display:flex;flex-direction:column;justify-content:center;
+  padding:6vh min(8vw,96px);
+}
+body:has(.login-wrap) .login-card > *{max-width:440px;width:100%;margin-inline:auto}
+body:has(.login-wrap) .login-card .brand{display:block;margin-bottom:22px}
+body:has(.login-wrap) .login-card .brand .official-brand{width:min(250px,100%);border-radius:22px;display:block;margin-inline:0}
+body:has(.login-wrap) .login-card h1{font-size:30px;font-weight:800;color:var(--a-navy);margin:0 0 6px}
+body:has(.login-wrap) .login-card p.muted{color:var(--a-sub);margin:0 0 10px;line-height:1.8}
+body:has(.login-wrap) .login-card label{font-size:13px;font-weight:800;color:#3a4660;margin:16px 0 6px}
+body:has(.login-wrap) .login-card input{
+  height:50px;padding:0 16px;border:1.5px solid var(--a-edge-2);border-radius:14px;
+  background:#fffdfb;font-size:15px;color:var(--a-navy);transition:border-color .18s,box-shadow .18s;
+}
+body:has(.login-wrap) .login-card input:focus{outline:0;background:#fff;border-color:var(--a-orange);box-shadow:0 0 0 4px var(--a-ring)}
+body:has(.login-wrap) .login-card .btn{
+  min-height:52px;border-radius:14px;font-size:16px;font-weight:800;background:var(--a-orange);color:#fff;
+  box-shadow:0 14px 24px -14px rgba(242,106,28,.9);
+}
+body:has(.login-wrap) .login-card .btn:hover{background:var(--a-orange-dark)}
+body:has(.login-wrap) .login-art{
+  position:relative;overflow:hidden;background:var(--a-cream);color:var(--a-navy);
+  padding:12vh 10%;display:flex;flex-direction:column;justify-content:center;
+}
+body:has(.login-wrap) .login-art::before{
+  content:"";position:absolute;width:520px;height:520px;border-radius:50%;
+  inset-inline-start:-180px;top:-200px;background:radial-gradient(circle,#f9c6a7 0%,rgba(249,198,167,0) 68%);
+}
+body:has(.login-wrap) .login-art::after{
+  content:"";position:absolute;width:420px;height:420px;border-radius:50%;
+  inset-inline-end:-140px;bottom:-170px;background:radial-gradient(circle,rgba(242,106,28,.28) 0%,rgba(242,106,28,0) 68%);
+}
+body:has(.login-wrap) .login-art > *{position:relative;z-index:1}
+body:has(.login-wrap) .login-art h2{font-size:42px;line-height:1.5;font-weight:900;color:var(--a-navy);margin:0 0 12px}
+body:has(.login-wrap) .login-art p{color:#5b6478;font-size:16px;margin:0}
+
+/* ==========================================================
+   الموبايل
+   ========================================================== */
+@media (max-width:900px){
+  body:has(.shell) .workspace{padding:18px 18px 36px}
+}
+@media (max-width:620px){
+  body:has(.shell) .shell{display:block}
+  body:has(.shell) .sidebar{
+    position:sticky;top:0;z-index:30;width:100%;height:auto;flex-direction:row;
+    padding:8px 10px;overflow-x:auto;overflow-y:hidden;gap:0;
+    border-inline-end:0;border-bottom:1px solid var(--a-edge);scrollbar-width:none;
+  }
+  body:has(.shell) .sidebar::-webkit-scrollbar{display:none}
+  body:has(.shell) .sidebar .brand,body:has(.shell) .sidebar footer,body:has(.shell) .nav-heading,body:has(.shell) #sidebarToggle{display:none}
+  body:has(.shell) .nav-scroll{display:flex;gap:6px;flex:none;overflow:visible;padding:0}
+  body:has(.shell) .nav-group{display:flex;gap:6px;margin:0;padding:0;border:0}
+  body:has(.shell) .nav{
+    width:auto;flex:none;white-space:nowrap;margin:0;padding:9px 14px;font-size:13.5px;
+    border-radius:30px;background:#f7f5f2;justify-content:flex-start;
+  }
+  body:has(.shell) .nav span{display:inline;flex:none}
+  body:has(.shell) .nav svg{width:18px;height:18px}
+  body:has(.shell) .nav.active{background:var(--a-orange);color:#fff}
+  body:has(.shell) .nav.active::before{display:none}
+  body:has(.shell) .workspace{padding:14px 14px 40px;max-width:none}
+  body:has(.shell) .topbar{flex-direction:column;align-items:stretch;gap:12px;margin-bottom:14px}
+  body:has(.shell) .topbar h1{font-size:21px}
+  body:has(.shell) .topbar > .flex{justify-content:stretch}
+  body:has(.shell) #menuSelect{width:100%!important}
+  body:has(.shell) #orderBadge{flex:1}
+  body:has(.shell) .panel{padding:16px;border-radius:18px}
+  body:has(.shell) .grid{grid-template-columns:1fr}
+  body:has(.shell) .form-grid{grid-template-columns:1fr}
+  body:has(.shell) .listrow{flex-wrap:wrap}
+  body:has(.shell) .listrow .row-actions{width:100%}
+  body:has(.shell) .listrow select{width:100%!important}
+  body:has(.shell) .logo-controls{flex-wrap:wrap}
+  body:has(.shell) #settingsForm > button[type=submit]{
+    position:sticky;bottom:12px;width:100%;box-shadow:0 18px 30px -12px rgba(242,106,28,.85);z-index:5;
+  }
+  body:has(.shell) .overlay{align-items:end;padding:0}
+  body:has(.shell) #dialog .modal{width:100%;max-height:92vh;border-radius:24px 24px 0 0;padding-bottom:max(24px,env(safe-area-inset-bottom))}
+  body:has(.login-wrap) .login-card{padding:6vh 7vw}
+  body:has(.login-wrap) .login-art{display:none}
+}
+
+@media (prefers-reduced-motion:reduce){
+  body:has(.shell) *{transition:none!important}
+}
